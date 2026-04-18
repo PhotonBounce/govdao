@@ -6,7 +6,7 @@ import { palette, radii } from "../theme";
 
 interface DataStatusCardProps {
   loading: boolean;
-  source: "mock" | "remote" | "mixed";
+  source: "mock" | "remote" | "fixture" | "mixed";
   syncMessage: string;
   lastUpdatedAt: string;
   endpoints: DashboardEndpointStatus[];
@@ -21,11 +21,15 @@ function formatTimestamp(value: string): string {
 export function DataStatusCard({ loading, source, syncMessage, lastUpdatedAt, endpoints, onRefresh }: DataStatusCardProps) {
   const title = source === "remote"
     ? "Live Service Feed"
+    : source === "fixture"
+      ? "Fixture-backed Feed"
     : source === "mixed"
       ? "Live Feed With Preview Fallback"
       : "Preview Data Feed";
   const sourceLabel = source === "remote"
     ? "Remote services"
+    : source === "fixture"
+      ? "Fixture-backed API"
     : source === "mixed"
       ? "Remote and preview"
       : "Local preview";
@@ -44,7 +48,7 @@ export function DataStatusCard({ loading, source, syncMessage, lastUpdatedAt, en
         <SignalRow
           key={endpoint.label}
           label={endpoint.label}
-          value={endpoint.state === "live" ? "Live" : endpoint.state === "fallback" ? "Preview fallback" : "Disabled"}
+          value={endpoint.state === "live" ? "Live" : endpoint.state === "fixture" ? "Fixture" : endpoint.state === "fallback" ? "Preview fallback" : "Disabled"}
           tone={endpoint.state === "live" ? "good" : endpoint.state === "fallback" ? "warning" : "neutral"}
         />
       ))}

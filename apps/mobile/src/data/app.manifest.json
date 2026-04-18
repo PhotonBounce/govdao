@@ -66,7 +66,7 @@
     "offchain": {
       "enabled": true,
       "provider": "govdao-control-plane",
-      "apiBaseUrl": "https://example.govdao.app/offchain",
+      "apiBaseUrl": "fixture://govdao",
       "auth": [
         "passkey",
         "wallet-signature"
@@ -85,7 +85,7 @@
         "kind": "dao",
         "enabled": true,
         "entryRoute": "/governance",
-        "apiBaseUrl": "https://api.govdao.app/governance",
+        "apiBaseUrl": "fixture://govdao",
         "webUrl": "https://app.govdao.app/governance",
         "requiresAuth": true
       },
@@ -95,7 +95,7 @@
         "kind": "documents",
         "enabled": true,
         "entryRoute": "/workspace",
-        "apiBaseUrl": "https://api.govdao.app/workspace",
+        "apiBaseUrl": "fixture://govdao",
         "webUrl": "https://app.govdao.app/workspace",
         "requiresAuth": true
       }

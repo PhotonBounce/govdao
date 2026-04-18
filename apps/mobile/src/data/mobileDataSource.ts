@@ -4,10 +4,87 @@ import { offchainMotions, proposalFeed, workspaceItems } from "./mockState";
 export type ProposalItem = (typeof proposalFeed)[number];
 export type MotionItem = (typeof offchainMotions)[number];
 export type WorkspaceItem = (typeof workspaceItems)[number];
-export type MobileDashboardSource = "mock" | "remote" | "mixed";
-export type DashboardEndpointState = "live" | "fallback" | "disabled";
+export type MobileDashboardSource = "mock" | "remote" | "fixture" | "mixed";
+export type DashboardEndpointState = "live" | "fixture" | "fallback" | "disabled";
 
 const REQUEST_TIMEOUT_MS = 4000;
+const FIXTURE_SCHEME = "fixture://";
+
+type DashboardTransport = "remote" | "fixture";
+
+interface DashboardFetchResult<T> {
+  payload: T;
+  transport: DashboardTransport;
+}
+
+const fixturePayloads: Record<string, unknown> = {
+  "fixture://govdao/mobile/proposals": {
+    proposals: [
+      {
+        proposalId: "GOV-201",
+        name: "Ratify release operations checklist",
+        status: "Voting",
+        origin: "Hybrid",
+        deadline: "18h",
+        description: "Confirms the member-facing release checklist before expanding the internal-track pilot.",
+        sponsor: "Release Council",
+        recommendedAction: "Collect final delegate approvals and publish the release note set"
+      },
+      {
+        proposalId: "GOV-202",
+        name: "Raise guardian drill cadence",
+        status: "Queued",
+        origin: "On-chain",
+        executionEta: "6h",
+        description: "Moves the emergency response rehearsal from quarterly to monthly with expanded signer coverage.",
+        sponsor: "Security Operations",
+        recommendedAction: "Wait for timelock expiry and executor confirmation"
+      }
+    ]
+  },
+  "fixture://govdao/mobile/motions": {
+    motions: [
+      {
+        motionId: "OPS-31",
+        name: "Approve translated onboarding pack",
+        status: "Delegate Review",
+        authMethod: "Passkey",
+        description: "Localizes member onboarding and support materials before public rollout.",
+        team: "Member Success",
+        recommendedAction: "Anchor the approved translation bundle into the next governance brief"
+      },
+      {
+        motionId: "OPS-33",
+        name: "Pilot regional ambassador workspace",
+        status: "Ops Review",
+        authMethod: "Wallet Signature",
+        description: "Tests a lightweight regional workspace flow before expanding module access.",
+        team: "Community Operations",
+        recommendedAction: "Route the pilot summary into workspace approvals"
+      }
+    ]
+  },
+  "fixture://govdao/mobile/workspace": {
+    workspace: [
+      {
+        itemId: "DOC-18",
+        name: "Incident communications runbook",
+        kind: "Runbook",
+        assignee: "Security Desk",
+        stage: "Ready",
+        recommendedAction: "Attach the latest drill notes and publish to guardians"
+      },
+      {
+        itemId: "ANA-11",
+        name: "Delegate participation digest",
+        kind: "Analytics Snapshot",
+        assignee: "Control Plane",
+        stage: "Needs Review",
+        recommendedAction: "Share the digest with governance leads before the next voting window"
+      }
+    ]
+  }
+};
 
 export interface DashboardEndpointStatus {
   label: string;
@@ -39,8 +116,16 @@ function isPlaceholder(value: string): boolean {
   return normalized.includes("example.") || normalized.includes("your_") || /^0x0{40}$/i.test(normalized);
 }
 
+function isFixtureUrl(value: string): boolean {
+  return value.trim().toLowerCase().startsWith(FIXTURE_SCHEME);
+}
+
 function getTimestamp(): string {
   return new Date().toISOString();
+}
+
+function cloneJson<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
 }
 
 export function buildMockDashboardData(reason: string): MobileDashboardData {
@@ -110,6 +195,10 @@ function getModuleApiBaseUrl(manifest: AppManifest, predicate: (module: AppManif
   return trimTrailingSlash(module.apiBaseUrl);
 }
 
+function describeSourceLabel(baseUrl: string, fallbackLabel: string): string {
+  return isFixtureUrl(baseUrl) ? "Fixture feed" : fallbackLabel;
+}
+
 function resolveDashboardEndpoints(manifest: AppManifest): ResolvedDashboardEndpoints {
   const proposalModuleBaseUrl = getModuleApiBaseUrl(manifest, (module) => module.kind === "dao" || module.id === manifest.experiences.primaryModuleId);
   const workspaceModuleBaseUrl = getModuleApiBaseUrl(manifest, (module) => module.kind !== "dao");
@@ -119,12 +208,16 @@ function resolveDashboardEndpoints(manifest: AppManifest): ResolvedDashboardEndp
 
   return {
     proposalsUrl: joinUrl(proposalModuleBaseUrl ?? proposalServiceBaseUrl, manifest.services.mobileFeeds.proposalsPath),
-    proposalsSourceLabel: proposalModuleBaseUrl ? "DAO module API" : "Indexer service",
+    proposalsSourceLabel: describeSourceLabel(proposalModuleBaseUrl ?? proposalServiceBaseUrl, proposalModuleBaseUrl ? "DAO module API" : "Indexer service"),
     motionsUrl: manifest.governance.offchain.enabled ? joinUrl(motionServiceBaseUrl, manifest.services.mobileFeeds.motionsPath) : null,
-    motionsSourceLabel: manifest.governance.offchain.enabled ? "Off-chain governance API" : "Off-chain governance disabled",
+    motionsSourceLabel: manifest.governance.offchain.enabled ? describeSourceLabel(motionServiceBaseUrl, "Off-chain governance API") : "Off-chain governance disabled",
     workspaceUrl: joinUrl(workspaceModuleBaseUrl ?? workspaceServiceBaseUrl, manifest.services.mobileFeeds.workspacePath),
-    workspaceSourceLabel: workspaceModuleBaseUrl ? "Workspace module API" : "Metadata service"
+    workspaceSourceLabel: describeSourceLabel(workspaceModuleBaseUrl ?? workspaceServiceBaseUrl, workspaceModuleBaseUrl ? "Workspace module API" : "Metadata service")
   };
+}
+
+function getFixturePayload(url: string): unknown | null {
+  return fixturePayloads[url.toLowerCase()] ?? null;
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -146,6 +239,22 @@ async function fetchJson<T>(url: string): Promise<T> {
   }
 
   return response.json() as Promise<T>;
+}
+
+async function fetchDashboardPayload<T>(url: string): Promise<DashboardFetchResult<T>> {
+  const fixturePayload = getFixturePayload(url);
+
+  if (fixturePayload !== null) {
+    return {
+      payload: cloneJson(fixturePayload) as T,
+      transport: "fixture"
+    };
+  }
+
+  return {
+    payload: await fetchJson<T>(url),
+    transport: "remote"
+  };
 }
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -259,12 +368,20 @@ function normalizeWorkspaceCollection(payload: unknown): WorkspaceItem[] {
   return items.map(normalizeWorkspaceItem);
 }
 
-function canUseRemote(manifest: AppManifest): boolean {
-  if (isPlaceholder(manifest.services.metadataBaseUrl) || isPlaceholder(manifest.services.indexerBaseUrl)) {
+function isUsableEndpointUrl(value: string | null): boolean {
+  if (!value) {
     return false;
   }
 
-  if (manifest.governance.offchain.enabled && isPlaceholder(manifest.governance.offchain.apiBaseUrl)) {
+  return isFixtureUrl(value) || (!isPlaceholder(value) && value.startsWith("https://"));
+}
+
+function canUseConfiguredFeeds(resolvedEndpoints: ResolvedDashboardEndpoints, motionEnabled: boolean): boolean {
+  if (!isUsableEndpointUrl(resolvedEndpoints.proposalsUrl) || !isUsableEndpointUrl(resolvedEndpoints.workspaceUrl)) {
+    return false;
+  }
+
+  if (motionEnabled && !isUsableEndpointUrl(resolvedEndpoints.motionsUrl)) {
     return false;
   }
 
@@ -273,8 +390,9 @@ function canUseRemote(manifest: AppManifest): boolean {
 
 export async function loadMobileDashboardData(manifest: AppManifest): Promise<MobileDashboardData> {
   const resolvedEndpoints = resolveDashboardEndpoints(manifest);
+  const motionEnabled = manifest.governance.offchain.enabled;
 
-  if (!canUseRemote(manifest)) {
+  if (!canUseConfiguredFeeds(resolvedEndpoints, motionEnabled)) {
     const previewData = buildMockDashboardData("Using local preview data until service endpoints are promoted.");
     return {
       ...previewData,
@@ -287,41 +405,43 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
   }
 
   const endpointResults = await Promise.allSettled([
-    fetchJson<unknown>(resolvedEndpoints.proposalsUrl),
-    manifest.governance.offchain.enabled && resolvedEndpoints.motionsUrl
-      ? fetchJson<unknown>(resolvedEndpoints.motionsUrl)
-      : Promise.resolve([]),
-    fetchJson<unknown>(resolvedEndpoints.workspaceUrl)
+    fetchDashboardPayload<unknown>(resolvedEndpoints.proposalsUrl),
+    motionEnabled && resolvedEndpoints.motionsUrl
+      ? fetchDashboardPayload<unknown>(resolvedEndpoints.motionsUrl)
+      : Promise.resolve({ payload: [], transport: "fixture" as const }),
+    fetchDashboardPayload<unknown>(resolvedEndpoints.workspaceUrl)
   ]);
 
   const failures: string[] = [];
   const proposalPayload = endpointResults[0];
   const motionPayload = endpointResults[1];
   const workspacePayload = endpointResults[2];
-  const motionEnabled = manifest.governance.offchain.enabled;
 
   const proposals = proposalPayload.status === "fulfilled"
-    ? normalizeProposalCollection(proposalPayload.value)
+    ? normalizeProposalCollection(proposalPayload.value.payload)
     : (failures.push("proposals"), proposalFeed);
   const motions = motionPayload.status === "fulfilled"
-    ? normalizeMotionCollection(motionPayload.value)
+    ? normalizeMotionCollection(motionPayload.value.payload)
     : (motionEnabled ? failures.push("motions") : null, offchainMotions);
   const workspace = workspacePayload.status === "fulfilled"
-    ? normalizeWorkspaceCollection(workspacePayload.value)
+    ? normalizeWorkspaceCollection(workspacePayload.value.payload)
     : (failures.push("workspace"), workspaceItems);
+  const proposalTransport = proposalPayload.status === "fulfilled" ? proposalPayload.value.transport : null;
+  const motionTransport = motionPayload.status === "fulfilled" ? motionPayload.value.transport : null;
+  const workspaceTransport = workspacePayload.status === "fulfilled" ? workspacePayload.value.transport : null;
 
   const timestamp = getTimestamp();
   const endpoints: DashboardEndpointStatus[] = [
     {
       label: "Proposals",
-      state: proposalPayload.status === "fulfilled" ? "live" : "fallback",
+      state: proposalPayload.status === "fulfilled" ? proposalTransport === "fixture" ? "fixture" : "live" : "fallback",
       detail: proposalPayload.status === "fulfilled"
         ? `Loaded ${proposals.length} proposal records from ${resolvedEndpoints.proposalsSourceLabel.toLowerCase()}.`
         : `Using preview proposal feed because ${resolvedEndpoints.proposalsSourceLabel.toLowerCase()} failed at ${resolvedEndpoints.proposalsUrl}.`
     },
     {
       label: "Motions",
-      state: !motionEnabled ? "disabled" : motionPayload.status === "fulfilled" ? "live" : "fallback",
+      state: !motionEnabled ? "disabled" : motionPayload.status === "fulfilled" ? motionTransport === "fixture" ? "fixture" : "live" : "fallback",
       detail: !motionEnabled
         ? "Off-chain governance is disabled for this release."
         : motionPayload.status === "fulfilled"
@@ -330,7 +450,7 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
     },
     {
       label: "Workspace",
-      state: workspacePayload.status === "fulfilled" ? "live" : "fallback",
+      state: workspacePayload.status === "fulfilled" ? workspaceTransport === "fixture" ? "fixture" : "live" : "fallback",
       detail: workspacePayload.status === "fulfilled"
         ? `Loaded ${workspace.length} workspace records from ${resolvedEndpoints.workspaceSourceLabel.toLowerCase()}.`
         : `Using preview workspace queue because ${resolvedEndpoints.workspaceSourceLabel.toLowerCase()} failed at ${resolvedEndpoints.workspaceUrl}.`
@@ -338,12 +458,20 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
   ];
 
   if (failures.length === 0) {
+    const successfulTransports = [proposalTransport, motionEnabled ? motionTransport : null, workspaceTransport].filter(Boolean);
+    const allFixture = successfulTransports.every((transport) => transport === "fixture");
+    const someFixture = successfulTransports.some((transport) => transport === "fixture");
+
     return {
       proposals,
       motions: motionEnabled ? motions : [],
       workspaceItems: workspace,
-      source: "remote",
-      syncMessage: "Loaded live dashboard data from configured governance services.",
+      source: allFixture ? "fixture" : someFixture ? "mixed" : "remote",
+      syncMessage: allFixture
+        ? "Loaded fixture-backed dashboard data through the normalized feed pipeline."
+        : someFixture
+          ? "Loaded dashboard data from a mix of fixture-backed and live governance feeds."
+          : "Loaded live dashboard data from configured governance services.",
       lastUpdatedAt: timestamp,
       endpoints
     };

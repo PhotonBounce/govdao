@@ -65,6 +65,7 @@ There is now a starter Expo client in [apps/mobile](apps/mobile):
 - `npm run mobile:check-manifest` verifies that the synced mobile manifest is current without rewriting it, which is useful for CI and release gates
 - `npm run mobile:typecheck` validates the mobile TypeScript surface
 - `npm run mobile:start` launches the Expo development server once the mobile dependencies are installed
+- the checked-in local mobile manifest uses `fixture://govdao` module endpoints so the normalized dashboard loader can be exercised without a live backend during local development
 
 The manifest now also supports:
 
