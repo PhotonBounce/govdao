@@ -27,6 +27,8 @@ console.log(JSON.stringify({
   endpoints: data.endpoints.map((endpoint) => ({
     label: endpoint.label,
     state: endpoint.state,
+    transport: endpoint.transport,
+    url: endpoint.url,
     detail: endpoint.detail
   }))
 }, null, 2));

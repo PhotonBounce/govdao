@@ -6,6 +6,7 @@ export type MotionItem = (typeof offchainMotions)[number];
 export type WorkspaceItem = (typeof workspaceItems)[number];
 export type MobileDashboardSource = "mock" | "remote" | "fixture" | "mixed";
 export type DashboardEndpointState = "live" | "fixture" | "fallback" | "disabled";
+export type DashboardEndpointTransport = "remote" | "fixture" | "preview" | "disabled";
 
 const REQUEST_TIMEOUT_MS = 4000;
 const FIXTURE_SCHEME = "fixture://";
@@ -89,6 +90,8 @@ const fixturePayloads: Record<string, unknown> = {
 export interface DashboardEndpointStatus {
   label: string;
   state: DashboardEndpointState;
+  transport: DashboardEndpointTransport;
+  url: string | null;
   detail: string;
 }
 
@@ -137,9 +140,9 @@ export function buildMockDashboardData(reason: string): MobileDashboardData {
     syncMessage: reason,
     lastUpdatedAt: getTimestamp(),
     endpoints: [
-      { label: "Proposals", state: "fallback", detail: "Using preview proposal feed." },
-      { label: "Motions", state: "fallback", detail: "Using preview motion queue." },
-      { label: "Workspace", state: "fallback", detail: "Using preview workspace queue." }
+      { label: "Proposals", state: "fallback", transport: "preview", url: null, detail: "Using preview proposal feed." },
+      { label: "Motions", state: "fallback", transport: "preview", url: null, detail: "Using preview motion queue." },
+      { label: "Workspace", state: "fallback", transport: "preview", url: null, detail: "Using preview workspace queue." }
     ]
   };
 }
@@ -397,9 +400,9 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
     return {
       ...previewData,
       endpoints: [
-        { label: "Proposals", state: "fallback", detail: `${resolvedEndpoints.proposalsSourceLabel} is still placeholder-backed.` },
-        { label: "Motions", state: manifest.governance.offchain.enabled ? "fallback" : "disabled", detail: manifest.governance.offchain.enabled ? `${resolvedEndpoints.motionsSourceLabel} is still placeholder-backed.` : "Off-chain governance is disabled." },
-        { label: "Workspace", state: "fallback", detail: `${resolvedEndpoints.workspaceSourceLabel} is still placeholder-backed.` }
+        { label: "Proposals", state: "fallback", transport: "preview", url: resolvedEndpoints.proposalsUrl, detail: `${resolvedEndpoints.proposalsSourceLabel} is still placeholder-backed.` },
+        { label: "Motions", state: manifest.governance.offchain.enabled ? "fallback" : "disabled", transport: manifest.governance.offchain.enabled ? "preview" : "disabled", url: resolvedEndpoints.motionsUrl, detail: manifest.governance.offchain.enabled ? `${resolvedEndpoints.motionsSourceLabel} is still placeholder-backed.` : "Off-chain governance is disabled." },
+        { label: "Workspace", state: "fallback", transport: "preview", url: resolvedEndpoints.workspaceUrl, detail: `${resolvedEndpoints.workspaceSourceLabel} is still placeholder-backed.` }
       ]
     };
   }
@@ -435,6 +438,8 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
     {
       label: "Proposals",
       state: proposalPayload.status === "fulfilled" ? proposalTransport === "fixture" ? "fixture" : "live" : "fallback",
+      transport: proposalPayload.status === "fulfilled" ? proposalTransport ?? "remote" : "preview",
+      url: resolvedEndpoints.proposalsUrl,
       detail: proposalPayload.status === "fulfilled"
         ? `Loaded ${proposals.length} proposal records from ${resolvedEndpoints.proposalsSourceLabel.toLowerCase()}.`
         : `Using preview proposal feed because ${resolvedEndpoints.proposalsSourceLabel.toLowerCase()} failed at ${resolvedEndpoints.proposalsUrl}.`
@@ -442,6 +447,8 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
     {
       label: "Motions",
       state: !motionEnabled ? "disabled" : motionPayload.status === "fulfilled" ? motionTransport === "fixture" ? "fixture" : "live" : "fallback",
+      transport: !motionEnabled ? "disabled" : motionPayload.status === "fulfilled" ? motionTransport ?? "remote" : "preview",
+      url: resolvedEndpoints.motionsUrl,
       detail: !motionEnabled
         ? "Off-chain governance is disabled for this release."
         : motionPayload.status === "fulfilled"
@@ -451,6 +458,8 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
     {
       label: "Workspace",
       state: workspacePayload.status === "fulfilled" ? workspaceTransport === "fixture" ? "fixture" : "live" : "fallback",
+      transport: workspacePayload.status === "fulfilled" ? workspaceTransport ?? "remote" : "preview",
+      url: resolvedEndpoints.workspaceUrl,
       detail: workspacePayload.status === "fulfilled"
         ? `Loaded ${workspace.length} workspace records from ${resolvedEndpoints.workspaceSourceLabel.toLowerCase()}.`
         : `Using preview workspace queue because ${resolvedEndpoints.workspaceSourceLabel.toLowerCase()} failed at ${resolvedEndpoints.workspaceUrl}.`

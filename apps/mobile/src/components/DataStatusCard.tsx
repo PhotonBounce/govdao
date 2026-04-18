@@ -50,6 +50,22 @@ function getModeCallout(source: DataStatusCardProps["source"]) {
   };
 }
 
+function getTransportLabel(transport: DashboardEndpointStatus["transport"]): string {
+  if (transport === "remote") {
+    return "Remote transport";
+  }
+
+  if (transport === "fixture") {
+    return "Fixture transport";
+  }
+
+  if (transport === "disabled") {
+    return "Disabled";
+  }
+
+  return "Preview fallback";
+}
+
 export function DataStatusCard({ loading, source, syncMessage, lastUpdatedAt, endpoints, onRefresh }: DataStatusCardProps) {
   const title = source === "remote"
     ? "Live Service Feed"
@@ -89,6 +105,12 @@ export function DataStatusCard({ loading, source, syncMessage, lastUpdatedAt, en
       ))}
       {endpoints.map((endpoint) => (
         <Text key={`${endpoint.label}-detail`} style={styles.detailLine}>{endpoint.label}: {endpoint.detail}</Text>
+      ))}
+      {endpoints.map((endpoint) => (
+        <Text key={`${endpoint.label}-transport`} style={styles.endpointMetaLine}>{endpoint.label} transport: {getTransportLabel(endpoint.transport)}</Text>
+      ))}
+      {endpoints.map((endpoint) => (
+        <Text key={`${endpoint.label}-url`} style={styles.endpointMetaLine}>{endpoint.label} URL: {endpoint.url ?? "Not configured"}</Text>
       ))}
       <Pressable style={[styles.button, loading ? styles.buttonDisabled : null]} onPress={onRefresh} disabled={loading}>
         <Text style={styles.buttonText}>{loading ? "Refreshing Data" : "Refresh Data"}</Text>
@@ -138,5 +160,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 19,
     marginBottom: 10
+  },
+  endpointMetaLine: {
+    color: palette.moss,
+    fontSize: 12,
+    lineHeight: 18,
+    marginTop: 6
   }
 });
