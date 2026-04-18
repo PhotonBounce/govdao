@@ -36,6 +36,7 @@ See [docs/MOBILE_DISTRIBUTION.md](docs/MOBILE_DISTRIBUTION.md), [docs/COMMERCIAL
 - `npm run release:google-play`
 - `npm run mobile:sync-manifest`
 - `npm run mobile:check-manifest`
+- `npm run mobile:check-data`
 - `npm run mobile:validate`
 - `npm run mobile:typecheck`
 - `npm run mobile:start`

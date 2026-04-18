@@ -9,7 +9,8 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "sync:manifest": "node scripts/sync-manifest.mjs",
-    "check:manifest": "node scripts/sync-manifest.mjs --check"
+    "check:manifest": "node scripts/sync-manifest.mjs --check",
+    "check:data": "node scripts/check-dashboard.mjs"
   },
   "dependencies": {
     "expo": "~53.0.17",
