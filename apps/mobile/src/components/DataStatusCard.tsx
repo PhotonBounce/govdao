@@ -18,6 +18,38 @@ function formatTimestamp(value: string): string {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
 }
 
+function getModeCallout(source: DataStatusCardProps["source"]) {
+  if (source === "remote") {
+    return {
+      title: "Live service mode",
+      body: "This session is reading configured governance services directly, so operator checks reflect current backend behavior.",
+      tone: "good" as const
+    };
+  }
+
+  if (source === "fixture") {
+    return {
+      title: "Fixture mode active",
+      body: "This session is exercising the normalized dashboard loader against fixture-backed feeds, not a live backend.",
+      tone: "warning" as const
+    };
+  }
+
+  if (source === "mixed") {
+    return {
+      title: "Mixed data mode",
+      body: "Some dashboard routes are live or fixture-backed while others are falling back, so this screen should not be treated as fully production-shaped.",
+      tone: "warning" as const
+    };
+  }
+
+  return {
+    title: "Preview mode active",
+    body: "This session is using local preview records because configured feeds are not yet available for the active manifest.",
+    tone: "neutral" as const
+  };
+}
+
 export function DataStatusCard({ loading, source, syncMessage, lastUpdatedAt, endpoints, onRefresh }: DataStatusCardProps) {
   const title = source === "remote"
     ? "Live Service Feed"
@@ -34,6 +66,7 @@ export function DataStatusCard({ loading, source, syncMessage, lastUpdatedAt, en
       ? "Remote and preview"
       : "Local preview";
   const sourceTone = source === "remote" ? "good" : source === "mixed" ? "warning" : "neutral";
+  const callout = getModeCallout(source);
 
   return (
     <SectionCard
@@ -41,6 +74,8 @@ export function DataStatusCard({ loading, source, syncMessage, lastUpdatedAt, en
       title={title}
       subtitle={syncMessage}
     >
+      <Text style={[styles.calloutTitle, callout.tone === "good" ? styles.calloutTitleGood : callout.tone === "warning" ? styles.calloutTitleWarning : styles.calloutTitleNeutral]}>{callout.title}</Text>
+      <Text style={styles.calloutBody}>{callout.body}</Text>
       <SignalRow label="Sync status" value={loading ? "Refreshing" : "Ready"} tone={loading ? "warning" : "good"} />
       <SignalRow label="Source" value={sourceLabel} tone={sourceTone} />
       <SignalRow label="Last updated" value={formatTimestamp(lastUpdatedAt)} />
@@ -83,5 +118,25 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     marginTop: 8
+  },
+  calloutTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    marginBottom: 6
+  },
+  calloutTitleGood: {
+    color: palette.pine
+  },
+  calloutTitleWarning: {
+    color: palette.rose
+  },
+  calloutTitleNeutral: {
+    color: palette.moss
+  },
+  calloutBody: {
+    color: palette.inkSoft,
+    fontSize: 13,
+    lineHeight: 19,
+    marginBottom: 10
   }
 });
