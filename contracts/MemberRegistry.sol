@@ -18,16 +18,17 @@ contract MemberRegistry is IMemberRegistry {
     mapping(address => Checkpoints.Trace208) private _roleCheckpoints;
     Checkpoints.Trace208 private _memberCountCheckpoints;
 
-    address public governor; // only governor can mutate after init
+    address public governor; // proposal authorizer and registry metadata
+    address public timelock; // governance executor for membership changes
     address public admin;    // bootstrap admin, must be revoked
 
-    modifier onlyAdmin() {
-        require(msg.sender == admin || msg.sender == governor, "MemberRegistry: not authorized");
+    modifier onlyGovernance() {
+        require(msg.sender == admin || msg.sender == timelock, "MemberRegistry: not authorized");
         _;
     }
 
-    modifier onlyGovernor() {
-        require(msg.sender == governor, "MemberRegistry: only governor");
+    modifier onlyAdminOrTimelock() {
+        require(msg.sender == admin || msg.sender == timelock, "MemberRegistry: not authorized");
         _;
     }
 
@@ -37,31 +38,39 @@ contract MemberRegistry is IMemberRegistry {
         _addMember(_admin, Role.ADMIN);
     }
 
-    /// @notice Set the governor address. Can only be called once by admin to hand off control.
-    function setGovernor(address _governor) external {
-        require(msg.sender == admin, "MemberRegistry: only admin");
-        require(governor == address(0), "MemberRegistry: governor already set");
+    /// @notice Set the governor address. Admin sets it initially; timelock can update it later.
+    function setGovernor(address _governor) external override {
+        require(msg.sender == admin || msg.sender == timelock, "MemberRegistry: not authorized");
+        require(_governor != address(0), "MemberRegistry: zero governor");
+        require(governor == address(0) || msg.sender == timelock, "MemberRegistry: governor already set");
         governor = _governor;
     }
 
+    /// @notice Set the timelock executor. Admin sets it initially; timelock can update itself later.
+    function setTimelock(address _timelock) external override onlyAdminOrTimelock {
+        require(_timelock != address(0), "MemberRegistry: zero timelock");
+        require(timelock == address(0) || msg.sender == timelock, "MemberRegistry: timelock already set");
+        timelock = _timelock;
+    }
+
     /// @notice Revoke admin bootstrap power. Irreversible. Governance takes over.
-    function revokeAdmin() external onlyGovernor {
+    function revokeAdmin() external override onlyGovernance {
         admin = address(0);
     }
 
-    function addMember(address account, Role role) external override onlyAdmin {
+    function addMember(address account, Role role) external override onlyGovernance {
         require(account != address(0), "MemberRegistry: zero account");
         require(role != Role.NONE, "MemberRegistry: invalid role");
         require(!isMember(account), "MemberRegistry: already member");
         _addMember(account, role);
     }
 
-    function removeMember(address account) external override onlyAdmin {
+    function removeMember(address account) external override onlyGovernance {
         require(isMember(account), "MemberRegistry: not a member");
         _removeMember(account);
     }
 
-    function setRole(address account, Role role) external override onlyAdmin {
+    function setRole(address account, Role role) external override onlyGovernance {
         require(isMember(account), "MemberRegistry: not a member");
         require(role != Role.NONE, "MemberRegistry: invalid role");
         Role oldRole = getRole(account);

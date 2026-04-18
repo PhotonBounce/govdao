@@ -12,6 +12,9 @@ interface IMemberRegistry {
     event MemberRemoved(address indexed account);
     event RoleChanged(address indexed account, Role oldRole, Role newRole);
 
+    function setGovernor(address governor) external;
+    function setTimelock(address timelock) external;
+    function revokeAdmin() external;
     function addMember(address account, Role role) external;
     function removeMember(address account) external;
     function setRole(address account, Role role) external;

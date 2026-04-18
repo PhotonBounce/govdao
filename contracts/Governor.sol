@@ -24,6 +24,8 @@ contract Governor is IGovernor {
     uint256 public proposalCount;
     mapping(uint256 => Proposal) private _proposals;
     mapping(uint256 => mapping(address => bool)) private _hasVoted;
+    mapping(uint256 => bool) private _queued;
+    uint256 public proposalGracePeriod; // blocks after voting end to queue (0 = no limit)
 
     address public guardian; // emergency cancel only
     address public bootstrapAdmin;
@@ -40,6 +42,16 @@ contract Governor is IGovernor {
             role == IMemberRegistry.Role.PROPOSER ||
             role == IMemberRegistry.Role.ADMIN,
             "Governor: not a proposer"
+        );
+        _;
+    }
+
+    modifier onlyExecutor() {
+        IMemberRegistry.Role role = memberRegistry.getRole(msg.sender);
+        require(
+            role == IMemberRegistry.Role.EXECUTOR ||
+            role == IMemberRegistry.Role.ADMIN,
+            "Governor: not an executor"
         );
         _;
     }
@@ -132,6 +144,8 @@ contract Governor is IGovernor {
         require(getProposalState(proposalId) == ProposalState.Succeeded, "Governor: not succeeded");
 
         Proposal storage p = _proposals[proposalId];
+        _queued[proposalId] = true;
+
         for (uint256 i = 0; i < p.targets.length; i++) {
             timelock.queueAction(p.targets[i], p.values[i], p.actions[i]);
         }
@@ -139,15 +153,15 @@ contract Governor is IGovernor {
         emit ProposalQueued(proposalId);
     }
 
-    function execute(uint256 proposalId) external override whenNotPaused {
+    function execute(uint256 proposalId) external override whenNotPaused onlyExecutor {
         require(getProposalState(proposalId) == ProposalState.Queued, "Governor: not queued");
 
         Proposal storage p = _proposals[proposalId];
+        p.executed = true; // CEI: set before external calls
+
         for (uint256 i = 0; i < p.targets.length; i++) {
             timelock.executeAction(p.targets[i], p.values[i], p.actions[i]);
         }
-
-        p.executed = true;
 
         emit ProposalExecuted(proposalId);
     }
@@ -156,6 +170,7 @@ contract Governor is IGovernor {
         Proposal storage p = _proposals[proposalId];
         require(p.id != 0, "Governor: proposal not found");
         require(!p.executed, "Governor: already executed");
+        require(!p.cancelled, "Governor: already cancelled");
         require(
             msg.sender == p.proposer || msg.sender == guardian,
             "Governor: not authorized to cancel"
@@ -163,11 +178,13 @@ contract Governor is IGovernor {
 
         p.cancelled = true;
 
-        // Cancel queued timelock actions if any
-        for (uint256 i = 0; i < p.targets.length; i++) {
-            bytes32 actionId = keccak256(abi.encode(p.targets[i], p.values[i], p.actions[i]));
-            if (timelock.isActionQueued(actionId)) {
-                timelock.cancelAction(actionId);
+        // Cancel queued timelock actions if proposal was queued
+        if (_queued[proposalId]) {
+            for (uint256 i = 0; i < p.targets.length; i++) {
+                bytes32 actionId = keccak256(abi.encode(p.targets[i], p.values[i], p.actions[i]));
+                if (timelock.isActionQueued(actionId)) {
+                    timelock.cancelAction(actionId);
+                }
             }
         }
 
@@ -189,19 +206,20 @@ contract Governor is IGovernor {
 
         // Voting ended — check results
         uint256 totalVotes = p.forVotes + p.againstVotes + p.abstainVotes;
-        uint256 memberCount = memberRegistry.getMemberCount();
-        uint256 quorumRequired = (memberCount * quorumNumerator) / QUORUM_DENOMINATOR;
+        uint256 quorumRequired = _quorumRequired(p);
 
         if (totalVotes < quorumRequired || p.forVotes <= p.againstVotes) {
             return ProposalState.Defeated;
         }
 
-        // Check if actions are queued in timelock
-        if (p.targets.length > 0) {
-            bytes32 firstActionId = keccak256(abi.encode(p.targets[0], p.values[0], p.actions[0]));
-            if (timelock.isActionQueued(firstActionId)) {
-                return ProposalState.Queued;
-            }
+        // Check if proposal has been queued
+        if (_queued[proposalId]) {
+            return ProposalState.Queued;
+        }
+
+        // Grace period: expire unqueued proposals
+        if (proposalGracePeriod > 0 && block.number > p.votingEnd + proposalGracePeriod) {
+            return ProposalState.Defeated;
         }
 
         return ProposalState.Succeeded;
@@ -212,14 +230,18 @@ contract Governor is IGovernor {
         return _proposals[proposalId];
     }
 
-    function hasVoted(uint256 proposalId, address account) external view returns (bool) {
+    function hasVoted(uint256 proposalId, address account) external view override returns (bool) {
         return _hasVoted[proposalId][account];
     }
 
-    function quorumVotes(uint256 proposalId) external view returns (uint256) {
+    function isQueued(uint256 proposalId) external view override returns (bool) {
+        return _queued[proposalId];
+    }
+
+    function quorumVotes(uint256 proposalId) external view override returns (uint256) {
         Proposal storage p = _proposals[proposalId];
         require(p.id != 0, "Governor: proposal not found");
-        return (_memberCountAtSnapshot(p) * quorumNumerator) / QUORUM_DENOMINATOR;
+        return _quorumRequired(p);
     }
 
     // ========================
@@ -228,24 +250,39 @@ contract Governor is IGovernor {
 
     function setVotingDelay(uint256 newDelay) external {
         require(msg.sender == address(timelock), "Governor: only via timelock");
+        uint256 oldDelay = votingDelay;
         votingDelay = newDelay;
+        emit VotingDelayUpdated(oldDelay, newDelay);
     }
 
     function setVotingPeriod(uint256 newPeriod) external {
         require(msg.sender == address(timelock), "Governor: only via timelock");
         require(newPeriod > 0, "Governor: zero period");
+        uint256 oldPeriod = votingPeriod;
         votingPeriod = newPeriod;
+        emit VotingPeriodUpdated(oldPeriod, newPeriod);
     }
 
     function setQuorum(uint256 newQuorum) external {
         require(msg.sender == address(timelock), "Governor: only via timelock");
         require(newQuorum <= 100, "Governor: quorum > 100%");
+        uint256 oldQuorum = quorumNumerator;
         quorumNumerator = newQuorum;
+        emit QuorumUpdated(oldQuorum, newQuorum);
     }
 
     function setGuardian(address newGuardian) external {
         require(msg.sender == address(timelock), "Governor: only via timelock");
+        address oldGuardian = guardian;
         guardian = newGuardian;
+        emit GuardianUpdated(oldGuardian, newGuardian);
+    }
+
+    function setProposalGracePeriod(uint256 newPeriod) external {
+        require(msg.sender == address(timelock), "Governor: only via timelock");
+        uint256 oldPeriod = proposalGracePeriod;
+        proposalGracePeriod = newPeriod;
+        emit ProposalGracePeriodUpdated(oldPeriod, newPeriod);
     }
 
     function setGuardianBootstrap(address newGuardian) external {
@@ -272,5 +309,10 @@ contract Governor is IGovernor {
 
     function _memberCountAtSnapshot(Proposal storage proposal) internal view returns (uint256) {
         return memberRegistry.getPastMemberCount(proposal.snapshotBlock);
+    }
+
+    function _quorumRequired(Proposal storage p) internal view returns (uint256) {
+        uint256 q = (_memberCountAtSnapshot(p) * quorumNumerator) / QUORUM_DENOMINATOR;
+        return q == 0 ? 1 : q;
     }
 }

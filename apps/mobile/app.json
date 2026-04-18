@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "GOVDAO",
+    "slug": "govdao-mobile",
+    "scheme": "govdao",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#f3efe3"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.govdao.app"
+    },
+    "android": {
+      "package": "com.govdao.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#f3efe3"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}

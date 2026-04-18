@@ -58,6 +58,9 @@ contract EmergencyGuardian {
         require(_signers.length >= _threshold && _threshold > 0, "Guardian: bad threshold");
         for (uint256 i = 0; i < _signers.length; i++) {
             require(_signers[i] != address(0), "Guardian: zero signer");
+            for (uint256 j = 0; j < i; j++) {
+                require(_signers[i] != _signers[j], "Guardian: duplicate signer");
+            }
         }
         signers = _signers;
         threshold = _threshold;

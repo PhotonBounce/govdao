@@ -32,6 +32,11 @@ interface IGovernor {
     event ProposalQueued(uint256 indexed proposalId);
     event ProposalExecuted(uint256 indexed proposalId);
     event ProposalCancelled(uint256 indexed proposalId);
+    event VotingDelayUpdated(uint256 oldDelay, uint256 newDelay);
+    event VotingPeriodUpdated(uint256 oldPeriod, uint256 newPeriod);
+    event QuorumUpdated(uint256 oldQuorum, uint256 newQuorum);
+    event GuardianUpdated(address oldGuardian, address newGuardian);
+    event ProposalGracePeriodUpdated(uint256 oldPeriod, uint256 newPeriod);
 
     function propose(
         address[] memory targets,
@@ -47,4 +52,7 @@ interface IGovernor {
     function cancel(uint256 proposalId) external;
     function getProposalState(uint256 proposalId) external view returns (ProposalState);
     function getProposal(uint256 proposalId) external view returns (Proposal memory);
+    function hasVoted(uint256 proposalId, address account) external view returns (bool);
+    function isQueued(uint256 proposalId) external view returns (bool);
+    function quorumVotes(uint256 proposalId) external view returns (uint256);
 }

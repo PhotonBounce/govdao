@@ -14,6 +14,7 @@ interface ITimelock {
     function queueAction(address target, uint256 value, bytes calldata data) external returns (bytes32 actionId);
     function executeAction(address target, uint256 value, bytes calldata data) external payable;
     function cancelAction(bytes32 actionId) external;
+    function updateGovernor(address newGovernor) external;
     function getDelay() external view returns (uint256);
     function isActionQueued(bytes32 actionId) external view returns (bool);
     function isActionReady(bytes32 actionId) external view returns (bool);

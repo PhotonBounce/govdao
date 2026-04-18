@@ -104,6 +104,12 @@ contract Timelock is ITimelock {
         governor = newGovernor;
     }
 
+    /// @notice Governance-path governor update (called via timelock self-execution)
+    function updateGovernor(address newGovernor) external override onlySelfOrGovernor {
+        require(newGovernor != address(0), "Timelock: zero governor");
+        governor = newGovernor;
+    }
+
     function setGuardianBootstrap(address newGuardian) external onlyBootstrapAdmin {
         guardian = newGuardian;
     }

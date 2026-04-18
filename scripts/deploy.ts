@@ -1,8 +1,26 @@
 import { ethers } from "hardhat";
 
+function parseAddressList(name: string): string[] {
+  const raw = process.env[name];
+  if (!raw) {
+    return [];
+  }
+
+  return [...new Set(
+    raw
+      .split(",")
+      .map((entry) => entry.trim())
+      .filter(Boolean)
+  )];
+}
+
 async function main() {
   const [deployer] = await ethers.getSigners();
   console.log("Deploying with:", deployer.address);
+
+  const initialProposers = parseAddressList("INITIAL_PROPOSERS");
+  const initialExecutors = parseAddressList("INITIAL_EXECUTORS");
+  const initialMembers = parseAddressList("INITIAL_MEMBERS");
 
   // 1. MemberRegistry — deployer is bootstrap admin
   const MemberRegistry = await ethers.getContractFactory("MemberRegistry");
@@ -64,15 +82,73 @@ async function main() {
   await memberRegistry.setGovernor(await governor.getAddress());
   console.log("MemberRegistry governor set to Governor");
 
-  // 7. Update Treasury guardian to EmergencyGuardian
-  // (Treasury guardian update requires going through Timelock, but for initial deploy
-  //  we set the deployer as guardian. In production, use governance to update.)
+  await memberRegistry.setTimelock(await timelock.getAddress());
+  console.log("MemberRegistry timelock set to Timelock");
+
+  for (const proposer of initialProposers) {
+    if (proposer.toLowerCase() === deployer.address.toLowerCase()) {
+      continue;
+    }
+
+    if (!(await memberRegistry.isMember(proposer))) {
+      await memberRegistry.addMember(proposer, 2);
+      console.log("Seeded proposer:", proposer);
+    }
+  }
+
+  for (const executor of initialExecutors) {
+    if (executor.toLowerCase() === deployer.address.toLowerCase()) {
+      continue;
+    }
+
+    if (!(await memberRegistry.isMember(executor))) {
+      await memberRegistry.addMember(executor, 3);
+      console.log("Seeded executor:", executor);
+    }
+  }
+
+  for (const member of initialMembers) {
+    if (member.toLowerCase() === deployer.address.toLowerCase()) {
+      continue;
+    }
+
+    if (!(await memberRegistry.isMember(member))) {
+      await memberRegistry.addMember(member, 1);
+      console.log("Seeded member:", member);
+    }
+  }
+
+  if (initialProposers.length === 0) {
+    console.log("Warning: no INITIAL_PROPOSERS configured; deployer remains the only initial proposer.");
+  }
+
+  if (initialExecutors.length === 0) {
+    console.log("Warning: no INITIAL_EXECUTORS configured; deployer remains the only initial executor.");
+  }
+
+  // 7. Wire Timelock governor to Governor contract
+  await timelock.setGovernor(await governor.getAddress());
+  console.log("Timelock governor set to Governor");
+
+  // 8. Set EmergencyGuardian as guardian for all contracts
+  await governor.setGuardianBootstrap(await emergencyGuardian.getAddress());
+  await treasury.setGuardianBootstrap(await emergencyGuardian.getAddress());
+  await timelock.setGuardianBootstrap(await emergencyGuardian.getAddress());
+  console.log("All guardians set to EmergencyGuardian");
+
+  // 9. Revoke bootstrap admin path in the registry now that timelock is wired.
+  await memberRegistry.revokeAdmin();
+  console.log("MemberRegistry bootstrap admin revoked");
+
+  // 10. Finalize bootstrap — lock out deployer from timelock-controlled contracts
+  await timelock.finalizeBootstrap();
+  await governor.finalizeBootstrap();
+  await treasury.finalizeBootstrap();
+  console.log("Bootstrap finalized — deployer privileges revoked");
 
   console.log("\n=== Deployment Complete ===");
-  console.log("Next steps:");
-  console.log("1. Transfer Timelock governor role to Governor contract");
-  console.log("2. Set EmergencyGuardian as Treasury guardian via governance");
-  console.log("3. Revoke deployer admin via governance proposal");
+  console.log("All contracts deployed and wired. Bootstrap admin privileges revoked.");
+  console.log("Governance execution now runs through the timelock and seeded member set.");
 }
 
 main().catch((error) => {

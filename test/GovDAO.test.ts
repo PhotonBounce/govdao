@@ -26,11 +26,11 @@ describe("GOVDAO Core", function () {
 
     // Deploy MemberRegistry
     const MR = await ethers.getContractFactory("MemberRegistry");
-    memberRegistry = await MR.deploy(deployer.address);
+    memberRegistry = await MR.deploy(deployer.address) as unknown as MemberRegistry;
 
     // Deploy Timelock with bootstrap governor/guardian wired to deployer.
     const TL = await ethers.getContractFactory("Timelock");
-    timelock = await TL.deploy(TIMELOCK_DELAY, deployer.address, deployer.address);
+    timelock = await TL.deploy(TIMELOCK_DELAY, deployer.address, deployer.address) as unknown as Timelock;
 
     // Deploy Governor
     const GOV = await ethers.getContractFactory("Governor");
@@ -41,7 +41,7 @@ describe("GOVDAO Core", function () {
       VOTING_DELAY,
       VOTING_PERIOD,
       QUORUM
-    );
+    ) as unknown as Governor;
 
     // Deploy Treasury
     const TRES = await ethers.getContractFactory("Treasury");
@@ -51,7 +51,7 @@ describe("GOVDAO Core", function () {
       ethers.parseEther("10"),
       ethers.parseEther("50"),
       30 * 24 * 60 * 60
-    );
+    ) as unknown as Treasury;
 
     // Deploy EmergencyGuardian
     const EG = await ethers.getContractFactory("EmergencyGuardian");
@@ -60,10 +60,11 @@ describe("GOVDAO Core", function () {
       2,
       await treasury.getAddress(),
       await governor.getAddress()
-    );
+    ) as unknown as EmergencyGuardian;
 
     // Wire: set Governor as MemberRegistry's governor
     await memberRegistry.setGovernor(await governor.getAddress());
+    await memberRegistry.setTimelock(await timelock.getAddress());
     // NOTE: Do NOT wire timelock.setGovernor here — deployer stays governor for direct Timelock/Treasury tests
 
     // Bootstrap handoff from deployer to the emergency guardian contract.
@@ -110,6 +111,11 @@ describe("GOVDAO Core", function () {
       // Already set in beforeEach
       await expect(memberRegistry.setGovernor(alice.address))
         .to.be.revertedWith("MemberRegistry: governor already set");
+    });
+
+    it("timelock can be set only once during bootstrap", async function () {
+      await expect(memberRegistry.setTimelock(alice.address))
+        .to.be.revertedWith("MemberRegistry: timelock already set");
     });
   });
 
@@ -332,6 +338,150 @@ describe("GOVDAO Core", function () {
       await expect(governor.connect(outsider).castVote(1, 1))
         .to.be.revertedWith("Governor: not eligible at snapshot");
     });
+
+    it("quorum uses snapshot member count, not current", async function () {
+      // 4 members at proposal creation: deployer, alice, bob, carol
+      await governor.connect(alice).propose(
+        [await treasury.getAddress()],
+        [0],
+        ["0x"],
+        "ipfs://QmQuorum",
+        ethers.keccak256(ethers.toUtf8Bytes("quorum snapshot test"))
+      );
+
+      // Add 6 more members AFTER proposal creation (snapshot already taken)
+      const allSigners = await ethers.getSigners();
+      for (let i = 5; i < 11; i++) {
+        await memberRegistry.addMember(allSigners[i].address, 1);
+      }
+      // Now 10 members. If quorum used current count: (10 * 20) / 100 = 2 votes needed
+      // With snapshot (4 members): max((4 * 20) / 100, 1) = 1 vote needed
+
+      await ethers.provider.send("evm_mine", []);
+      await governor.connect(alice).castVote(1, 1); // 1 For vote
+
+      for (let i = 0; i < VOTING_PERIOD; i++) {
+        await ethers.provider.send("evm_mine", []);
+      }
+
+      // Should be Succeeded with snapshot-based quorum (1 needed, 1 cast)
+      expect(await governor.getProposalState(1)).to.equal(3); // Succeeded
+    });
+
+    it("proposal cannot be re-queued (queued flag is permanent)", async function () {
+      // Wire timelock to governor for this test
+      const TL2 = await ethers.getContractFactory("Timelock");
+      const timelock2 = await TL2.deploy(60, deployer.address, deployer.address) as unknown as Timelock;
+      const GOV2 = await ethers.getContractFactory("Governor");
+      const governor2 = await GOV2.deploy(
+        await memberRegistry.getAddress(),
+        await timelock2.getAddress(),
+        deployer.address,
+        VOTING_DELAY,
+        VOTING_PERIOD,
+        QUORUM
+      ) as unknown as Governor;
+      await timelock2.setGovernor(await governor2.getAddress());
+
+      // deployer (admin) can propose
+      await governor2.connect(deployer).propose(
+        [await treasury.getAddress()],
+        [0],
+        ["0x"],
+        "ipfs://QmRequeue",
+        ethers.keccak256(ethers.toUtf8Bytes("requeue test"))
+      );
+      await ethers.provider.send("evm_mine", []);
+      await governor2.connect(deployer).castVote(1, 1);
+
+      for (let i = 0; i < VOTING_PERIOD; i++) {
+        await ethers.provider.send("evm_mine", []);
+      }
+
+      // Queue — sets _queued flag
+      await governor2.queue(1);
+      expect(await governor2.isQueued(1)).to.be.true;
+      expect(await governor2.getProposalState(1)).to.equal(4); // Queued
+
+      // Trying to queue again should fail (state is Queued, not Succeeded)
+      await expect(governor2.queue(1))
+        .to.be.revertedWith("Governor: not succeeded");
+    });
+
+    it("cancel is idempotent — rejects double cancel", async function () {
+      await governor.connect(alice).propose(
+        [await treasury.getAddress()],
+        [0],
+        ["0x"],
+        "ipfs://QmCancel2",
+        ethers.keccak256(ethers.toUtf8Bytes("double cancel"))
+      );
+
+      await governor.connect(alice).cancel(1);
+      expect(await governor.getProposalState(1)).to.equal(5); // Cancelled
+
+      await expect(governor.connect(alice).cancel(1))
+        .to.be.revertedWith("Governor: already cancelled");
+    });
+
+    it("minimum quorum of 1 prevents zero-quorum exploits", async function () {
+      // With 4 members and 20% quorum: (4 * 20) / 100 = 0 in integer math
+      // Minimum floor should enforce quorum >= 1
+      expect(await governor.quorumVotes(
+        // need a proposal first
+        await (async () => {
+          await governor.connect(alice).propose(
+            [await treasury.getAddress()],
+            [0],
+            ["0x"],
+            "ipfs://QmMin",
+            ethers.keccak256(ethers.toUtf8Bytes("min quorum"))
+          );
+          return 1;
+        })()
+      )).to.be.gte(1);
+    });
+
+    it("only executors or admins can execute queued proposals", async function () {
+      const TL2 = await ethers.getContractFactory("Timelock");
+      const timelock2 = await TL2.deploy(60, deployer.address, deployer.address) as unknown as Timelock;
+      const GOV2 = await ethers.getContractFactory("Governor");
+      const governor2 = await GOV2.deploy(
+        await memberRegistry.getAddress(),
+        await timelock2.getAddress(),
+        deployer.address,
+        VOTING_DELAY,
+        VOTING_PERIOD,
+        QUORUM
+      ) as unknown as Governor;
+      await timelock2.setGovernor(await governor2.getAddress());
+
+      await governor2.connect(deployer).propose(
+        [await governor2.getAddress()],
+        [0],
+        [governor2.interface.encodeFunctionData("setQuorum", [25])],
+        "ipfs://QmExecRole",
+        ethers.keccak256(ethers.toUtf8Bytes("executor role"))
+      );
+
+      await ethers.provider.send("evm_mine", []);
+      await governor2.connect(deployer).castVote(1, 1);
+      await governor2.connect(alice).castVote(1, 1);
+
+      for (let i = 0; i < VOTING_PERIOD; i++) {
+        await ethers.provider.send("evm_mine", []);
+      }
+
+      await governor2.queue(1);
+      await ethers.provider.send("evm_increaseTime", [TIMELOCK_DELAY + 1]);
+      await ethers.provider.send("evm_mine", []);
+
+      await expect(governor2.connect(bob).execute(1))
+        .to.be.revertedWith("Governor: not an executor");
+
+      await governor2.connect(deployer).execute(1);
+      expect(await governor2.quorumNumerator()).to.equal(25);
+    });
   });
 
   // ========================
@@ -381,6 +531,215 @@ describe("GOVDAO Core", function () {
 
       await emergencyGuardian.connect(alice).confirmCancelProposal(actionHash!);
       expect(await governor.getProposalState(1)).to.equal(5); // Cancelled
+    });
+
+    it("rejects duplicate signers in constructor", async function () {
+      const EG = await ethers.getContractFactory("EmergencyGuardian");
+      await expect(
+        EG.deploy(
+          [deployer.address, deployer.address, alice.address],
+          2,
+          await treasury.getAddress(),
+          await governor.getAddress()
+        )
+      ).to.be.revertedWith("Guardian: duplicate signer");
+    });
+  });
+
+  // ========================
+  // Integration: Full Governance Flow
+  // ========================
+
+  describe("Full Governance Flow", function () {
+    let gov2: Governor;
+    let tl2: Timelock;
+
+    beforeEach(async function () {
+      // Deploy a separate Timelock+Governor pair wired together for integration tests
+      const TL2 = await ethers.getContractFactory("Timelock");
+      tl2 = await TL2.deploy(TIMELOCK_DELAY, deployer.address, deployer.address) as unknown as Timelock;
+
+      const GOV2 = await ethers.getContractFactory("Governor");
+      gov2 = await GOV2.deploy(
+        await memberRegistry.getAddress(),
+        await tl2.getAddress(),
+        deployer.address,
+        VOTING_DELAY,
+        VOTING_PERIOD,
+        QUORUM
+      ) as unknown as Governor;
+
+      // Wire timelock to governor
+      await tl2.setGovernor(await gov2.getAddress());
+    });
+
+    it("propose → vote → queue → execute end-to-end", async function () {
+      // Target: change the governor's own quorum parameter (gov2 uses tl2 as timelock)
+      const target = await gov2.getAddress();
+      const data = gov2.interface.encodeFunctionData("setQuorum", [25]);
+
+      // 1. Propose (deployer is ADMIN = can propose)
+      await gov2.connect(deployer).propose(
+        [target],
+        [0],
+        [data],
+        "ipfs://QmIntegration",
+        ethers.keccak256(ethers.toUtf8Bytes("integration test"))
+      );
+      expect(await gov2.getProposalState(1)).to.equal(0); // Proposed
+
+      // 2. Advance past voting delay
+      await ethers.provider.send("evm_mine", []);
+      expect(await gov2.getProposalState(1)).to.equal(1); // Voting
+
+      // 3. Vote — deployer + alice + bob (3 For out of 4 members)
+      await gov2.connect(deployer).castVote(1, 1);
+      await gov2.connect(alice).castVote(1, 1);
+      await gov2.connect(bob).castVote(1, 1);
+
+      // 4. Advance past voting period
+      for (let i = 0; i < VOTING_PERIOD; i++) {
+        await ethers.provider.send("evm_mine", []);
+      }
+      expect(await gov2.getProposalState(1)).to.equal(3); // Succeeded
+
+      // 5. Queue
+      await gov2.queue(1);
+      expect(await gov2.getProposalState(1)).to.equal(4); // Queued
+      expect(await gov2.isQueued(1)).to.be.true;
+
+      // 6. Advance past timelock delay
+      await ethers.provider.send("evm_increaseTime", [TIMELOCK_DELAY + 1]);
+      await ethers.provider.send("evm_mine", []);
+
+      // 7. Execute
+      await gov2.execute(1);
+      expect(await gov2.getProposalState(1)).to.equal(6); // Executed
+
+      // Verify the action took effect
+      expect(await gov2.quorumNumerator()).to.equal(25);
+    });
+
+    it("governance can update its own parameters via timelock", async function () {
+      const target = await gov2.getAddress();
+      const data = gov2.interface.encodeFunctionData("setVotingPeriod", [20]);
+
+      await gov2.connect(deployer).propose(
+        [target],
+        [0],
+        [data],
+        "ipfs://QmParamChange",
+        ethers.keccak256(ethers.toUtf8Bytes("param change"))
+      );
+
+      await ethers.provider.send("evm_mine", []);
+      await gov2.connect(deployer).castVote(1, 1);
+      await gov2.connect(alice).castVote(1, 1);
+
+      for (let i = 0; i < VOTING_PERIOD; i++) {
+        await ethers.provider.send("evm_mine", []);
+      }
+
+      await gov2.queue(1);
+
+      await ethers.provider.send("evm_increaseTime", [TIMELOCK_DELAY + 1]);
+      await ethers.provider.send("evm_mine", []);
+
+      await gov2.execute(1);
+      expect(await gov2.votingPeriod()).to.equal(20);
+    });
+
+    it("governance can manage membership after bootstrap admin is revoked", async function () {
+      await timelock.setGovernor(await governor.getAddress());
+      await memberRegistry.revokeAdmin();
+
+      await expect(memberRegistry.addMember(outsider.address, 1))
+        .to.be.revertedWith("MemberRegistry: not authorized");
+
+      const target = await memberRegistry.getAddress();
+      const data = memberRegistry.interface.encodeFunctionData("addMember", [
+        outsider.address,
+        1,
+      ]);
+
+      await governor.connect(alice).propose(
+        [target],
+        [0],
+        [data],
+        "ipfs://QmMemberAdd",
+        ethers.keccak256(ethers.toUtf8Bytes("member add"))
+      );
+
+      await ethers.provider.send("evm_mine", []);
+      await governor.connect(alice).castVote(1, 1);
+      await governor.connect(bob).castVote(1, 1);
+
+      for (let i = 0; i < VOTING_PERIOD; i++) {
+        await ethers.provider.send("evm_mine", []);
+      }
+
+      await governor.queue(1);
+      await ethers.provider.send("evm_increaseTime", [TIMELOCK_DELAY + 1]);
+      await ethers.provider.send("evm_mine", []);
+
+      await governor.execute(1);
+
+      expect(await memberRegistry.isMember(outsider.address)).to.be.true;
+      expect(await memberRegistry.getRole(outsider.address)).to.equal(1);
+    });
+
+    it("executor role can execute queued proposals after bootstrap", async function () {
+      await timelock.setGovernor(await governor.getAddress());
+      await memberRegistry.revokeAdmin();
+
+      await governor.connect(alice).propose(
+        [await memberRegistry.getAddress()],
+        [0],
+        [memberRegistry.interface.encodeFunctionData("setRole", [bob.address, 3])],
+        "ipfs://QmGrantExec",
+        ethers.keccak256(ethers.toUtf8Bytes("grant executor"))
+      );
+
+      await ethers.provider.send("evm_mine", []);
+      await governor.connect(alice).castVote(1, 1);
+      await governor.connect(bob).castVote(1, 1);
+
+      for (let i = 0; i < VOTING_PERIOD; i++) {
+        await ethers.provider.send("evm_mine", []);
+      }
+
+      await governor.queue(1);
+      await ethers.provider.send("evm_increaseTime", [TIMELOCK_DELAY + 1]);
+      await ethers.provider.send("evm_mine", []);
+
+      await governor.connect(deployer).execute(1);
+      expect(await memberRegistry.getRole(bob.address)).to.equal(3);
+
+      await governor.connect(alice).propose(
+        [await governor.getAddress()],
+        [0],
+        [governor.interface.encodeFunctionData("setProposalGracePeriod", [25])],
+        "ipfs://QmUseExec",
+        ethers.keccak256(ethers.toUtf8Bytes("use executor"))
+      );
+
+      await ethers.provider.send("evm_mine", []);
+      await governor.connect(alice).castVote(2, 1);
+      await governor.connect(bob).castVote(2, 1);
+
+      for (let i = 0; i < VOTING_PERIOD; i++) {
+        await ethers.provider.send("evm_mine", []);
+      }
+
+      await governor.queue(2);
+      await ethers.provider.send("evm_increaseTime", [TIMELOCK_DELAY + 1]);
+      await ethers.provider.send("evm_mine", []);
+
+      await expect(governor.connect(alice).execute(2))
+        .to.be.revertedWith("Governor: not an executor");
+
+      await governor.connect(bob).execute(2);
+      expect(await governor.proposalGracePeriod()).to.equal(25);
     });
   });
 });
