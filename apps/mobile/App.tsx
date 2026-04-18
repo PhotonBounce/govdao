@@ -18,6 +18,38 @@ import { palette, radii } from "./src/theme";
 
 const manifest = manifestJson as AppManifest;
 
+function getDataModeSummary(source: "mock" | "remote" | "fixture" | "mixed") {
+  if (source === "remote") {
+    return {
+      label: "LIVE FEEDS",
+      detail: "Configured services",
+      tone: "pine" as const
+    };
+  }
+
+  if (source === "fixture") {
+    return {
+      label: "FIXTURE FEEDS",
+      detail: "Normalized local transport",
+      tone: "rose" as const
+    };
+  }
+
+  if (source === "mixed") {
+    return {
+      label: "MIXED FEEDS",
+      detail: "Fallbacks active",
+      tone: "bronze" as const
+    };
+  }
+
+  return {
+    label: "PREVIEW FEEDS",
+    detail: "Local preview records",
+    tone: "bronze" as const
+  };
+}
+
 export default function App() {
   const {
     activeView,
@@ -54,6 +86,7 @@ export default function App() {
     openView,
     openWorkspace
   } = useMobileShellController(manifest);
+  const dataMode = getDataModeSummary(dashboardData.source);
 
   function renderViewHeader() {
     return (
@@ -61,6 +94,10 @@ export default function App() {
         <View style={styles.viewHeaderRow}>
           <Text style={styles.viewHeaderMeta}>Active route: {activeView}</Text>
           <Text style={styles.viewHeaderMeta}>Stack depth: {detailStack.length}</Text>
+        </View>
+        <View style={styles.viewModeRow}>
+          <ModulePill label={dataMode.label} tone={dataMode.tone} />
+          <Text style={styles.viewModeMeta}>{dataMode.detail}</Text>
         </View>
         <RouteSummaryStrip signals={routeSignals} />
       </SectionCard>
@@ -149,7 +186,9 @@ export default function App() {
             <ModulePill label={manifest.governance.mode.toUpperCase()} tone="pine" />
             <ModulePill label={manifest.app.distribution.pricingModel.toUpperCase()} tone="bronze" />
             <ModulePill label={`TRACK ${manifest.release.android.track.toUpperCase()}`} tone="rose" />
+            <ModulePill label={dataMode.label} tone={dataMode.tone} />
           </View>
+          <Text style={styles.modeLine}>Current data mode: {dataMode.detail}</Text>
         </View>
 
         <View style={styles.navRow}>
@@ -232,7 +271,25 @@ const styles = StyleSheet.create({
     gap: 10,
     marginTop: 6
   },
+  viewModeRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 4
+  },
   viewHeaderMeta: {
+    color: palette.moss,
+    fontSize: 13,
+    fontWeight: "600"
+  },
+  viewModeMeta: {
+    color: palette.inkSoft,
+    fontSize: 13,
+    fontWeight: "600",
+    marginBottom: 8
+  },
+  modeLine: {
     color: palette.moss,
     fontSize: 13,
     fontWeight: "600"
