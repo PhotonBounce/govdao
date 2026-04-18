@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { AppManifest } from "../types";
-import { buildMockDashboardData, loadMobileDashboardData, MobileDashboardData } from "../data/mobileDataSource";
+import {
+  buildDashboardRecoveryData,
+  buildMockDashboardData,
+  loadMobileDashboardData,
+  MobileDashboardData
+} from "../data/mobileDataSource";
 
 interface MobileDashboardState {
   data: MobileDashboardData;
@@ -9,8 +14,9 @@ interface MobileDashboardState {
 
 export function useMobileDashboardData(manifest: AppManifest) {
   const requestIdRef = useRef(0);
+  const lastDataRef = useRef<MobileDashboardData>(buildMockDashboardData("Preparing mobile dashboard data."));
   const [state, setState] = useState<MobileDashboardState>({
-    data: buildMockDashboardData("Preparing mobile dashboard data."),
+    data: lastDataRef.current,
     loading: true
   });
 
@@ -18,9 +24,20 @@ export function useMobileDashboardData(manifest: AppManifest) {
     const requestId = requestIdRef.current + 1;
     requestIdRef.current = requestId;
     setState((current) => ({ ...current, loading: true }));
-    const data = await loadMobileDashboardData(manifest);
-    if (requestIdRef.current === requestId) {
-      setState({ data, loading: false });
+    try {
+      const data = await loadMobileDashboardData(manifest);
+      lastDataRef.current = data;
+
+      if (requestIdRef.current === requestId) {
+        setState({ data, loading: false });
+      }
+    } catch (error: unknown) {
+      const data = buildDashboardRecoveryData(lastDataRef.current, error);
+      lastDataRef.current = data;
+
+      if (requestIdRef.current === requestId) {
+        setState({ data, loading: false });
+      }
     }
   }
 

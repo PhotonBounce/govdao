@@ -59,6 +59,35 @@ export function buildMockDashboardData(reason: string): MobileDashboardData {
   };
 }
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message;
+  }
+
+  return "An unexpected dashboard error occurred.";
+}
+
+export function buildDashboardRecoveryData(previousData: MobileDashboardData | null, error: unknown): MobileDashboardData {
+  const message = getErrorMessage(error);
+
+  if (!previousData || previousData.source === "mock") {
+    return buildMockDashboardData(`Using local preview data because the dashboard refresh failed: ${message}`);
+  }
+
+  return {
+    ...previousData,
+    source: "mixed",
+    syncMessage: `Showing last known dashboard data because refresh failed: ${message}`,
+    endpoints: previousData.endpoints.map((endpoint) => ({
+      ...endpoint,
+      state: endpoint.state === "disabled" ? "disabled" : "fallback",
+      detail: endpoint.state === "disabled"
+        ? endpoint.detail
+        : `${endpoint.detail} Last known data preserved after refresh failure.`
+    }))
+  };
+}
+
 function trimTrailingSlash(value: string): string {
   return value.replace(/\/$/, "");
 }
