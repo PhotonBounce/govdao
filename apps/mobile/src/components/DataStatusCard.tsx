@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Pressable, StyleSheet, Text } from "react-native";
 import { SectionCard } from "./SectionCard";
 import { SignalRow } from "./SignalRow";
@@ -67,6 +68,7 @@ function getTransportLabel(transport: DashboardEndpointStatus["transport"]): str
 }
 
 export function DataStatusCard({ loading, source, syncMessage, lastUpdatedAt, endpoints, onRefresh }: DataStatusCardProps) {
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
   const title = source === "remote"
     ? "Live Service Feed"
     : source === "fixture"
@@ -103,15 +105,18 @@ export function DataStatusCard({ loading, source, syncMessage, lastUpdatedAt, en
           tone={endpoint.state === "live" ? "good" : endpoint.state === "fallback" ? "warning" : "neutral"}
         />
       ))}
-      {endpoints.map((endpoint) => (
+      <Pressable style={styles.toggleButton} onPress={() => setShowDiagnostics((current) => !current)}>
+        <Text style={styles.toggleButtonText}>{showDiagnostics ? "Hide Endpoint Diagnostics" : "Show Endpoint Diagnostics"}</Text>
+      </Pressable>
+      {showDiagnostics ? endpoints.map((endpoint) => (
         <Text key={`${endpoint.label}-detail`} style={styles.detailLine}>{endpoint.label}: {endpoint.detail}</Text>
-      ))}
-      {endpoints.map((endpoint) => (
+      )) : null}
+      {showDiagnostics ? endpoints.map((endpoint) => (
         <Text key={`${endpoint.label}-transport`} style={styles.endpointMetaLine}>{endpoint.label} transport: {getTransportLabel(endpoint.transport)}</Text>
-      ))}
-      {endpoints.map((endpoint) => (
+      )) : null}
+      {showDiagnostics ? endpoints.map((endpoint) => (
         <Text key={`${endpoint.label}-url`} style={styles.endpointMetaLine}>{endpoint.label} URL: {endpoint.url ?? "Not configured"}</Text>
-      ))}
+      )) : null}
       <Pressable style={[styles.button, loading ? styles.buttonDisabled : null]} onPress={onRefresh} disabled={loading}>
         <Text style={styles.buttonText}>{loading ? "Refreshing Data" : "Refresh Data"}</Text>
       </Pressable>
@@ -166,5 +171,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 18,
     marginTop: 6
+  },
+  toggleButton: {
+    marginTop: 12,
+    paddingVertical: 10
+  },
+  toggleButtonText: {
+    color: palette.bronze,
+    fontSize: 13,
+    fontWeight: "700"
   }
 });
