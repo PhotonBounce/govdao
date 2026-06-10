@@ -57,7 +57,7 @@ From the minimum feature list in [MOBILE_DISTRIBUTION.md](MOBILE_DISTRIBUTION.md
 ## Suggested Next Milestones (in order)
 
 1. **On-chain settlement** — replace the fixture paths with real integrations: `voteSource.ts#castVoteTransaction` → `Governor.castVote` via `chain.rpcUrl`, and `sessionSource.ts#connectSession` → WalletConnect/passkey SDKs. Controllers and UI stay as-is.
-2. **Deploy-and-read verification in CI** — solc binary downloads are blocked in sandboxed dev environments, so full deploy-contracts-then-read verification needs an environment that can compile (CI or local); `mobile:check-chain` and `mobile:check-proposal` accept `CHAIN_RPC_URL`/`*_ADDRESS` env overrides for exactly that.
+2. **CI is wired** — `.github/workflows/ci.yml` runs the contract suite, every mobile gate plus the web bundle export, and a deploy-and-read job (hardhat node → deploy → `mobile:check-chain` against the live contracts). Solc downloads are blocked in sandboxed dev environments, which is why that job lives in CI.
 3. **Live endpoint promotion** — replace `fixture://govdao` overrides with real HTTPS services; the normalizers already tolerate alternate field names.
 4. **Production manifest values** — RPC endpoint, deployed contract addresses, real support/privacy/terms URLs; `npm run release:google-play` enumerates exactly what is still placeholder-backed.
 
