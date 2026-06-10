@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ModulePill } from "../components/ModulePill";
 import { SectionCard } from "../components/SectionCard";
 import { SignalRow } from "../components/SignalRow";
+import { OnchainSnapshot } from "../data/chainSource";
 import { GuardianEventItem, GuardianStatus, TreasuryMovementItem, TreasurySnapshot } from "../data/mobileDataSource";
 import { palette } from "../theme";
 
@@ -10,13 +11,47 @@ interface TreasuryScreenProps {
   movements: TreasuryMovementItem[];
   guardian: GuardianStatus;
   guardianEvents: GuardianEventItem[];
+  onchainSnapshot: OnchainSnapshot;
+  onchainLoading: boolean;
   onSelectMovement: (movement: TreasuryMovementItem) => void;
   onSelectGuardianEvent: (event: GuardianEventItem) => void;
 }
 
-export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, onSelectMovement, onSelectGuardianEvent }: TreasuryScreenProps) {
+export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, onchainSnapshot, onchainLoading, onSelectMovement, onSelectGuardianEvent }: TreasuryScreenProps) {
   return (
     <>
+      <SectionCard
+        eyebrow="On-Chain Verification"
+        title={onchainSnapshot.available ? "Live Contract Reads" : "Awaiting Chain Configuration"}
+        subtitle={onchainSnapshot.detail}
+      >
+        <View style={styles.statusRow}>
+          <ModulePill
+            label={onchainLoading ? "CHECKING CHAIN" : onchainSnapshot.available ? "LIVE CHAIN" : "NOT CONNECTED"}
+            tone={onchainSnapshot.available ? "pine" : "bronze"}
+          />
+        </View>
+        {onchainSnapshot.available ? (
+          <>
+            <SignalRow label="Block" value={onchainSnapshot.blockNumber ?? "Unavailable"} tone="neutral" />
+            <SignalRow label="Treasury balance" value={onchainSnapshot.treasuryBalance ?? "Unavailable"} tone={onchainSnapshot.treasuryBalance ? "good" : "warning"} />
+            <SignalRow label="Per-transfer cap" value={onchainSnapshot.spendCapPerTx ?? "Unavailable"} tone="neutral" />
+            <SignalRow
+              label="Treasury spending"
+              value={onchainSnapshot.treasuryPaused === null ? "Unavailable" : onchainSnapshot.treasuryPaused ? "Paused" : "Active"}
+              tone={onchainSnapshot.treasuryPaused ? "warning" : "good"}
+            />
+            <SignalRow label="Members" value={onchainSnapshot.memberCount ?? "Unavailable"} tone="neutral" />
+            <SignalRow
+              label="Guardian pause"
+              value={onchainSnapshot.guardianPaused === null ? "Unavailable" : onchainSnapshot.guardianPaused ? "Engaged" : "Inactive"}
+              tone={onchainSnapshot.guardianPaused ? "warning" : "good"}
+            />
+          </>
+        ) : (
+          <Text style={styles.noteLine}>The feed cards below stay fixture-backed until the manifest carries a live RPC endpoint and deployed contract addresses.</Text>
+        )}
+      </SectionCard>
       <SectionCard
         eyebrow="Treasury Transparency"
         title="Balances And Spending Controls"
@@ -150,6 +185,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 8
+  },
+  noteLine: {
+    color: palette.inkSoft,
+    fontSize: 14,
+    lineHeight: 20
   },
   darkEmptyLine: {
     color: "#d9d1c7",

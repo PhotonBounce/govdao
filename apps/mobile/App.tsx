@@ -10,6 +10,7 @@ import { SectionCard } from "./src/components/SectionCard";
 import { SessionCard } from "./src/components/SessionCard";
 import { VotePanel } from "./src/components/VotePanel";
 import { useMobileShellController } from "./src/hooks/useMobileShellController";
+import { useOnchainSnapshot } from "./src/hooks/useOnchainSnapshot";
 import { useSessionController } from "./src/hooks/useSessionController";
 import { useVoteController } from "./src/hooks/useVoteController";
 import { DetailStackScreen } from "./src/screens/DetailStackScreen";
@@ -110,6 +111,7 @@ export default function App() {
     signOut
   } = useSessionController(manifest);
   const { castVote, getVoteState, resetVote } = useVoteController(sessionIdentity);
+  const { onchainSnapshot, onchainLoading } = useOnchainSnapshot(manifest);
   const dataMode = getDataModeSummary(dashboardData.source);
 
   function renderViewHeader() {
@@ -148,6 +150,8 @@ export default function App() {
           movements={treasuryMovements}
           guardian={guardian}
           guardianEvents={guardianEvents}
+          onchainSnapshot={onchainSnapshot}
+          onchainLoading={onchainLoading}
           onSelectMovement={openTreasuryMovement}
           onSelectGuardianEvent={openGuardianEvent}
         />

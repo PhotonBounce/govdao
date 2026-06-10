@@ -72,6 +72,7 @@ There is now a starter Expo client in [apps/mobile](apps/mobile):
 - `npm run mobile:check-session` exercises the access-option list and sign-in handshakes without a device or live signer
 - proposal details now carry a session-gated ballot with signing, pending, and confirmed receipt states; settlement is fixture-backed (labelled "FIXTURE TX") until on-chain `castVote` submission is wired, and `npm run mobile:check-vote` verifies the flow headlessly
 - the Settings surface opens privacy, terms, support site, and support email through real link-outs, covering the in-app disclosure requirement for store review
+- the Treasury & Safety view performs live JSON-RPC contract reads (treasury balance and pause state, spend cap, member count, guardian pause) once the manifest carries a real RPC endpoint and contract addresses, and degrades to a clearly-labelled "not connected" panel until then; `npm run mobile:check-chain` validates both paths
 
 The manifest now also supports:
 

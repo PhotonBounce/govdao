@@ -12,7 +12,8 @@
     "check:manifest": "node scripts/sync-manifest.mjs --check",
     "check:data": "node scripts/check-dashboard.mjs",
     "check:session": "node scripts/check-session.mjs",
-    "check:vote": "node scripts/check-vote.mjs"
+    "check:vote": "node scripts/check-vote.mjs",
+    "check:chain": "node scripts/check-chain.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.5",
