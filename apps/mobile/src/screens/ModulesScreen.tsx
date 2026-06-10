@@ -9,29 +9,39 @@ type ModuleItem = AppManifest["experiences"]["modules"][number];
 
 interface ModulesScreenProps {
   modules: ModuleItem[];
+  sessionActive: boolean;
   workspaceModuleTitle?: string;
   workspaceItems: WorkspaceItem[];
   onSelectModule: (module: ModuleItem) => void;
   onSelectWorkspace: (item: WorkspaceItem) => void;
 }
 
-export function ModulesScreen({ modules, workspaceModuleTitle, workspaceItems, onSelectModule, onSelectWorkspace }: ModulesScreenProps) {
+export function ModulesScreen({ modules, sessionActive, workspaceModuleTitle, workspaceItems, onSelectModule, onSelectWorkspace }: ModulesScreenProps) {
   return (
     <>
-      {modules.map((module) => (
-        <Pressable key={module.id} onPress={() => onSelectModule(module)}>
-          <SectionCard
-            eyebrow={module.kind}
-            title={module.title}
-            subtitle={`Entry route ${module.entryRoute}. ${module.requiresAuth ? "Authentication required." : "Guest access supported."}`}
-          >
-            <Text style={styles.metaLine}>API {module.apiBaseUrl}</Text>
-            <Text style={styles.metaLine}>Web {module.webUrl}</Text>
-            <Text style={styles.metaLine}>Role {module.requiresAuth ? "Authenticated members" : "Guest / public"}</Text>
-            <Text style={styles.metaLine}>Tap to inspect this module's launch narrative</Text>
-          </SectionCard>
-        </Pressable>
-      ))}
+      {modules.map((module) => {
+        const locked = module.requiresAuth && !sessionActive;
+
+        return (
+          <Pressable key={module.id} onPress={() => onSelectModule(module)}>
+            <SectionCard
+              eyebrow={module.kind}
+              title={module.title}
+              subtitle={`Entry route ${module.entryRoute}. ${module.requiresAuth ? "Authentication required." : "Guest access supported."}`}
+            >
+              {locked ? (
+                <View style={styles.lockRow}>
+                  <ModulePill label="SIGN IN REQUIRED" tone="rose" />
+                </View>
+              ) : null}
+              <Text style={styles.metaLine}>API {module.apiBaseUrl}</Text>
+              <Text style={styles.metaLine}>Web {module.webUrl}</Text>
+              <Text style={styles.metaLine}>Role {module.requiresAuth ? "Authenticated members" : "Guest / public"}</Text>
+              <Text style={styles.metaLine}>{locked ? "Sign in from the Member Access card to unlock launch actions" : "Tap to inspect this module's launch narrative"}</Text>
+            </SectionCard>
+          </Pressable>
+        );
+      })}
 
       {workspaceModuleTitle ? (
         <SectionCard
@@ -57,6 +67,11 @@ export function ModulesScreen({ modules, workspaceModuleTitle, workspaceItems, o
 }
 
 const styles = StyleSheet.create({
+  lockRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    marginBottom: 4
+  },
   metaLine: {
     color: palette.inkSoft,
     fontSize: 14,

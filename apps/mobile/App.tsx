@@ -7,7 +7,9 @@ import { ModulePill } from "./src/components/ModulePill";
 import { NavTab } from "./src/components/NavTab";
 import { RouteSummaryStrip } from "./src/components/RouteSummaryStrip";
 import { SectionCard } from "./src/components/SectionCard";
+import { SessionCard } from "./src/components/SessionCard";
 import { useMobileShellController } from "./src/hooks/useMobileShellController";
+import { useSessionController } from "./src/hooks/useSessionController";
 import { DetailStackScreen } from "./src/screens/DetailStackScreen";
 import { ModulesScreen } from "./src/screens/ModulesScreen";
 import { OverviewScreen } from "./src/screens/OverviewScreen";
@@ -94,6 +96,17 @@ export default function App() {
     openView,
     openWorkspace
   } = useMobileShellController(manifest);
+  const {
+    accessOptions,
+    sessionActive,
+    sessionError,
+    sessionIdentity,
+    sessionRequired,
+    sessionStatus,
+    pendingMethodId,
+    signIn,
+    signOut
+  } = useSessionController(manifest);
   const dataMode = getDataModeSummary(dashboardData.source);
 
   function renderViewHeader() {
@@ -142,6 +155,7 @@ export default function App() {
       return (
         <ModulesScreen
           modules={modules}
+          sessionActive={sessionActive}
           workspaceModuleTitle={workspaceModule?.title}
           workspaceItems={workspaceItems}
           onSelectModule={openModule}
@@ -227,6 +241,17 @@ export default function App() {
           lastUpdatedAt={dashboardData.lastUpdatedAt}
           endpoints={dashboardData.endpoints}
           onRefresh={refreshDashboard}
+        />
+
+        <SessionCard
+          status={sessionStatus}
+          identity={sessionIdentity}
+          options={accessOptions}
+          required={sessionRequired}
+          error={sessionError}
+          pendingMethodId={pendingMethodId}
+          onSignIn={signIn}
+          onSignOut={signOut}
         />
 
         {currentDetail ? renderDetailView() : (

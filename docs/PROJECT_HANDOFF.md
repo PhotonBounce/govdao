@@ -34,13 +34,17 @@ Feeds currently wired: proposals, off-chain motions, treasury (snapshot + moveme
 
 Views: Overview (release readiness), Proposals (on-chain feed + motions), Treasury & Safety (balances, caps, movements, guardian emergency status), Modules (companion workspace), Settings (release controls), plus a breadcrumbed detail stack for every record kind.
 
+Member access: a manifest-driven sign-in flow (`sessionSource.ts` → `useSessionController` → `SessionCard`) offers every method from `wallet.supported` and `governance.offchain.auth`. The handshake currently settles against deterministic fixture signers (clearly labelled "FIXTURE SIGNER" in the UI) so the flow is testable offline; `requiresAuth` modules show a sign-in gate until a session is active. Swapping in real WalletConnect/passkey SDKs only needs to replace `connectSession`.
+
+Web bundling works: `react-native-web`/`react-dom`/`@expo/metro-runtime` are installed, and `EXPO_OFFLINE=1 npx expo export --platform web --output-dir dist` (from `apps/mobile`) produces a static build. `EXPO_OFFLINE=1` matters in sandboxed environments because the Expo CLI otherwise blocks on its version-check API.
+
 ### Store-submission checklist status
 
 From the minimum feature list in [MOBILE_DISTRIBUTION.md](MOBILE_DISTRIBUTION.md):
 
 | Feature | Status |
 | --- | --- |
-| Wallet / passkey sign-in | Not started — manifest declares `wallet.*` and `offchain.auth`, no UI or session logic |
+| Wallet / passkey sign-in | Partial — full sign-in/sign-out flow with session state and module auth gating, but the handshake uses fixture signers; real WalletConnect/passkey SDK integration pending |
 | Proposal feed with metadata | Done (fixture/remote normalized feed) |
 | Proposal detail with on-chain status + doc hash verification | Partial — detail view exists; no chain queries or hash verification |
 | Vote casting + transaction confirmation | Not started |
@@ -52,8 +56,8 @@ From the minimum feature list in [MOBILE_DISTRIBUTION.md](MOBILE_DISTRIBUTION.md
 
 ## Suggested Next Milestones (in order)
 
-1. **Wallet/passkey sign-in flow** — session state, auth gate for `requiresAuth` modules, WalletConnect per `wallet.supported`. Blocks end-to-end testing of everything else.
-2. **Vote casting** — vote actions on proposal detail, transaction confirmation states; needs on-chain reads (proposal state via `chain.rpcUrl` + `contracts.governor`).
+1. **Vote casting** — vote actions on proposal detail gated on the active session, transaction confirmation states; needs on-chain reads (proposal state via `chain.rpcUrl` + `contracts.governor`).
+2. **Real signer SDKs** — replace the fixture handshake in `sessionSource.ts#connectSession` with WalletConnect/passkey integrations; the session controller and UI stay as-is.
 3. **Live endpoint promotion** — replace `fixture://govdao` overrides with real HTTPS services; the normalizers already tolerate alternate field names.
 4. **Support/legal link-outs** — make Settings URLs tappable (`Linking.openURL`) to finish the disclosure-pages checklist item.
 
@@ -67,5 +71,6 @@ From the minimum feature list in [MOBILE_DISTRIBUTION.md](MOBILE_DISTRIBUTION.md
 
 - `npm run mobile:validate` — manifest drift + TypeScript surface
 - `npm run mobile:check-data` — runs the dashboard loader against the local manifest; fails on preview-only data
+- `npm run mobile:check-session` — exercises the access-option list and sign-in handshakes headlessly
 - `npm run release:google-play` — full release gate (mobile validate, manifest export, Play validation)
 - `npm test` — Hardhat contract suite

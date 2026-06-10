@@ -68,6 +68,8 @@ There is now a starter Expo client in [apps/mobile](apps/mobile):
 - `npm run mobile:start` launches the Expo development server once the mobile dependencies are installed
 - the checked-in local mobile manifest uses `fixture://govdao` module endpoints so the normalized dashboard loader can be exercised without a live backend during local development
 - the dashboard loader now also serves a treasury feed (snapshot plus movement records) and a guardian feed (emergency status plus event records), rendered in the Treasury & Safety view to cover the treasury-transparency and guardian-status store requirements
+- a manifest-driven member sign-in flow offers every method from `wallet.supported` and `governance.offchain.auth`, gates `requiresAuth` modules, and currently settles against clearly-labelled fixture signers until real wallet/passkey SDKs are integrated
+- `npm run mobile:check-session` exercises the access-option list and sign-in handshakes without a device or live signer
 
 The manifest now also supports:
 
