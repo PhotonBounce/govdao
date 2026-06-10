@@ -8,8 +8,10 @@ import { NavTab } from "./src/components/NavTab";
 import { RouteSummaryStrip } from "./src/components/RouteSummaryStrip";
 import { SectionCard } from "./src/components/SectionCard";
 import { SessionCard } from "./src/components/SessionCard";
+import { VotePanel } from "./src/components/VotePanel";
 import { useMobileShellController } from "./src/hooks/useMobileShellController";
 import { useSessionController } from "./src/hooks/useSessionController";
+import { useVoteController } from "./src/hooks/useVoteController";
 import { DetailStackScreen } from "./src/screens/DetailStackScreen";
 import { ModulesScreen } from "./src/screens/ModulesScreen";
 import { OverviewScreen } from "./src/screens/OverviewScreen";
@@ -107,6 +109,7 @@ export default function App() {
     signIn,
     signOut
   } = useSessionController(manifest);
+  const { castVote, getVoteState, resetVote } = useVoteController(sessionIdentity);
   const dataMode = getDataModeSummary(dashboardData.source);
 
   function renderViewHeader() {
@@ -194,6 +197,17 @@ export default function App() {
       return null;
     }
 
+    const votePanel = currentDetail.kind === "proposal" ? (
+      <VotePanel
+        proposalId={currentDetail.refId}
+        votingEnabled={manifest.features.voting}
+        sessionActive={sessionActive}
+        voteState={getVoteState(currentDetail.refId)}
+        onCastVote={(choice) => castVote(currentDetail.refId, choice)}
+        onResetVote={() => resetVote(currentDetail.refId)}
+      />
+    ) : undefined;
+
     return (
       <DetailStackScreen
         activeView={activeView}
@@ -201,6 +215,7 @@ export default function App() {
         currentDetail={currentDetail}
         actions={detailActions}
         relatedDetails={relatedDetails}
+        votePanel={votePanel}
         onBack={closeDetail}
         onOpenView={openView}
         onJumpToDetail={jumpToDetail}

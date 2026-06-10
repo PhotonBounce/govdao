@@ -40,6 +40,7 @@ For current build status and the next planned milestones, see [docs/PROJECT_HAND
 - `npm run mobile:check-manifest`
 - `npm run mobile:check-data`
 - `npm run mobile:check-session`
+- `npm run mobile:check-vote`
 - `npm run mobile:validate`
 - `npm run mobile:typecheck`
 - `npm run mobile:start`

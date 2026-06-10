@@ -70,6 +70,8 @@ There is now a starter Expo client in [apps/mobile](apps/mobile):
 - the dashboard loader now also serves a treasury feed (snapshot plus movement records) and a guardian feed (emergency status plus event records), rendered in the Treasury & Safety view to cover the treasury-transparency and guardian-status store requirements
 - a manifest-driven member sign-in flow offers every method from `wallet.supported` and `governance.offchain.auth`, gates `requiresAuth` modules, and currently settles against clearly-labelled fixture signers until real wallet/passkey SDKs are integrated
 - `npm run mobile:check-session` exercises the access-option list and sign-in handshakes without a device or live signer
+- proposal details now carry a session-gated ballot with signing, pending, and confirmed receipt states; settlement is fixture-backed (labelled "FIXTURE TX") until on-chain `castVote` submission is wired, and `npm run mobile:check-vote` verifies the flow headlessly
+- the Settings surface opens privacy, terms, support site, and support email through real link-outs, covering the in-app disclosure requirement for store review
 
 The manifest now also supports:
 

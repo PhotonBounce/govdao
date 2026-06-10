@@ -47,19 +47,19 @@ From the minimum feature list in [MOBILE_DISTRIBUTION.md](MOBILE_DISTRIBUTION.md
 | Wallet / passkey sign-in | Partial — full sign-in/sign-out flow with session state and module auth gating, but the handshake uses fixture signers; real WalletConnect/passkey SDK integration pending |
 | Proposal feed with metadata | Done (fixture/remote normalized feed) |
 | Proposal detail with on-chain status + doc hash verification | Partial — detail view exists; no chain queries or hash verification |
-| Vote casting + transaction confirmation | Not started |
+| Vote casting + transaction confirmation | Partial — session-gated ballot on proposal detail with signing/pending/confirmed states and receipts, but settlement is a fixture transaction; on-chain `Governor.castVote` submission pending |
 | Treasury transparency dashboard | Done as read-only feed-backed view (balances, caps, pause state, movements) |
 | Guardian emergency status screen | Done as read-only feed-backed panel (state, threshold, signers, drills, events) |
-| Support and legal disclosure pages | Partial — Settings shows URLs as text; no link-out or web views |
+| Support and legal disclosure pages | Done — Settings link-outs open privacy, terms, support site, and support email via `Linking.openURL` |
 | Off-chain motions / drafts / delegated approvals | Partial — feed and detail only; no draft editing or approval actions |
 | Non-DAO companion module | Done (workspace module + queue) |
 
 ## Suggested Next Milestones (in order)
 
-1. **Vote casting** — vote actions on proposal detail gated on the active session, transaction confirmation states; needs on-chain reads (proposal state via `chain.rpcUrl` + `contracts.governor`).
-2. **Real signer SDKs** — replace the fixture handshake in `sessionSource.ts#connectSession` with WalletConnect/passkey integrations; the session controller and UI stay as-is.
+1. **On-chain settlement** — replace the fixture paths with real integrations: `voteSource.ts#castVoteTransaction` → `Governor.castVote` via `chain.rpcUrl`, and `sessionSource.ts#connectSession` → WalletConnect/passkey SDKs. Controllers and UI stay as-is.
+2. **Proposal on-chain status + document hash verification** — read live proposal state from the Governor and verify off-chain document hashes on proposal detail.
 3. **Live endpoint promotion** — replace `fixture://govdao` overrides with real HTTPS services; the normalizers already tolerate alternate field names.
-4. **Support/legal link-outs** — make Settings URLs tappable (`Linking.openURL`) to finish the disclosure-pages checklist item.
+4. **Production manifest values** — RPC endpoint, deployed contract addresses, real support/privacy/terms URLs; `npm run release:google-play` enumerates exactly what is still placeholder-backed.
 
 ## Conventions To Keep
 
@@ -72,5 +72,6 @@ From the minimum feature list in [MOBILE_DISTRIBUTION.md](MOBILE_DISTRIBUTION.md
 - `npm run mobile:validate` — manifest drift + TypeScript surface
 - `npm run mobile:check-data` — runs the dashboard loader against the local manifest; fails on preview-only data
 - `npm run mobile:check-session` — exercises the access-option list and sign-in handshakes headlessly
+- `npm run mobile:check-vote` — signs in, loads the proposal feed, and casts a fixture vote end-to-end
 - `npm run release:google-play` — full release gate (mobile validate, manifest export, Play validation)
 - `npm test` — Hardhat contract suite

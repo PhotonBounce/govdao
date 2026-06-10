@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { BreadcrumbTrail } from "../components/BreadcrumbTrail";
 import { ModulePill } from "../components/ModulePill";
@@ -23,6 +24,7 @@ interface DetailStackScreenProps {
   currentDetail: DetailState;
   actions: DetailAction[];
   relatedDetails: RelatedDetailLink[];
+  votePanel?: ReactNode;
   onBack: () => void;
   onOpenView: (view: ActiveView) => void;
   onJumpToDetail: (index: number) => void;
@@ -35,6 +37,7 @@ export function DetailStackScreen({
   currentDetail,
   actions,
   relatedDetails,
+  votePanel,
   onBack,
   onOpenView,
   onJumpToDetail,
@@ -74,6 +77,8 @@ export function DetailStackScreen({
         <SignalRow label="Owner" value={currentDetail.owner} tone={dark ? "neutral" : "good"} />
         <SignalRow label="Next step" value={currentDetail.nextStep} tone="warning" />
       </SectionCard>
+
+      {votePanel}
 
       <SectionCard
         eyebrow="Context"

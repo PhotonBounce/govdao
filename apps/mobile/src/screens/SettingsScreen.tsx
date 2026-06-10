@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text } from "react-native";
+import { Linking, Pressable, StyleSheet, Text } from "react-native";
 import { SectionCard } from "../components/SectionCard";
 import { SignalRow } from "../components/SignalRow";
 import { AppManifest } from "../types";
@@ -10,17 +10,34 @@ interface SettingsScreenProps {
   supportConfigured: boolean;
 }
 
+function openExternalUrl(url: string) {
+  Linking.openURL(url).catch(() => {
+    // Swallow: a failed link-out should not crash the settings surface.
+  });
+}
+
+function DisclosureLink({ label, url, target }: { label: string; url: string; target?: string }) {
+  return (
+    <Pressable style={styles.linkRow} onPress={() => openExternalUrl(target ?? url)}>
+      <Text style={styles.linkLabel}>{label}</Text>
+      <Text style={styles.linkValue}>{url}</Text>
+    </Pressable>
+  );
+}
+
 export function SettingsScreen({ manifest, metadataConfigured, supportConfigured }: SettingsScreenProps) {
   return (
     <>
       <SectionCard
         eyebrow="Release Ops"
-        title="Submission Checklist"
-        subtitle="This shell is wired for Google Play internal track testing. The remaining gap is the production backend and device QA, not the manifest or release schema."
+        title="Support And Legal"
+        subtitle="Store review requires these disclosures to be reachable from inside the app, not just listed in the manifest."
       >
-        <Text style={styles.metaLine}>Privacy {manifest.support.privacyPolicyUrl}</Text>
-        <Text style={styles.metaLine}>Terms {manifest.support.termsOfServiceUrl}</Text>
-        <Text style={styles.metaLine}>Support {manifest.support.email}</Text>
+        <DisclosureLink label="Privacy Policy" url={manifest.support.privacyPolicyUrl} />
+        <DisclosureLink label="Terms Of Service" url={manifest.support.termsOfServiceUrl} />
+        <DisclosureLink label="Support Site" url={manifest.support.website} />
+        <DisclosureLink label="Support Email" url={manifest.support.email} target={`mailto:${manifest.support.email}`} />
+        <Text style={styles.metaLine}>Legal entity {manifest.support.legalName}</Text>
         <Text style={styles.metaLine}>Services {manifest.app.distribution.hostedServices.join(", ")}</Text>
       </SectionCard>
 
@@ -52,6 +69,22 @@ export function SettingsScreen({ manifest, metadataConfigured, supportConfigured
 }
 
 const styles = StyleSheet.create({
+  linkRow: {
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(93, 81, 72, 0.12)"
+  },
+  linkLabel: {
+    color: palette.graphite,
+    fontSize: 14,
+    fontWeight: "700",
+    marginBottom: 2
+  },
+  linkValue: {
+    color: palette.bronze,
+    fontSize: 13,
+    fontWeight: "600"
+  },
   metaLine: {
     color: palette.inkSoft,
     fontSize: 14,
