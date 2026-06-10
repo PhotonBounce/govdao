@@ -67,13 +67,14 @@ There is now a starter Expo client in [apps/mobile](apps/mobile):
 - `npm run mobile:typecheck` validates the mobile TypeScript surface
 - `npm run mobile:start` launches the Expo development server once the mobile dependencies are installed
 - the checked-in local mobile manifest uses `fixture://govdao` module endpoints so the normalized dashboard loader can be exercised without a live backend during local development
+- the dashboard loader now also serves a treasury feed (snapshot plus movement records) and a guardian feed (emergency status plus event records), rendered in the Treasury & Safety view to cover the treasury-transparency and guardian-status store requirements
 
 The manifest now also supports:
 
 - `governance.mode` for `on-chain`, `off-chain`, or `hybrid`
 - off-chain DAO APIs and auth methods for policy, draft, and vote workflows that do not settle directly on-chain
 - `experiences.modules` so the mobile release can bundle other app functions like document rooms, support, payments, or analytics alongside governance
-- `services.mobileFeeds.*Path` so teams can override proposal, motion, and workspace feed routes without changing the client
+- `services.mobileFeeds.*Path` so teams can override proposal, motion, treasury, guardian, and workspace feed routes without changing the client
 
 ## Compliance Positioning
 

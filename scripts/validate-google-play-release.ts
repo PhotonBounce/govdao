@@ -136,6 +136,14 @@ function validateManifest(manifest: AppManifest): { errors: string[]; warnings: 
     errors.push("services.mobileFeeds.motionsPath must be an absolute path like /mobile/motions.");
   }
 
+  if (!isValidApiPath(manifest.services.mobileFeeds.treasuryPath)) {
+    errors.push("services.mobileFeeds.treasuryPath must be an absolute path like /mobile/treasury.");
+  }
+
+  if (!isValidApiPath(manifest.services.mobileFeeds.guardianPath)) {
+    errors.push("services.mobileFeeds.guardianPath must be an absolute path like /mobile/guardian.");
+  }
+
   if (!isValidApiPath(manifest.services.mobileFeeds.workspacePath)) {
     errors.push("services.mobileFeeds.workspacePath must be an absolute path like /mobile/workspace.");
   }

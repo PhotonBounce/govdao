@@ -49,6 +49,8 @@ export interface AppManifest {
     mobileFeeds: {
       proposalsPath: string;
       motionsPath: string;
+      treasuryPath: string;
+      guardianPath: string;
       workspacePath: string;
     };
   };

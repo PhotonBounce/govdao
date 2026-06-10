@@ -25,6 +25,8 @@ Google Play, App Store, and enterprise distribution do not sell raw smart contra
 
 See [docs/MOBILE_DISTRIBUTION.md](docs/MOBILE_DISTRIBUTION.md), [docs/COMMERCIALIZATION.md](docs/COMMERCIALIZATION.md), and [config/mobile-app.manifest.example.json](config/mobile-app.manifest.example.json).
 
+For current build status and the next planned milestones, see [docs/PROJECT_HANDOFF.md](docs/PROJECT_HANDOFF.md).
+
 ## Commands
 
 - `npm run compile`

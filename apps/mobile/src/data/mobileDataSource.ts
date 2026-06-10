@@ -1,9 +1,21 @@
 import { AppManifest } from "../types";
-import { offchainMotions, proposalFeed, workspaceItems } from "./mockState";
+import {
+  guardianEvents,
+  guardianStatus,
+  offchainMotions,
+  proposalFeed,
+  treasuryMovements,
+  treasurySnapshot,
+  workspaceItems
+} from "./mockState";
 
 export type ProposalItem = (typeof proposalFeed)[number];
 export type MotionItem = (typeof offchainMotions)[number];
 export type WorkspaceItem = (typeof workspaceItems)[number];
+export type TreasurySnapshot = typeof treasurySnapshot;
+export type TreasuryMovementItem = (typeof treasuryMovements)[number];
+export type GuardianStatus = typeof guardianStatus;
+export type GuardianEventItem = (typeof guardianEvents)[number];
 export type MobileDashboardSource = "mock" | "remote" | "fixture" | "mixed";
 export type DashboardEndpointState = "live" | "fixture" | "fallback" | "disabled";
 export type DashboardEndpointTransport = "remote" | "fixture" | "preview" | "disabled";
@@ -65,6 +77,72 @@ const fixturePayloads: Record<string, unknown> = {
       }
     ]
   },
+  "fixture://govdao/mobile/treasury": {
+    summary: {
+      custodianName: "Treasury Timelock",
+      totalBalance: "131.9 ETH",
+      transferCap: "25 ETH",
+      dailyLimit: "60 ETH",
+      isPaused: false,
+      window: "Last 30 days"
+    },
+    movements: [
+      {
+        movementId: "TRX-102",
+        name: "Release operations retainer",
+        flow: "Outflow",
+        value: "9.8 ETH",
+        state: "Executed",
+        counterpartyName: "Release Council Safe",
+        recommendedAction: "Publish the execution receipt with the next treasury report"
+      },
+      {
+        movementId: "TRX-104",
+        name: "Hosted services revenue sweep",
+        flow: "Inflow",
+        value: "6.2 ETH",
+        state: "Settled",
+        counterpartyName: "Subscription Collector",
+        recommendedAction: "Reconcile against the hosted-services invoice ledger"
+      },
+      {
+        movementId: "TRX-107",
+        name: "Guardian tooling grant",
+        flow: "Outflow",
+        value: "5.0 ETH",
+        state: "Queued",
+        counterpartyName: "Security Tooling Vendor",
+        recommendedAction: "Wait for timelock release before executor confirmation"
+      }
+    ]
+  },
+  "fixture://govdao/mobile/guardian": {
+    guardian: {
+      mode: "Standby",
+      signerThreshold: "3-of-5",
+      signerCount: "5 active signers",
+      activePause: "No active pause",
+      drillSummary: "Monthly drill completed 6d ago"
+    },
+    events: [
+      {
+        eventId: "GRD-21",
+        name: "Monthly pause rehearsal",
+        level: "Routine",
+        state: "Completed",
+        team: "Security Desk",
+        recommendedAction: "Attach the rehearsal notes to the incident runbook"
+      },
+      {
+        eventId: "GRD-23",
+        name: "Signer coverage expansion",
+        level: "Elevated",
+        state: "Pending",
+        team: "Security Council",
+        recommendedAction: "Collect remaining signatures before rotating the signer set"
+      }
+    ]
+  },
   "fixture://govdao/mobile/workspace": {
     workspace: [
       {
@@ -99,6 +177,10 @@ export interface MobileDashboardData {
   proposals: ProposalItem[];
   motions: MotionItem[];
   workspaceItems: WorkspaceItem[];
+  treasury: TreasurySnapshot;
+  treasuryMovements: TreasuryMovementItem[];
+  guardian: GuardianStatus;
+  guardianEvents: GuardianEventItem[];
   source: MobileDashboardSource;
   syncMessage: string;
   lastUpdatedAt: string;
@@ -110,6 +192,10 @@ interface ResolvedDashboardEndpoints {
   proposalsSourceLabel: string;
   motionsUrl: string | null;
   motionsSourceLabel: string;
+  treasuryUrl: string | null;
+  treasurySourceLabel: string;
+  guardianUrl: string;
+  guardianSourceLabel: string;
   workspaceUrl: string;
   workspaceSourceLabel: string;
 }
@@ -136,12 +222,18 @@ export function buildMockDashboardData(reason: string): MobileDashboardData {
     proposals: proposalFeed,
     motions: offchainMotions,
     workspaceItems,
+    treasury: treasurySnapshot,
+    treasuryMovements,
+    guardian: guardianStatus,
+    guardianEvents,
     source: "mock",
     syncMessage: reason,
     lastUpdatedAt: getTimestamp(),
     endpoints: [
       { label: "Proposals", state: "fallback", transport: "preview", url: null, detail: "Using preview proposal feed." },
       { label: "Motions", state: "fallback", transport: "preview", url: null, detail: "Using preview motion queue." },
+      { label: "Treasury", state: "fallback", transport: "preview", url: null, detail: "Using preview treasury snapshot." },
+      { label: "Guardian", state: "fallback", transport: "preview", url: null, detail: "Using preview guardian status." },
       { label: "Workspace", state: "fallback", transport: "preview", url: null, detail: "Using preview workspace queue." }
     ]
   };
@@ -208,12 +300,18 @@ function resolveDashboardEndpoints(manifest: AppManifest): ResolvedDashboardEndp
   const proposalServiceBaseUrl = trimTrailingSlash(manifest.services.indexerBaseUrl);
   const workspaceServiceBaseUrl = trimTrailingSlash(manifest.services.metadataBaseUrl);
   const motionServiceBaseUrl = trimTrailingSlash(manifest.governance.offchain.apiBaseUrl);
+  const onchainBaseUrl = proposalModuleBaseUrl ?? proposalServiceBaseUrl;
+  const onchainSourceLabel = (fallbackLabel: string) => describeSourceLabel(onchainBaseUrl, proposalModuleBaseUrl ? "DAO module API" : fallbackLabel);
 
   return {
-    proposalsUrl: joinUrl(proposalModuleBaseUrl ?? proposalServiceBaseUrl, manifest.services.mobileFeeds.proposalsPath),
-    proposalsSourceLabel: describeSourceLabel(proposalModuleBaseUrl ?? proposalServiceBaseUrl, proposalModuleBaseUrl ? "DAO module API" : "Indexer service"),
+    proposalsUrl: joinUrl(onchainBaseUrl, manifest.services.mobileFeeds.proposalsPath),
+    proposalsSourceLabel: onchainSourceLabel("Indexer service"),
     motionsUrl: manifest.governance.offchain.enabled ? joinUrl(motionServiceBaseUrl, manifest.services.mobileFeeds.motionsPath) : null,
     motionsSourceLabel: manifest.governance.offchain.enabled ? describeSourceLabel(motionServiceBaseUrl, "Off-chain governance API") : "Off-chain governance disabled",
+    treasuryUrl: manifest.features.treasuryView ? joinUrl(onchainBaseUrl, manifest.services.mobileFeeds.treasuryPath) : null,
+    treasurySourceLabel: manifest.features.treasuryView ? onchainSourceLabel("Indexer service") : "Treasury view disabled",
+    guardianUrl: joinUrl(onchainBaseUrl, manifest.services.mobileFeeds.guardianPath),
+    guardianSourceLabel: onchainSourceLabel("Indexer service"),
     workspaceUrl: joinUrl(workspaceModuleBaseUrl ?? workspaceServiceBaseUrl, manifest.services.mobileFeeds.workspacePath),
     workspaceSourceLabel: describeSourceLabel(workspaceModuleBaseUrl ?? workspaceServiceBaseUrl, workspaceModuleBaseUrl ? "Workspace module API" : "Metadata service")
   };
@@ -270,6 +368,27 @@ function asRecord(value: unknown): Record<string, unknown> | null {
 
 function readString(value: unknown, fallback: string): string {
   return typeof value === "string" && value.trim().length > 0 ? value : fallback;
+}
+
+function readBoolean(value: unknown, fallback: boolean): boolean {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function extractRecord(payload: unknown, candidateKeys: string[]): Record<string, unknown> | null {
+  const record = asRecord(payload);
+
+  if (!record) {
+    return null;
+  }
+
+  for (const key of candidateKeys) {
+    const candidate = asRecord(record[key]);
+    if (candidate) {
+      return candidate;
+    }
+  }
+
+  return record;
 }
 
 function extractCollection(payload: unknown, candidateKeys: string[]): unknown[] {
@@ -356,6 +475,86 @@ function normalizeWorkspaceItem(value: unknown, index: number): WorkspaceItem {
   };
 }
 
+function normalizeTreasurySnapshot(payload: unknown): TreasurySnapshot {
+  const record = extractRecord(payload, ["summary", "treasury", "snapshot"]);
+
+  if (!record) {
+    return treasurySnapshot;
+  }
+
+  return {
+    custodian: readString(record.custodian ?? record.custodianName ?? record.executor, treasurySnapshot.custodian),
+    balance: readString(record.balance ?? record.totalBalance ?? record.holdings, treasurySnapshot.balance),
+    perTransferCap: readString(record.perTransferCap ?? record.transferCap ?? record.maxTransfer, treasurySnapshot.perTransferCap),
+    dailyCap: readString(record.dailyCap ?? record.dailyLimit ?? record.maxDaily, treasurySnapshot.dailyCap),
+    paused: readBoolean(record.paused ?? record.isPaused, treasurySnapshot.paused),
+    reportingWindow: readString(record.reportingWindow ?? record.window ?? record.period, treasurySnapshot.reportingWindow)
+  };
+}
+
+function normalizeTreasuryMovement(value: unknown, index: number): TreasuryMovementItem {
+  const fallback = treasuryMovements[index % treasuryMovements.length];
+  const record = asRecord(value);
+
+  if (!record) {
+    return fallback;
+  }
+
+  return {
+    id: readString(record.id ?? record.movementId ?? record.txId, fallback.id),
+    title: readString(record.title ?? record.name, fallback.title),
+    direction: readString(record.direction ?? record.flow ?? record.kind, fallback.direction),
+    amount: readString(record.amount ?? record.value, fallback.amount),
+    status: readString(record.status ?? record.state, fallback.status),
+    counterparty: readString(record.counterparty ?? record.counterpartyName ?? record.recipient, fallback.counterparty),
+    nextStep: readString(record.nextStep ?? record.next_action ?? record.recommendedAction, fallback.nextStep)
+  };
+}
+
+function normalizeGuardianStatus(payload: unknown): GuardianStatus {
+  const record = extractRecord(payload, ["guardian", "status", "summary"]);
+
+  if (!record) {
+    return guardianStatus;
+  }
+
+  return {
+    state: readString(record.state ?? record.mode ?? record.phase, guardianStatus.state),
+    threshold: readString(record.threshold ?? record.signerThreshold ?? record.quorum, guardianStatus.threshold),
+    signers: readString(record.signers ?? record.signerCount ?? record.signerSet, guardianStatus.signers),
+    pauseWindow: readString(record.pauseWindow ?? record.activePause ?? record.pauseStatus, guardianStatus.pauseWindow),
+    lastDrill: readString(record.lastDrill ?? record.drillSummary ?? record.lastRehearsal, guardianStatus.lastDrill)
+  };
+}
+
+function normalizeGuardianEvent(value: unknown, index: number): GuardianEventItem {
+  const fallback = guardianEvents[index % guardianEvents.length];
+  const record = asRecord(value);
+
+  if (!record) {
+    return fallback;
+  }
+
+  return {
+    id: readString(record.id ?? record.eventId ?? record.slug, fallback.id),
+    title: readString(record.title ?? record.name, fallback.title),
+    severity: readString(record.severity ?? record.level, fallback.severity),
+    status: readString(record.status ?? record.state, fallback.status),
+    owner: readString(record.owner ?? record.team ?? record.author, fallback.owner),
+    nextStep: readString(record.nextStep ?? record.next_action ?? record.recommendedAction, fallback.nextStep)
+  };
+}
+
+function normalizeTreasuryMovementCollection(payload: unknown): TreasuryMovementItem[] {
+  const items = extractCollection(payload, ["items", "data", "results", "movements", "transactions"]);
+  return items.map(normalizeTreasuryMovement);
+}
+
+function normalizeGuardianEventCollection(payload: unknown): GuardianEventItem[] {
+  const items = extractCollection(payload, ["items", "data", "results", "events", "incidents"]);
+  return items.map(normalizeGuardianEvent);
+}
+
 function normalizeProposalCollection(payload: unknown): ProposalItem[] {
   const items = extractCollection(payload, ["items", "data", "results", "proposals"]);
   return items.map(normalizeProposalItem);
@@ -379,12 +578,16 @@ function isUsableEndpointUrl(value: string | null): boolean {
   return isFixtureUrl(value) || (!isPlaceholder(value) && value.startsWith("https://"));
 }
 
-function canUseConfiguredFeeds(resolvedEndpoints: ResolvedDashboardEndpoints, motionEnabled: boolean): boolean {
-  if (!isUsableEndpointUrl(resolvedEndpoints.proposalsUrl) || !isUsableEndpointUrl(resolvedEndpoints.workspaceUrl)) {
+function canUseConfiguredFeeds(resolvedEndpoints: ResolvedDashboardEndpoints, motionEnabled: boolean, treasuryEnabled: boolean): boolean {
+  if (!isUsableEndpointUrl(resolvedEndpoints.proposalsUrl) || !isUsableEndpointUrl(resolvedEndpoints.workspaceUrl) || !isUsableEndpointUrl(resolvedEndpoints.guardianUrl)) {
     return false;
   }
 
   if (motionEnabled && !isUsableEndpointUrl(resolvedEndpoints.motionsUrl)) {
+    return false;
+  }
+
+  if (treasuryEnabled && !isUsableEndpointUrl(resolvedEndpoints.treasuryUrl)) {
     return false;
   }
 
@@ -394,31 +597,41 @@ function canUseConfiguredFeeds(resolvedEndpoints: ResolvedDashboardEndpoints, mo
 export async function loadMobileDashboardData(manifest: AppManifest): Promise<MobileDashboardData> {
   const resolvedEndpoints = resolveDashboardEndpoints(manifest);
   const motionEnabled = manifest.governance.offchain.enabled;
+  const treasuryEnabled = manifest.features.treasuryView;
 
-  if (!canUseConfiguredFeeds(resolvedEndpoints, motionEnabled)) {
+  if (!canUseConfiguredFeeds(resolvedEndpoints, motionEnabled, treasuryEnabled)) {
     const previewData = buildMockDashboardData("Using local preview data until service endpoints are promoted.");
     return {
       ...previewData,
       endpoints: [
         { label: "Proposals", state: "fallback", transport: "preview", url: resolvedEndpoints.proposalsUrl, detail: `${resolvedEndpoints.proposalsSourceLabel} is still placeholder-backed.` },
-        { label: "Motions", state: manifest.governance.offchain.enabled ? "fallback" : "disabled", transport: manifest.governance.offchain.enabled ? "preview" : "disabled", url: resolvedEndpoints.motionsUrl, detail: manifest.governance.offchain.enabled ? `${resolvedEndpoints.motionsSourceLabel} is still placeholder-backed.` : "Off-chain governance is disabled." },
+        { label: "Motions", state: motionEnabled ? "fallback" : "disabled", transport: motionEnabled ? "preview" : "disabled", url: resolvedEndpoints.motionsUrl, detail: motionEnabled ? `${resolvedEndpoints.motionsSourceLabel} is still placeholder-backed.` : "Off-chain governance is disabled." },
+        { label: "Treasury", state: treasuryEnabled ? "fallback" : "disabled", transport: treasuryEnabled ? "preview" : "disabled", url: resolvedEndpoints.treasuryUrl, detail: treasuryEnabled ? `${resolvedEndpoints.treasurySourceLabel} is still placeholder-backed.` : "Treasury view is disabled." },
+        { label: "Guardian", state: "fallback", transport: "preview", url: resolvedEndpoints.guardianUrl, detail: `${resolvedEndpoints.guardianSourceLabel} is still placeholder-backed.` },
         { label: "Workspace", state: "fallback", transport: "preview", url: resolvedEndpoints.workspaceUrl, detail: `${resolvedEndpoints.workspaceSourceLabel} is still placeholder-backed.` }
       ]
     };
   }
 
+  const skippedFeed = Promise.resolve({ payload: [] as unknown, transport: "fixture" as const });
   const endpointResults = await Promise.allSettled([
     fetchDashboardPayload<unknown>(resolvedEndpoints.proposalsUrl),
     motionEnabled && resolvedEndpoints.motionsUrl
       ? fetchDashboardPayload<unknown>(resolvedEndpoints.motionsUrl)
-      : Promise.resolve({ payload: [], transport: "fixture" as const }),
+      : skippedFeed,
+    treasuryEnabled && resolvedEndpoints.treasuryUrl
+      ? fetchDashboardPayload<unknown>(resolvedEndpoints.treasuryUrl)
+      : skippedFeed,
+    fetchDashboardPayload<unknown>(resolvedEndpoints.guardianUrl),
     fetchDashboardPayload<unknown>(resolvedEndpoints.workspaceUrl)
   ]);
 
   const failures: string[] = [];
   const proposalPayload = endpointResults[0];
   const motionPayload = endpointResults[1];
-  const workspacePayload = endpointResults[2];
+  const treasuryPayload = endpointResults[2];
+  const guardianPayload = endpointResults[3];
+  const workspacePayload = endpointResults[4];
 
   const proposals = proposalPayload.status === "fulfilled"
     ? normalizeProposalCollection(proposalPayload.value.payload)
@@ -426,11 +639,25 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
   const motions = motionPayload.status === "fulfilled"
     ? normalizeMotionCollection(motionPayload.value.payload)
     : (motionEnabled ? failures.push("motions") : null, offchainMotions);
+  const treasury = treasuryPayload.status === "fulfilled"
+    ? normalizeTreasurySnapshot(treasuryPayload.value.payload)
+    : (treasuryEnabled ? failures.push("treasury") : null, treasurySnapshot);
+  const movements = treasuryPayload.status === "fulfilled" && treasuryEnabled
+    ? normalizeTreasuryMovementCollection(treasuryPayload.value.payload)
+    : treasuryMovements;
+  const guardian = guardianPayload.status === "fulfilled"
+    ? normalizeGuardianStatus(guardianPayload.value.payload)
+    : (failures.push("guardian"), guardianStatus);
+  const guardianEventList = guardianPayload.status === "fulfilled"
+    ? normalizeGuardianEventCollection(guardianPayload.value.payload)
+    : guardianEvents;
   const workspace = workspacePayload.status === "fulfilled"
     ? normalizeWorkspaceCollection(workspacePayload.value.payload)
     : (failures.push("workspace"), workspaceItems);
   const proposalTransport = proposalPayload.status === "fulfilled" ? proposalPayload.value.transport : null;
   const motionTransport = motionPayload.status === "fulfilled" ? motionPayload.value.transport : null;
+  const treasuryTransport = treasuryPayload.status === "fulfilled" ? treasuryPayload.value.transport : null;
+  const guardianTransport = guardianPayload.status === "fulfilled" ? guardianPayload.value.transport : null;
   const workspaceTransport = workspacePayload.status === "fulfilled" ? workspacePayload.value.transport : null;
 
   const timestamp = getTimestamp();
@@ -456,6 +683,26 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
           : `Using preview motion queue because ${resolvedEndpoints.motionsSourceLabel.toLowerCase()} failed at ${resolvedEndpoints.motionsUrl}.`
     },
     {
+      label: "Treasury",
+      state: !treasuryEnabled ? "disabled" : treasuryPayload.status === "fulfilled" ? treasuryTransport === "fixture" ? "fixture" : "live" : "fallback",
+      transport: !treasuryEnabled ? "disabled" : treasuryPayload.status === "fulfilled" ? treasuryTransport ?? "remote" : "preview",
+      url: resolvedEndpoints.treasuryUrl,
+      detail: !treasuryEnabled
+        ? "Treasury view is disabled for this release."
+        : treasuryPayload.status === "fulfilled"
+          ? `Loaded treasury snapshot and ${movements.length} movement records from ${resolvedEndpoints.treasurySourceLabel.toLowerCase()}.`
+          : `Using preview treasury snapshot because ${resolvedEndpoints.treasurySourceLabel.toLowerCase()} failed at ${resolvedEndpoints.treasuryUrl}.`
+    },
+    {
+      label: "Guardian",
+      state: guardianPayload.status === "fulfilled" ? guardianTransport === "fixture" ? "fixture" : "live" : "fallback",
+      transport: guardianPayload.status === "fulfilled" ? guardianTransport ?? "remote" : "preview",
+      url: resolvedEndpoints.guardianUrl,
+      detail: guardianPayload.status === "fulfilled"
+        ? `Loaded guardian status and ${guardianEventList.length} event records from ${resolvedEndpoints.guardianSourceLabel.toLowerCase()}.`
+        : `Using preview guardian status because ${resolvedEndpoints.guardianSourceLabel.toLowerCase()} failed at ${resolvedEndpoints.guardianUrl}.`
+    },
+    {
       label: "Workspace",
       state: workspacePayload.status === "fulfilled" ? workspaceTransport === "fixture" ? "fixture" : "live" : "fallback",
       transport: workspacePayload.status === "fulfilled" ? workspaceTransport ?? "remote" : "preview",
@@ -466,8 +713,16 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
     }
   ];
 
+  const enabledFeedCount = 3 + (motionEnabled ? 1 : 0) + (treasuryEnabled ? 1 : 0);
+
   if (failures.length === 0) {
-    const successfulTransports = [proposalTransport, motionEnabled ? motionTransport : null, workspaceTransport].filter(Boolean);
+    const successfulTransports = [
+      proposalTransport,
+      motionEnabled ? motionTransport : null,
+      treasuryEnabled ? treasuryTransport : null,
+      guardianTransport,
+      workspaceTransport
+    ].filter(Boolean);
     const allFixture = successfulTransports.every((transport) => transport === "fixture");
     const someFixture = successfulTransports.some((transport) => transport === "fixture");
 
@@ -475,6 +730,10 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
       proposals,
       motions: motionEnabled ? motions : [],
       workspaceItems: workspace,
+      treasury,
+      treasuryMovements: treasuryEnabled ? movements : [],
+      guardian,
+      guardianEvents: guardianEventList,
       source: allFixture ? "fixture" : someFixture ? "mixed" : "remote",
       syncMessage: allFixture
         ? "Loaded fixture-backed dashboard data through the normalized feed pipeline."
@@ -486,7 +745,7 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
     };
   }
 
-  if (failures.length === 3 || (failures.length === 2 && !motionEnabled)) {
+  if (failures.length === enabledFeedCount) {
     const firstError = endpointResults.find((result) => result.status === "rejected");
     const message = firstError?.status === "rejected" && firstError.reason instanceof Error
       ? firstError.reason.message
@@ -502,6 +761,10 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
     proposals,
     motions: motionEnabled ? motions : [],
     workspaceItems: workspace,
+    treasury,
+    treasuryMovements: treasuryEnabled ? movements : [],
+    guardian,
+    guardianEvents: guardianEventList,
     source: "mixed",
     syncMessage: `Loaded live data with preview fallback for ${failures.join(", ")}.`,
     lastUpdatedAt: timestamp,

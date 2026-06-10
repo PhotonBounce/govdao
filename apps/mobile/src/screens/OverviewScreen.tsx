@@ -2,10 +2,9 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ModulePill } from "../components/ModulePill";
 import { SectionCard } from "../components/SectionCard";
 import { SignalRow } from "../components/SignalRow";
+import { ActiveView } from "../shellTypes";
 import { AppManifest } from "../types";
 import { palette, radii } from "../theme";
-
-type ActiveView = "overview" | "proposals" | "modules" | "settings";
 
 interface LaunchpadAction {
   label: string;

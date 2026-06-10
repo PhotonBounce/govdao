@@ -13,6 +13,7 @@ import { ModulesScreen } from "./src/screens/ModulesScreen";
 import { OverviewScreen } from "./src/screens/OverviewScreen";
 import { ProposalsScreen } from "./src/screens/ProposalsScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
+import { TreasuryScreen } from "./src/screens/TreasuryScreen";
 import { AppManifest } from "./src/types";
 import { palette, radii } from "./src/theme";
 
@@ -60,8 +61,11 @@ export default function App() {
     detailStack,
     governanceHeadline,
     governanceSubtitle,
+    guardian,
+    guardianEvents,
     hasModuleView,
     hasProposalView,
+    hasTreasuryView,
     launchpadActions,
     metadataConfigured,
     modules,
@@ -74,15 +78,19 @@ export default function App() {
     routeDescriptor,
     routeSignals,
     supportConfigured,
+    treasury,
+    treasuryMovements,
     warnings,
     workspaceItems,
     workspaceModule,
     closeDetail,
     jumpToDetail,
     openDetail,
+    openGuardianEvent,
     openModule,
     openMotion,
     openProposal,
+    openTreasuryMovement,
     openView,
     openWorkspace
   } = useMobileShellController(manifest);
@@ -113,6 +121,19 @@ export default function App() {
           offchainEnabled={manifest.governance.offchain.enabled}
           onSelectProposal={openProposal}
           onSelectMotion={openMotion}
+        />
+      );
+    }
+
+    if (activeView === "treasury") {
+      return (
+        <TreasuryScreen
+          treasury={treasury}
+          movements={treasuryMovements}
+          guardian={guardian}
+          guardianEvents={guardianEvents}
+          onSelectMovement={openTreasuryMovement}
+          onSelectGuardianEvent={openGuardianEvent}
         />
       );
     }
@@ -194,6 +215,7 @@ export default function App() {
         <View style={styles.navRow}>
           <NavTab active={activeView === "overview"} label="Overview" onPress={() => openView("overview")} />
           {hasProposalView ? <NavTab active={activeView === "proposals"} label="Proposals" onPress={() => openView("proposals")} /> : null}
+          {hasTreasuryView ? <NavTab active={activeView === "treasury"} label="Treasury" onPress={() => openView("treasury")} /> : null}
           {hasModuleView ? <NavTab active={activeView === "modules"} label="Modules" onPress={() => openView("modules")} /> : null}
           <NavTab active={activeView === "settings"} label="Settings" onPress={() => openView("settings")} />
         </View>

@@ -3,9 +3,11 @@ import { useMobileDashboardData } from "./useMobileDashboardData";
 import { ActiveView, DetailState } from "../shellTypes";
 import { AppManifest } from "../types";
 import {
+  buildGuardianEventDetail,
   buildModuleDetail,
   buildMotionDetail,
   buildProposalDetail,
+  buildTreasuryMovementDetail,
   buildWorkspaceDetail,
   deriveWarnings,
   formatAuthLabel,
@@ -25,25 +27,32 @@ export function useMobileShellController(manifest: AppManifest) {
   const [selectedProposalId, setSelectedProposalId] = useState<string>("");
   const [selectedMotionId, setSelectedMotionId] = useState<string>("");
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string>("");
+  const [selectedMovementId, setSelectedMovementId] = useState<string>("");
   const [selectedModuleId, setSelectedModuleId] = useState<string>(manifest.experiences.primaryModuleId);
 
   const modules = useMemo(() => manifest.experiences.modules.filter((module) => module.enabled), [manifest]);
   const proposals = dashboardData.proposals;
   const motions = dashboardData.motions;
   const workspaceItems = dashboardData.workspaceItems;
+  const treasury = dashboardData.treasury;
+  const treasuryMovements = dashboardData.treasuryMovements;
+  const guardian = dashboardData.guardian;
+  const guardianEvents = dashboardData.guardianEvents;
   const primaryModule = modules.find((module) => module.id === manifest.experiences.primaryModuleId) ?? modules[0];
   const selectedModule = modules.find((module) => module.id === selectedModuleId) ?? primaryModule;
   const workspaceModule = modules.find((module) => module.id !== "dao") ?? modules[0];
   const warnings = useMemo(() => deriveWarnings(manifest), [manifest]);
   const onchainReady = Object.values(manifest.contracts).every((address) => !isPlaceholder(address));
   const hasProposalView = manifest.features.proposalFeed || manifest.governance.offchain.enabled;
+  const hasTreasuryView = manifest.features.treasuryView;
   const hasModuleView = modules.length > 1 || modules.some((module) => module.id !== "dao");
   const availableViews: ActiveView[] = useMemo(() => [
     "overview",
     ...(hasProposalView ? ["proposals"] : []),
+    ...(hasTreasuryView ? ["treasury"] : []),
     ...(hasModuleView ? ["modules"] : []),
     "settings"
-  ] as ActiveView[], [hasModuleView, hasProposalView]);
+  ] as ActiveView[], [hasModuleView, hasProposalView, hasTreasuryView]);
   const currentDetail = detailStack[detailStack.length - 1] ?? null;
   const governanceHeadline = manifest.governance.mode === "on-chain"
     ? "Direct Settlement Governance"
@@ -89,6 +98,12 @@ export function useMobileShellController(manifest: AppManifest) {
     }
   }, [workspaceItems, selectedWorkspaceId]);
 
+  useEffect(() => {
+    if (treasuryMovements.length > 0 && !treasuryMovements.some((movement) => movement.id === selectedMovementId)) {
+      setSelectedMovementId(treasuryMovements[0].id);
+    }
+  }, [treasuryMovements, selectedMovementId]);
+
   function getWorkspaceModuleTitle() {
     return (workspaceModule ?? selectedModule)?.title ?? "Workspace";
   }
@@ -116,6 +131,14 @@ export function useMobileShellController(manifest: AppManifest) {
         eyebrow: "Route",
         title: "Governance Feed",
         subtitle: "Review treasury proposals and hybrid motions in one routed surface."
+      };
+    }
+
+    if (view === "treasury") {
+      return {
+        eyebrow: "Route",
+        title: "Treasury & Safety",
+        subtitle: "Track balances, spending caps, recent movements, and the emergency guardian posture in one place."
       };
     }
 
@@ -153,6 +176,17 @@ export function useMobileShellController(manifest: AppManifest) {
       ];
     }
 
+    if (view === "treasury") {
+      const queuedMovementCount = treasuryMovements.filter((movement) => movement.status === "Queued").length;
+      const pendingGuardianCount = guardianEvents.filter((event) => event.status === "Pending").length;
+
+      return [
+        { label: "Treasury balance", value: treasury.balance, tone: "good" },
+        { label: "Queued movements", value: String(queuedMovementCount), tone: queuedMovementCount > 0 ? "warning" : "neutral" },
+        { label: "Guardian state", value: treasury.paused ? "Paused" : guardian.state, tone: treasury.paused ? "warning" : pendingGuardianCount > 0 ? "warning" : "good" }
+      ];
+    }
+
     if (view === "modules") {
       const readyWorkspaceCount = workspaceItems.filter((item) => item.status === "Ready").length;
       const gatedModules = modules.filter((module) => module.requiresAuth).length;
@@ -187,6 +221,14 @@ export function useMobileShellController(manifest: AppManifest) {
         label: "Open Governance Feed",
         subtitle: manifest.governance.offchain.enabled ? "Review proposals and operating motions together" : "Review on-chain proposals and execution timing",
         view: "proposals"
+      });
+    }
+
+    if (hasTreasuryView) {
+      actions.push({
+        label: "Open Treasury & Safety",
+        subtitle: "Review balances, spending caps, movements, and emergency guardian status",
+        view: "treasury"
       });
     }
 
@@ -229,6 +271,20 @@ export function useMobileShellController(manifest: AppManifest) {
       ];
     }
 
+    if (detail.kind === "treasury") {
+      return [
+        { label: "Back To Treasury", view: "treasury", secondary: true },
+        { label: "Open Governance Feed", view: "proposals" }
+      ];
+    }
+
+    if (detail.kind === "guardian") {
+      return [
+        { label: "Back To Treasury", view: "treasury", secondary: true },
+        { label: "Check Release Settings", view: "settings" }
+      ];
+    }
+
     return [
       { label: "Open Modules", view: "modules", secondary: true },
       { label: "Check Release Settings", view: "settings" }
@@ -261,6 +317,26 @@ export function useMobileShellController(manifest: AppManifest) {
       ];
     }
 
+    if (detail.kind === "treasury") {
+      const relatedProposal = proposals.find((proposal) => proposal.id === selectedProposalId) ?? proposals[0];
+      const relatedGuardianEvent = guardianEvents[0];
+
+      return [
+        ...(relatedProposal ? [{ label: `Review ${relatedProposal.id}`, detail: buildProposalDetail(relatedProposal) }] : []),
+        ...(relatedGuardianEvent ? [{ label: `Inspect ${relatedGuardianEvent.id}`, detail: buildGuardianEventDetail(relatedGuardianEvent, guardian) }] : [])
+      ];
+    }
+
+    if (detail.kind === "guardian") {
+      const relatedMovement = treasuryMovements.find((movement) => movement.id === selectedMovementId) ?? treasuryMovements[0];
+      const relatedWorkspace = workspaceItems.find((item) => item.type.toLowerCase().includes("runbook")) ?? workspaceItems[0];
+
+      return [
+        ...(relatedMovement ? [{ label: `Trace ${relatedMovement.id}`, detail: buildTreasuryMovementDetail(relatedMovement, treasury.custodian) }] : []),
+        ...(relatedWorkspace ? [{ label: `Open ${relatedWorkspace.id}`, detail: buildWorkspaceDetail(relatedWorkspace, getWorkspaceModuleTitle()) }] : [])
+      ];
+    }
+
     const relatedModule = selectedModule ?? workspaceModule;
     const relatedProposal = proposals.find((proposal) => proposal.id === selectedProposalId) ?? proposals[0];
 
@@ -290,6 +366,15 @@ export function useMobileShellController(manifest: AppManifest) {
     openDetail(buildWorkspaceDetail(item, getWorkspaceModuleTitle()));
   }
 
+  function openTreasuryMovement(movement: (typeof treasuryMovements)[number]) {
+    setSelectedMovementId(movement.id);
+    openDetail(buildTreasuryMovementDetail(movement, treasury.custodian));
+  }
+
+  function openGuardianEvent(event: (typeof guardianEvents)[number]) {
+    openDetail(buildGuardianEventDetail(event, guardian));
+  }
+
   return {
     activeView,
     availableViews,
@@ -300,8 +385,11 @@ export function useMobileShellController(manifest: AppManifest) {
     detailStack,
     governanceHeadline,
     governanceSubtitle,
+    guardian,
+    guardianEvents,
     hasModuleView,
     hasProposalView,
+    hasTreasuryView,
     launchpadActions: getLaunchpadActions(),
     metadataConfigured,
     modules,
@@ -315,15 +403,19 @@ export function useMobileShellController(manifest: AppManifest) {
     routeSignals: getRouteSignals(activeView),
     selectedModule,
     supportConfigured,
+    treasury,
+    treasuryMovements,
     warnings,
     workspaceItems,
     workspaceModule,
     closeDetail,
     jumpToDetail,
     openDetail,
+    openGuardianEvent,
     openModule,
     openMotion,
     openProposal,
+    openTreasuryMovement,
     openView,
     openWorkspace
   };

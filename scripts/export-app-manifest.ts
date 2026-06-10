@@ -53,6 +53,8 @@ export interface AppManifest {
     mobileFeeds: {
       proposalsPath: string;
       motionsPath: string;
+      treasuryPath: string;
+      guardianPath: string;
       workspacePath: string;
     };
   };
@@ -201,6 +203,8 @@ export function buildManifest(): AppManifest {
       mobileFeeds: {
         proposalsPath: getEnv("MOBILE_FEED_PROPOSALS_PATH", "/mobile/proposals"),
         motionsPath: getEnv("MOBILE_FEED_MOTIONS_PATH", "/mobile/motions"),
+        treasuryPath: getEnv("MOBILE_FEED_TREASURY_PATH", "/mobile/treasury"),
+        guardianPath: getEnv("MOBILE_FEED_GUARDIAN_PATH", "/mobile/guardian"),
         workspacePath: getEnv("MOBILE_FEED_WORKSPACE_PATH", "/mobile/workspace")
       }
     },

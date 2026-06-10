@@ -42,6 +42,72 @@ export const offchainMotions = [
   }
 ];
 
+export const treasurySnapshot = {
+  custodian: "Treasury Timelock",
+  balance: "128.4 ETH",
+  perTransferCap: "25 ETH",
+  dailyCap: "60 ETH",
+  paused: false,
+  reportingWindow: "Last 30 days"
+};
+
+export const treasuryMovements = [
+  {
+    id: "TRX-88",
+    title: "Security retainer payout",
+    direction: "Outflow",
+    amount: "12.0 ETH",
+    status: "Executed",
+    counterparty: "Audit Collective",
+    nextStep: "Attach the execution receipt to the monthly treasury report"
+  },
+  {
+    id: "TRX-91",
+    title: "Member dues sweep",
+    direction: "Inflow",
+    amount: "4.6 ETH",
+    status: "Settled",
+    counterparty: "Membership Contract",
+    nextStep: "Reconcile the sweep against the registry snapshot"
+  },
+  {
+    id: "TRX-93",
+    title: "Community grants tranche",
+    direction: "Outflow",
+    amount: "8.5 ETH",
+    status: "Queued",
+    counterparty: "Grants Committee Safe",
+    nextStep: "Wait for timelock release before execution"
+  }
+];
+
+export const guardianStatus = {
+  state: "Standby",
+  threshold: "3-of-5",
+  signers: "5 active signers",
+  pauseWindow: "No active pause",
+  lastDrill: "Quarterly drill completed 12d ago"
+};
+
+export const guardianEvents = [
+  {
+    id: "GRD-12",
+    title: "Scheduled pause drill",
+    severity: "Routine",
+    status: "Completed",
+    owner: "Security Desk",
+    nextStep: "File the drill report into the workspace runbook"
+  },
+  {
+    id: "GRD-15",
+    title: "Signer rotation request",
+    severity: "Elevated",
+    status: "Pending",
+    owner: "Security Council",
+    nextStep: "Collect 3-of-5 signatures before the rotation executes"
+  }
+];
+
 export const workspaceItems = [
   {
     id: "DOC-9",

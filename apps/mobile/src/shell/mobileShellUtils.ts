@@ -1,4 +1,4 @@
-import { MotionItem, ProposalItem, WorkspaceItem } from "../data/mobileDataSource";
+import { GuardianEventItem, GuardianStatus, MotionItem, ProposalItem, TreasuryMovementItem, WorkspaceItem } from "../data/mobileDataSource";
 import { ActiveView, DetailState } from "../shellTypes";
 import { AppManifest } from "../types";
 
@@ -151,6 +151,33 @@ export function buildModuleDetail(module: ModuleItem, manifest: AppManifest): De
     owner: narrative.owner,
     nextStep: narrative.nextStep,
     meta: [`Kind ${module.kind}`, `Route ${module.entryRoute}`, `Auth ${module.requiresAuth ? "Required" : "Guest"}`]
+  };
+}
+
+export function buildTreasuryMovementDetail(movement: TreasuryMovementItem, custodian: string): DetailState {
+  return {
+    refId: movement.id,
+    kind: "treasury",
+    eyebrow: "Treasury Movement",
+    title: movement.title,
+    summary: `${movement.direction} of ${movement.amount} with ${movement.counterparty}, settled through ${custodian}.`,
+    owner: movement.counterparty,
+    nextStep: movement.nextStep,
+    meta: [`Status ${movement.status}`, `Direction ${movement.direction}`, `Amount ${movement.amount}`]
+  };
+}
+
+export function buildGuardianEventDetail(event: GuardianEventItem, guardian: GuardianStatus): DetailState {
+  return {
+    refId: event.id,
+    kind: "guardian",
+    eyebrow: "Guardian Event",
+    title: event.title,
+    summary: `${event.severity} guardian event while the signer set is in ${guardian.state.toLowerCase()} at ${guardian.threshold}.`,
+    owner: event.owner,
+    nextStep: event.nextStep,
+    tone: "graphite",
+    meta: [`Severity ${event.severity}`, `Status ${event.status}`, `Threshold ${guardian.threshold}`]
   };
 }
 
