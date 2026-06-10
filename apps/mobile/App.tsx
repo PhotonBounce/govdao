@@ -7,6 +7,7 @@ import { ModulePill } from "./src/components/ModulePill";
 import { NavTab } from "./src/components/NavTab";
 import { RouteSummaryStrip } from "./src/components/RouteSummaryStrip";
 import { SectionCard } from "./src/components/SectionCard";
+import { ProposalIntegrityCard } from "./src/components/ProposalIntegrityCard";
 import { SessionCard } from "./src/components/SessionCard";
 import { VotePanel } from "./src/components/VotePanel";
 import { useMobileShellController } from "./src/hooks/useMobileShellController";
@@ -201,15 +202,21 @@ export default function App() {
       return null;
     }
 
+    const detailProposal = currentDetail.kind === "proposal"
+      ? proposals.find((proposal) => proposal.id === currentDetail.refId)
+      : undefined;
     const votePanel = currentDetail.kind === "proposal" ? (
-      <VotePanel
-        proposalId={currentDetail.refId}
-        votingEnabled={manifest.features.voting}
-        sessionActive={sessionActive}
-        voteState={getVoteState(currentDetail.refId)}
-        onCastVote={(choice) => castVote(currentDetail.refId, choice)}
-        onResetVote={() => resetVote(currentDetail.refId)}
-      />
+      <>
+        {detailProposal ? <ProposalIntegrityCard manifest={manifest} proposal={detailProposal} /> : null}
+        <VotePanel
+          proposalId={currentDetail.refId}
+          votingEnabled={manifest.features.voting}
+          sessionActive={sessionActive}
+          voteState={getVoteState(currentDetail.refId)}
+          onCastVote={(choice) => castVote(currentDetail.refId, choice)}
+          onResetVote={() => resetVote(currentDetail.refId)}
+        />
+      </>
     ) : undefined;
 
     return (

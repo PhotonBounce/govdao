@@ -41,7 +41,10 @@ const fixturePayloads: Record<string, unknown> = {
         deadline: "18h",
         description: "Confirms the member-facing release checklist before expanding the internal-track pilot.",
         sponsor: "Release Council",
-        recommendedAction: "Collect final delegate approvals and publish the release note set"
+        recommendedAction: "Collect final delegate approvals and publish the release note set",
+        proposalIndex: 7,
+        documentUri: "fixture://govdao/docs/gov-201",
+        documentHash: "0xbfe372799f3fe4fa780c8eff6fc21dedcf34b182702379ba80f94d4cc15d6cf8"
       },
       {
         proposalId: "GOV-202",
@@ -51,7 +54,10 @@ const fixturePayloads: Record<string, unknown> = {
         executionEta: "6h",
         description: "Moves the emergency response rehearsal from quarterly to monthly with expanded signer coverage.",
         sponsor: "Security Operations",
-        recommendedAction: "Wait for timelock expiry and executor confirmation"
+        recommendedAction: "Wait for timelock expiry and executor confirmation",
+        proposalIndex: 8,
+        documentUri: "fixture://govdao/docs/gov-202",
+        documentHash: "0x14dc142eafadaf58657e4d35121ff52fe28eb202ed00de8d5a76bea0f835a40d"
       }
     ]
   },
@@ -434,7 +440,10 @@ function normalizeProposalItem(value: unknown, index: number): ProposalItem {
     eta: readString(record.eta ?? record.executionEta ?? record.deadline, fallback.eta),
     summary: readString(record.summary ?? record.description, fallback.summary),
     owner: readString(record.owner ?? record.sponsor ?? record.author, fallback.owner),
-    nextStep: readString(record.nextStep ?? record.next_action ?? record.recommendedAction, fallback.nextStep)
+    nextStep: readString(record.nextStep ?? record.next_action ?? record.recommendedAction, fallback.nextStep),
+    onchainId: readString(String(record.onchainId ?? record.proposalIndex ?? record.chainProposalId ?? ""), fallback.onchainId),
+    docUri: readString(record.docUri ?? record.documentUri ?? record.metadataURI, fallback.docUri),
+    docHash: readString(record.docHash ?? record.documentHash ?? record.metadataHash, fallback.docHash)
   };
 }
 

@@ -18,8 +18,12 @@ const SELECTORS = {
   treasuryPaused: "0x5c975abb", // paused()
   spendCapPerTx: "0x95692e28", // spendCapPerTx()
   memberCount: "0x997072f7", // getMemberCount()
-  guardianPaused: "0xb187bd26" // isPaused()
+  guardianPaused: "0xb187bd26", // isPaused()
+  proposalState: "0x9080936f" // getProposalState(uint256)
 };
+
+// Mirrors IGovernor.ProposalState enum ordering.
+const PROPOSAL_STATE_LABELS = ["Proposed", "Voting", "Defeated", "Succeeded", "Queued", "Cancelled", "Executed"];
 
 function isPlaceholder(value: string): boolean {
   const normalized = value.trim().toLowerCase();
@@ -106,6 +110,54 @@ function hexToBool(value: string): boolean {
 
 function settled<T>(result: PromiseSettledResult<string>, transform: (value: string) => T): T | null {
   return result.status === "fulfilled" ? transform(result.value) : null;
+}
+
+export interface ProposalChainState {
+  available: boolean;
+  label: string | null;
+  detail: string;
+}
+
+export function isGovernorConfigured(manifest: AppManifest): boolean {
+  return !isPlaceholder(manifest.chain.rpcUrl) && !isPlaceholder(manifest.contracts.governor);
+}
+
+export async function loadProposalChainState(manifest: AppManifest, onchainId: string): Promise<ProposalChainState> {
+  if (!isGovernorConfigured(manifest)) {
+    return {
+      available: false,
+      label: null,
+      detail: "Live proposal status is waiting on a real RPC endpoint and a deployed Governor address."
+    };
+  }
+
+  if (!/^\d+$/.test(onchainId)) {
+    return {
+      available: false,
+      label: null,
+      detail: "This proposal does not carry an on-chain proposal id."
+    };
+  }
+
+  try {
+    const encodedId = BigInt(onchainId).toString(16).padStart(64, "0");
+    const result = await ethCall(manifest.chain.rpcUrl, manifest.contracts.governor, `${SELECTORS.proposalState}${encodedId}`);
+    const stateIndex = Number(hexToBigInt(result));
+    const label = PROPOSAL_STATE_LABELS[stateIndex] ?? `Unknown state ${stateIndex}`;
+
+    return {
+      available: true,
+      label,
+      detail: `Governor reports this proposal as ${label} on ${manifest.chain.name}.`
+    };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "the Governor read failed";
+    return {
+      available: false,
+      label: null,
+      detail: `Live proposal status is unavailable: ${message}.`
+    };
+  }
 }
 
 export async function loadOnchainSnapshot(manifest: AppManifest): Promise<OnchainSnapshot> {

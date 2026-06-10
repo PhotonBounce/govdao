@@ -46,7 +46,7 @@ From the minimum feature list in [MOBILE_DISTRIBUTION.md](MOBILE_DISTRIBUTION.md
 | --- | --- |
 | Wallet / passkey sign-in | Partial — full sign-in/sign-out flow with session state and module auth gating, but the handshake uses fixture signers; real WalletConnect/passkey SDK integration pending |
 | Proposal feed with metadata | Done (fixture/remote normalized feed) |
-| Proposal detail with on-chain status + doc hash verification | Partial — detail view exists, and `chainSource.ts` now does live JSON-RPC contract reads (treasury balance/pause, spend cap, member count, guardian pause) surfaced in Treasury & Safety; per-proposal Governor state reads and document hash verification still pending |
+| Proposal detail with on-chain status + doc hash verification | Done — proposal detail carries an Integrity card with live `Governor.getProposalState` reads (graceful "chain offline" fallback) and keccak-256 document verification against the anchored hash, matching the contract's `metadataHash` scheme; keccak is implemented dependency-free and vector-tested |
 | Vote casting + transaction confirmation | Partial — session-gated ballot on proposal detail with signing/pending/confirmed states and receipts, but settlement is a fixture transaction; on-chain `Governor.castVote` submission pending |
 | Treasury transparency dashboard | Done as read-only feed-backed view (balances, caps, pause state, movements) |
 | Guardian emergency status screen | Done as read-only feed-backed panel (state, threshold, signers, drills, events) |
@@ -57,7 +57,7 @@ From the minimum feature list in [MOBILE_DISTRIBUTION.md](MOBILE_DISTRIBUTION.md
 ## Suggested Next Milestones (in order)
 
 1. **On-chain settlement** — replace the fixture paths with real integrations: `voteSource.ts#castVoteTransaction` → `Governor.castVote` via `chain.rpcUrl`, and `sessionSource.ts#connectSession` → WalletConnect/passkey SDKs. Controllers and UI stay as-is.
-2. **Proposal on-chain status + document hash verification** — extend `chainSource.ts` with `Governor.getProposalState(proposalId)` reads on proposal detail and verify off-chain document hashes. Note: solc binary downloads are blocked in sandboxed dev environments, so full deploy-and-read verification needs an environment that can compile contracts (CI or local); `mobile:check-chain` accepts `CHAIN_RPC_URL`/`*_ADDRESS` env overrides for that.
+2. **Deploy-and-read verification in CI** — solc binary downloads are blocked in sandboxed dev environments, so full deploy-contracts-then-read verification needs an environment that can compile (CI or local); `mobile:check-chain` and `mobile:check-proposal` accept `CHAIN_RPC_URL`/`*_ADDRESS` env overrides for exactly that.
 3. **Live endpoint promotion** — replace `fixture://govdao` overrides with real HTTPS services; the normalizers already tolerate alternate field names.
 4. **Production manifest values** — RPC endpoint, deployed contract addresses, real support/privacy/terms URLs; `npm run release:google-play` enumerates exactly what is still placeholder-backed.
 
@@ -74,5 +74,6 @@ From the minimum feature list in [MOBILE_DISTRIBUTION.md](MOBILE_DISTRIBUTION.md
 - `npm run mobile:check-session` — exercises the access-option list and sign-in handshakes headlessly
 - `npm run mobile:check-vote` — signs in, loads the proposal feed, and casts a fixture vote end-to-end
 - `npm run mobile:check-chain` — verifies the on-chain snapshot degrades gracefully on placeholder config, or reads a live node when `CHAIN_RPC_URL`/`TREASURY_ADDRESS`/`MEMBER_REGISTRY_ADDRESS`/`EMERGENCY_GUARDIAN_ADDRESS` are set
+- `npm run mobile:check-proposal` — keccak-256 test vectors, document verification for every feed proposal, tamper detection, and Governor state fallback (live read with `CHAIN_RPC_URL`/`GOVERNOR_ADDRESS`)
 - `npm run release:google-play` — full release gate (mobile validate, manifest export, Play validation)
 - `npm test` — Hardhat contract suite

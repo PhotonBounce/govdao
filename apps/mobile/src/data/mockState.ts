@@ -7,7 +7,10 @@ export const proposalFeed = [
     eta: "11h",
     summary: "Adds two institutional signers and rotates the old threshold to 3-of-5.",
     owner: "Security Council",
-    nextStep: "Wait for timelock expiry and executor confirmation"
+    nextStep: "Wait for timelock expiry and executor confirmation",
+    onchainId: "1",
+    docUri: "fixture://govdao/docs/gov-104",
+    docHash: "0xa6bf7844d647eea9d3ecb510f58b23d4bf18fd999aca959d7c3fa907a3835020"
   },
   {
     id: "GOV-105",
@@ -17,7 +20,10 @@ export const proposalFeed = [
     eta: "2d",
     summary: "Moves monthly treasury reports into an anchored off-chain review flow with on-chain acceptance.",
     owner: "Finance Working Group",
-    nextStep: "Collect final delegate votes and publish report template"
+    nextStep: "Collect final delegate votes and publish report template",
+    onchainId: "2",
+    docUri: "fixture://govdao/docs/gov-105",
+    docHash: "0x30e7b04dd160ab7aaaacefd2f85adb0d0417804c897b1b74840f6af612992e0b"
   }
 ];
 
