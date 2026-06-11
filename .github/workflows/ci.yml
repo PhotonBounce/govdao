@@ -40,6 +40,14 @@ jobs:
       - run: npm run mobile:check-vote
       - run: npm run mobile:check-proposal
       - run: npm run mobile:check-chain
+      - name: App config matches manifest
+        run: |
+          npm run export:manifest -- --output /tmp/play-manifest.json
+          npm run validate:app-config -- --manifest /tmp/play-manifest.json
+      - name: Generated assets are current
+        run: |
+          npm --prefix apps/mobile run generate:assets
+          git diff --exit-code apps/mobile/assets
       - name: Web bundle export
         working-directory: apps/mobile
         env:

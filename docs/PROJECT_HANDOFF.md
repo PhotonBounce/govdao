@@ -38,6 +38,8 @@ Member access: a manifest-driven sign-in flow (`sessionSource.ts` → `useSessio
 
 Web bundling works: `react-native-web`/`react-dom`/`@expo/metro-runtime` are installed, and `EXPO_OFFLINE=1 npx expo export --platform web --output-dir dist` (from `apps/mobile`) produces a static build. `EXPO_OFFLINE=1` matters in sandboxed environments because the Expo CLI otherwise blocks on its version-check API.
 
+Store packaging is wired: branded icon/adaptive-icon/splash are generated reproducibly by `npm --prefix apps/mobile run generate:assets` (pure node, no image deps — regenerate instead of editing the PNGs), `app.json` carries the Android package/versionCode/empty-permissions config, `eas.json` defines internal (APK) and production (AAB) build profiles, and `scripts/validate-app-config.ts` keeps `app.json` in lockstep with the manifest as part of `release:google-play` and CI. Draft legal documents live in `docs/legal/` and the Play Console worksheet in `docs/PLAY_LISTING.md`.
+
 ### Store-submission checklist status
 
 From the minimum feature list in [MOBILE_DISTRIBUTION.md](MOBILE_DISTRIBUTION.md):

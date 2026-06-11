@@ -14,7 +14,8 @@
     "check:session": "node scripts/check-session.mjs",
     "check:vote": "node scripts/check-vote.mjs",
     "check:chain": "node scripts/check-chain.mjs",
-    "check:proposal": "node scripts/check-proposal.mjs"
+    "check:proposal": "node scripts/check-proposal.mjs",
+    "generate:assets": "node scripts/generate-assets.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.5",

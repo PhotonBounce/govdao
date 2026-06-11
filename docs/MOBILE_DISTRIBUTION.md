@@ -74,6 +74,7 @@ There is now a starter Expo client in [apps/mobile](apps/mobile):
 - the Settings surface opens privacy, terms, support site, and support email through real link-outs, covering the in-app disclosure requirement for store review
 - the Treasury & Safety view performs live JSON-RPC contract reads (treasury balance and pause state, spend cap, member count, guardian pause) once the manifest carries a real RPC endpoint and contract addresses, and degrades to a clearly-labelled "not connected" panel until then; `npm run mobile:check-chain` validates both paths
 - proposal details carry an Integrity card: live `Governor.getProposalState` reads plus keccak-256 verification of the off-chain proposal document against its anchored hash (the contract's `metadataHash` scheme); `npm run mobile:check-proposal` covers hash vectors, verification, and tamper detection
+- store packaging is in place: generated icon/adaptive-icon/splash assets (`npm --prefix apps/mobile run generate:assets`), Android package and versionCode wiring in `app.json` validated against the manifest by `npm run validate:app-config`, EAS build profiles in `apps/mobile/eas.json`, draft privacy/terms documents in [docs/legal](legal), and the Play Console worksheet in [docs/PLAY_LISTING.md](PLAY_LISTING.md)
 
 The manifest now also supports:
 

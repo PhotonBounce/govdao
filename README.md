@@ -35,6 +35,7 @@ For current build status and the next planned milestones, see [docs/PROJECT_HAND
 - `npm run deploy:sepolia`
 - `npm run export:manifest -- --output config/mobile-app.manifest.local.json`
 - `npm run validate:google-play -- --manifest config/mobile-app.manifest.local.json`
+- `npm run validate:app-config -- --manifest config/mobile-app.manifest.local.json`
 - `npm run release:google-play`
 - `npm run mobile:sync-manifest`
 - `npm run mobile:check-manifest`
