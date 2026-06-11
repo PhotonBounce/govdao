@@ -1,6 +1,6 @@
-export type ActiveView = "overview" | "proposals" | "treasury" | "modules" | "settings";
+export type ActiveView = "overview" | "proposals" | "create-proposal" | "treasury" | "modules" | "settings";
 
-export type DetailKind = "proposal" | "motion" | "module" | "workspace" | "treasury" | "guardian";
+export type DetailKind = "proposal" | "motion" | "module" | "workspace" | "treasury" | "guardian" | "member";
 
 export type DetailState = {
   refId: string;

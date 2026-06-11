@@ -140,3 +140,38 @@ export const workspaceItems = [
     nextStep: "Share with governance leads and attach to next proposal brief"
   }
 ];
+
+export const memberRoster = [
+  {
+    id: "MBR-001",
+    address: "0xA1b2C3d4E5f6a7B8C9d0E1f2A3B4C5D6E7F8a9B0",
+    displayName: "Security Council",
+    role: "Guardian Delegate",
+    status: "Active",
+    joinedAt: "2024-01-15"
+  },
+  {
+    id: "MBR-002",
+    address: "0xD4e5F6a7B8c9D0e1F2a3B4c5D6e7F8a9B0C1d2E3",
+    displayName: "Finance Working Group",
+    role: "Treasury Steward",
+    status: "Active",
+    joinedAt: "2024-02-20"
+  },
+  {
+    id: "MBR-003",
+    address: "0xB9c0D1e2F3a4B5c6D7e8F9a0B1c2D3e4F5a6B7c8",
+    displayName: "Release Council",
+    role: "Protocol Operator",
+    status: "Active",
+    joinedAt: "2024-03-10"
+  },
+  {
+    id: "MBR-004",
+    address: "0xE2f3A4b5C6d7E8f9A0b1C2d3E4f5A6b7C8d9E0f1",
+    displayName: "Community Operations",
+    role: "Delegate",
+    status: "Active",
+    joinedAt: "2024-04-05"
+  }
+];

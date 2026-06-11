@@ -4,6 +4,7 @@ import { ActiveView, DetailState } from "../shellTypes";
 import { AppManifest } from "../types";
 import {
   buildGuardianEventDetail,
+  buildMemberDetail,
   buildModuleDetail,
   buildMotionDetail,
   buildProposalDetail,
@@ -38,6 +39,7 @@ export function useMobileShellController(manifest: AppManifest) {
   const treasuryMovements = dashboardData.treasuryMovements;
   const guardian = dashboardData.guardian;
   const guardianEvents = dashboardData.guardianEvents;
+  const members = dashboardData.members;
   const primaryModule = modules.find((module) => module.id === manifest.experiences.primaryModuleId) ?? modules[0];
   const selectedModule = modules.find((module) => module.id === selectedModuleId) ?? primaryModule;
   const workspaceModule = modules.find((module) => module.id !== "dao") ?? modules[0];
@@ -46,13 +48,15 @@ export function useMobileShellController(manifest: AppManifest) {
   const hasProposalView = manifest.features.proposalFeed || manifest.governance.offchain.enabled;
   const hasTreasuryView = manifest.features.treasuryView;
   const hasModuleView = modules.length > 1 || modules.some((module) => module.id !== "dao");
+  const hasProposalCreation = manifest.features.proposalCreation;
   const availableViews: ActiveView[] = useMemo(() => [
     "overview",
     ...(hasProposalView ? ["proposals"] : []),
+    ...(hasProposalCreation ? ["create-proposal"] : []),
     ...(hasTreasuryView ? ["treasury"] : []),
     ...(hasModuleView ? ["modules"] : []),
     "settings"
-  ] as ActiveView[], [hasModuleView, hasProposalView, hasTreasuryView]);
+  ] as ActiveView[], [hasModuleView, hasProposalCreation, hasProposalView, hasTreasuryView]);
   const currentDetail = detailStack[detailStack.length - 1] ?? null;
   const governanceHeadline = manifest.governance.mode === "on-chain"
     ? "Direct Settlement Governance"
@@ -134,6 +138,14 @@ export function useMobileShellController(manifest: AppManifest) {
       };
     }
 
+    if (view === "create-proposal") {
+      return {
+        eyebrow: "Route",
+        title: "New Proposal",
+        subtitle: "Draft and submit a governance proposal. Requires an active member session."
+      };
+    }
+
     if (view === "treasury") {
       return {
         eyebrow: "Route",
@@ -166,6 +178,14 @@ export function useMobileShellController(manifest: AppManifest) {
   }
 
   function getRouteSignals(view: ActiveView): RouteSignal[] {
+    if (view === "create-proposal") {
+      return [
+        { label: "Required fields", value: "Title, Summary", tone: "neutral" },
+        { label: "Optional fields", value: "Doc URI, Doc Hash", tone: "neutral" },
+        { label: "Settlement", value: "FIXTURE TX (until on-chain)", tone: "warning" }
+      ];
+    }
+
     if (view === "proposals") {
       const queuedCount = proposals.filter((proposal) => proposal.state === "Queued").length;
 
@@ -375,6 +395,19 @@ export function useMobileShellController(manifest: AppManifest) {
     openDetail(buildGuardianEventDetail(event, guardian));
   }
 
+  function openMember(member: (typeof members)[number]) {
+    openDetail(buildMemberDetail(member));
+  }
+
+  function openCreateProposal() {
+    setDetailStack([]);
+    setActiveView("create-proposal");
+  }
+
+  function closeCreateProposal() {
+    setActiveView("proposals");
+  }
+
   return {
     activeView,
     availableViews,
@@ -388,9 +421,11 @@ export function useMobileShellController(manifest: AppManifest) {
     guardian,
     guardianEvents,
     hasModuleView,
+    hasProposalCreation,
     hasProposalView,
     hasTreasuryView,
     launchpadActions: getLaunchpadActions(),
+    members,
     metadataConfigured,
     modules,
     motions,
@@ -409,14 +444,17 @@ export function useMobileShellController(manifest: AppManifest) {
     workspaceItems,
     workspaceModule,
     closeDetail,
+    closeCreateProposal,
     jumpToDetail,
     openDetail,
     openGuardianEvent,
+    openMember,
     openModule,
     openMotion,
     openProposal,
     openTreasuryMovement,
     openView,
-    openWorkspace
+    openWorkspace,
+    openCreateProposal
   };
 }

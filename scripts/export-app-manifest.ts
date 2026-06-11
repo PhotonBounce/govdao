@@ -56,6 +56,7 @@ export interface AppManifest {
       treasuryPath: string;
       guardianPath: string;
       workspacePath: string;
+      membersPath: string;
     };
   };
   support: {
@@ -205,7 +206,8 @@ export function buildManifest(): AppManifest {
         motionsPath: getEnv("MOBILE_FEED_MOTIONS_PATH", "/mobile/motions"),
         treasuryPath: getEnv("MOBILE_FEED_TREASURY_PATH", "/mobile/treasury"),
         guardianPath: getEnv("MOBILE_FEED_GUARDIAN_PATH", "/mobile/guardian"),
-        workspacePath: getEnv("MOBILE_FEED_WORKSPACE_PATH", "/mobile/workspace")
+        workspacePath: getEnv("MOBILE_FEED_WORKSPACE_PATH", "/mobile/workspace"),
+        membersPath: getEnv("MOBILE_FEED_MEMBERS_PATH", "/mobile/members")
       }
     },
     support: {

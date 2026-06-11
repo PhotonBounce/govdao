@@ -53,7 +53,8 @@
       "motionsPath": "/mobile/motions",
       "treasuryPath": "/mobile/treasury",
       "guardianPath": "/mobile/guardian",
-      "workspacePath": "/mobile/workspace"
+      "workspacePath": "/mobile/workspace",
+      "membersPath": "/mobile/members"
     }
   },
   "support": {

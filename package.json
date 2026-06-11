@@ -19,6 +19,8 @@
     "mobile:check-vote": "npm --prefix apps/mobile run check:vote",
     "mobile:check-chain": "npm --prefix apps/mobile run check:chain",
     "mobile:check-proposal": "npm --prefix apps/mobile run check:proposal",
+    "mobile:check-create": "npm --prefix apps/mobile run check:create",
+    "mobile:check-members": "npm --prefix apps/mobile run check:members",
     "release:google-play": "npm run mobile:validate && ts-node scripts/export-app-manifest.ts --output config/mobile-app.manifest.google-play.generated.json && ts-node scripts/validate-google-play-release.ts --manifest config/mobile-app.manifest.google-play.generated.json && ts-node scripts/validate-app-config.ts --manifest config/mobile-app.manifest.google-play.generated.json",
     "mobile:sync-manifest": "npm --prefix apps/mobile run sync:manifest",
     "mobile:check-manifest": "npm --prefix apps/mobile run check:manifest",

@@ -52,6 +52,7 @@ export interface AppManifest {
       treasuryPath: string;
       guardianPath: string;
       workspacePath: string;
+      membersPath: string;
     };
   };
   support: {

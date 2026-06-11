@@ -1,7 +1,9 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { MembersPanel } from "../components/MembersPanel";
 import { ModulePill } from "../components/ModulePill";
 import { SectionCard } from "../components/SectionCard";
 import { SignalRow } from "../components/SignalRow";
+import { MemberItem } from "../data/mobileDataSource";
 import { ActiveView } from "../shellTypes";
 import { AppManifest } from "../types";
 import { palette, radii } from "../theme";
@@ -16,24 +18,28 @@ interface OverviewScreenProps {
   manifest: AppManifest;
   warnings: string[];
   modulesCount: number;
+  members: MemberItem[];
   governanceHeadline: string;
   governanceSubtitle: string;
   onchainReady: boolean;
   launchpadActions: LaunchpadAction[];
   offchainAuthLabels: string[];
   onOpenView: (view: ActiveView) => void;
+  onSelectMember: (member: MemberItem) => void;
 }
 
 export function OverviewScreen({
   manifest,
   warnings,
   modulesCount,
+  members,
   governanceHeadline,
   governanceSubtitle,
   onchainReady,
   launchpadActions,
   offchainAuthLabels,
-  onOpenView
+  onOpenView,
+  onSelectMember
 }: OverviewScreenProps) {
   return (
     <>
@@ -126,6 +132,14 @@ export function OverviewScreen({
         <Text style={styles.darkMeta}>Proposal storage: {manifest.governance.offchain.proposalStorage}</Text>
         <Text style={styles.darkMeta}>Vote storage: {manifest.governance.offchain.voteStorage}</Text>
         <Text style={styles.darkMeta}>Off-chain API: {manifest.governance.offchain.apiBaseUrl}</Text>
+      </SectionCard>
+
+      <SectionCard
+        eyebrow="Member Registry"
+        title={`${members.length} Registered Member${members.length !== 1 ? "s" : ""}`}
+        subtitle="Active members loaded from the registry feed. Tap a member to view their role and on-chain address."
+      >
+        <MembersPanel members={members} onSelectMember={onSelectMember} />
       </SectionCard>
     </>
   );

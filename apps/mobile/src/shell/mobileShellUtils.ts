@@ -1,4 +1,4 @@
-import { GuardianEventItem, GuardianStatus, MotionItem, ProposalItem, TreasuryMovementItem, WorkspaceItem } from "../data/mobileDataSource";
+import { GuardianEventItem, GuardianStatus, MemberItem, MotionItem, ProposalItem, TreasuryMovementItem, WorkspaceItem } from "../data/mobileDataSource";
 import { ActiveView, DetailState } from "../shellTypes";
 import { AppManifest } from "../types";
 
@@ -191,5 +191,19 @@ export function buildWorkspaceDetail(item: WorkspaceItem, moduleTitle: string): 
     owner: item.owner,
     nextStep: item.nextStep,
     meta: [`Status ${item.status}`, `Type ${item.type}`, `Module ${moduleTitle}`]
+  };
+}
+
+export function buildMemberDetail(member: MemberItem): DetailState {
+  const shortAddress = `${member.address.slice(0, 6)}…${member.address.slice(-4)}`;
+  return {
+    refId: member.id,
+    kind: "member",
+    eyebrow: "Member Profile",
+    title: member.displayName,
+    summary: `${member.role} — joined ${member.joinedAt}. On-chain address ${shortAddress}.`,
+    owner: member.displayName,
+    nextStep: `Review ${member.displayName}'s participation in active proposals and motions.`,
+    meta: [`Status ${member.status}`, `Role ${member.role}`, `Joined ${member.joinedAt}`]
   };
 }

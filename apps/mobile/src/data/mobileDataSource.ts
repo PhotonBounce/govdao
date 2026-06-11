@@ -2,6 +2,7 @@ import { AppManifest } from "../types";
 import {
   guardianEvents,
   guardianStatus,
+  memberRoster,
   offchainMotions,
   proposalFeed,
   treasuryMovements,
@@ -16,6 +17,7 @@ export type TreasurySnapshot = typeof treasurySnapshot;
 export type TreasuryMovementItem = (typeof treasuryMovements)[number];
 export type GuardianStatus = typeof guardianStatus;
 export type GuardianEventItem = (typeof guardianEvents)[number];
+export type MemberItem = (typeof memberRoster)[number];
 export type MobileDashboardSource = "mock" | "remote" | "fixture" | "mixed";
 export type DashboardEndpointState = "live" | "fixture" | "fallback" | "disabled";
 export type DashboardEndpointTransport = "remote" | "fixture" | "preview" | "disabled";
@@ -168,6 +170,42 @@ const fixturePayloads: Record<string, unknown> = {
         recommendedAction: "Share the digest with governance leads before the next voting window"
       }
     ]
+  },
+  "fixture://govdao/mobile/members": {
+    members: [
+      {
+        memberId: "MBR-201",
+        displayName: "Governance Steward",
+        walletAddress: "0x9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b",
+        memberRole: "On-chain Governor",
+        state: "Active",
+        joinDate: "2024-01-10"
+      },
+      {
+        memberId: "MBR-202",
+        displayName: "Treasury Custodian",
+        walletAddress: "0x1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b",
+        memberRole: "Finance Delegate",
+        state: "Active",
+        joinDate: "2024-02-14"
+      },
+      {
+        memberId: "MBR-203",
+        displayName: "Community Ambassador",
+        walletAddress: "0x2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c",
+        memberRole: "Regional Delegate",
+        state: "Active",
+        joinDate: "2024-05-20"
+      },
+      {
+        memberId: "MBR-204",
+        displayName: "Security Desk Lead",
+        walletAddress: "0x3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d",
+        memberRole: "Guardian Delegate",
+        state: "Active",
+        joinDate: "2024-03-08"
+      }
+    ]
   }
 };
 
@@ -187,6 +225,7 @@ export interface MobileDashboardData {
   treasuryMovements: TreasuryMovementItem[];
   guardian: GuardianStatus;
   guardianEvents: GuardianEventItem[];
+  members: MemberItem[];
   source: MobileDashboardSource;
   syncMessage: string;
   lastUpdatedAt: string;
@@ -204,6 +243,8 @@ interface ResolvedDashboardEndpoints {
   guardianSourceLabel: string;
   workspaceUrl: string;
   workspaceSourceLabel: string;
+  membersUrl: string;
+  membersSourceLabel: string;
 }
 
 function isPlaceholder(value: string): boolean {
@@ -232,6 +273,7 @@ export function buildMockDashboardData(reason: string): MobileDashboardData {
     treasuryMovements,
     guardian: guardianStatus,
     guardianEvents,
+    members: memberRoster,
     source: "mock",
     syncMessage: reason,
     lastUpdatedAt: getTimestamp(),
@@ -240,7 +282,8 @@ export function buildMockDashboardData(reason: string): MobileDashboardData {
       { label: "Motions", state: "fallback", transport: "preview", url: null, detail: "Using preview motion queue." },
       { label: "Treasury", state: "fallback", transport: "preview", url: null, detail: "Using preview treasury snapshot." },
       { label: "Guardian", state: "fallback", transport: "preview", url: null, detail: "Using preview guardian status." },
-      { label: "Workspace", state: "fallback", transport: "preview", url: null, detail: "Using preview workspace queue." }
+      { label: "Workspace", state: "fallback", transport: "preview", url: null, detail: "Using preview workspace queue." },
+      { label: "Members", state: "fallback", transport: "preview", url: null, detail: "Using preview member roster." }
     ]
   };
 }
@@ -319,7 +362,9 @@ function resolveDashboardEndpoints(manifest: AppManifest): ResolvedDashboardEndp
     guardianUrl: joinUrl(onchainBaseUrl, manifest.services.mobileFeeds.guardianPath),
     guardianSourceLabel: onchainSourceLabel("Indexer service"),
     workspaceUrl: joinUrl(workspaceModuleBaseUrl ?? workspaceServiceBaseUrl, manifest.services.mobileFeeds.workspacePath),
-    workspaceSourceLabel: describeSourceLabel(workspaceModuleBaseUrl ?? workspaceServiceBaseUrl, workspaceModuleBaseUrl ? "Workspace module API" : "Metadata service")
+    workspaceSourceLabel: describeSourceLabel(workspaceModuleBaseUrl ?? workspaceServiceBaseUrl, workspaceModuleBaseUrl ? "Workspace module API" : "Metadata service"),
+    membersUrl: joinUrl(onchainBaseUrl, manifest.services.mobileFeeds.membersPath),
+    membersSourceLabel: onchainSourceLabel("Indexer service")
   };
 }
 
@@ -579,6 +624,29 @@ function normalizeWorkspaceCollection(payload: unknown): WorkspaceItem[] {
   return items.map(normalizeWorkspaceItem);
 }
 
+function normalizeMemberItem(value: unknown, index: number): MemberItem {
+  const fallback = memberRoster[index % memberRoster.length];
+  const record = asRecord(value);
+
+  if (!record) {
+    return fallback;
+  }
+
+  return {
+    id: readString(record.id ?? record.memberId ?? record.slug, fallback.id),
+    address: readString(record.address ?? record.walletAddress ?? record.wallet, fallback.address),
+    displayName: readString(record.displayName ?? record.name ?? record.alias, fallback.displayName),
+    role: readString(record.role ?? record.memberRole ?? record.type, fallback.role),
+    status: readString(record.status ?? record.state ?? record.memberStatus, fallback.status),
+    joinedAt: readString(record.joinedAt ?? record.joinDate ?? record.createdAt, fallback.joinedAt)
+  };
+}
+
+function normalizeMemberCollection(payload: unknown): MemberItem[] {
+  const items = extractCollection(payload, ["items", "data", "results", "members", "roster"]);
+  return items.map(normalizeMemberItem);
+}
+
 function isUsableEndpointUrl(value: string | null): boolean {
   if (!value) {
     return false;
@@ -588,7 +656,7 @@ function isUsableEndpointUrl(value: string | null): boolean {
 }
 
 function canUseConfiguredFeeds(resolvedEndpoints: ResolvedDashboardEndpoints, motionEnabled: boolean, treasuryEnabled: boolean): boolean {
-  if (!isUsableEndpointUrl(resolvedEndpoints.proposalsUrl) || !isUsableEndpointUrl(resolvedEndpoints.workspaceUrl) || !isUsableEndpointUrl(resolvedEndpoints.guardianUrl)) {
+  if (!isUsableEndpointUrl(resolvedEndpoints.proposalsUrl) || !isUsableEndpointUrl(resolvedEndpoints.workspaceUrl) || !isUsableEndpointUrl(resolvedEndpoints.guardianUrl) || !isUsableEndpointUrl(resolvedEndpoints.membersUrl)) {
     return false;
   }
 
@@ -617,7 +685,8 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
         { label: "Motions", state: motionEnabled ? "fallback" : "disabled", transport: motionEnabled ? "preview" : "disabled", url: resolvedEndpoints.motionsUrl, detail: motionEnabled ? `${resolvedEndpoints.motionsSourceLabel} is still placeholder-backed.` : "Off-chain governance is disabled." },
         { label: "Treasury", state: treasuryEnabled ? "fallback" : "disabled", transport: treasuryEnabled ? "preview" : "disabled", url: resolvedEndpoints.treasuryUrl, detail: treasuryEnabled ? `${resolvedEndpoints.treasurySourceLabel} is still placeholder-backed.` : "Treasury view is disabled." },
         { label: "Guardian", state: "fallback", transport: "preview", url: resolvedEndpoints.guardianUrl, detail: `${resolvedEndpoints.guardianSourceLabel} is still placeholder-backed.` },
-        { label: "Workspace", state: "fallback", transport: "preview", url: resolvedEndpoints.workspaceUrl, detail: `${resolvedEndpoints.workspaceSourceLabel} is still placeholder-backed.` }
+        { label: "Workspace", state: "fallback", transport: "preview", url: resolvedEndpoints.workspaceUrl, detail: `${resolvedEndpoints.workspaceSourceLabel} is still placeholder-backed.` },
+        { label: "Members", state: "fallback", transport: "preview", url: resolvedEndpoints.membersUrl, detail: `${resolvedEndpoints.membersSourceLabel} is still placeholder-backed.` }
       ]
     };
   }
@@ -632,7 +701,8 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
       ? fetchDashboardPayload<unknown>(resolvedEndpoints.treasuryUrl)
       : skippedFeed,
     fetchDashboardPayload<unknown>(resolvedEndpoints.guardianUrl),
-    fetchDashboardPayload<unknown>(resolvedEndpoints.workspaceUrl)
+    fetchDashboardPayload<unknown>(resolvedEndpoints.workspaceUrl),
+    fetchDashboardPayload<unknown>(resolvedEndpoints.membersUrl)
   ]);
 
   const failures: string[] = [];
@@ -641,6 +711,7 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
   const treasuryPayload = endpointResults[2];
   const guardianPayload = endpointResults[3];
   const workspacePayload = endpointResults[4];
+  const membersPayload = endpointResults[5];
 
   const proposals = proposalPayload.status === "fulfilled"
     ? normalizeProposalCollection(proposalPayload.value.payload)
@@ -663,11 +734,15 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
   const workspace = workspacePayload.status === "fulfilled"
     ? normalizeWorkspaceCollection(workspacePayload.value.payload)
     : (failures.push("workspace"), workspaceItems);
+  const members = membersPayload.status === "fulfilled"
+    ? normalizeMemberCollection(membersPayload.value.payload)
+    : (failures.push("members"), memberRoster);
   const proposalTransport = proposalPayload.status === "fulfilled" ? proposalPayload.value.transport : null;
   const motionTransport = motionPayload.status === "fulfilled" ? motionPayload.value.transport : null;
   const treasuryTransport = treasuryPayload.status === "fulfilled" ? treasuryPayload.value.transport : null;
   const guardianTransport = guardianPayload.status === "fulfilled" ? guardianPayload.value.transport : null;
   const workspaceTransport = workspacePayload.status === "fulfilled" ? workspacePayload.value.transport : null;
+  const membersTransport = membersPayload.status === "fulfilled" ? membersPayload.value.transport : null;
 
   const timestamp = getTimestamp();
   const endpoints: DashboardEndpointStatus[] = [
@@ -719,10 +794,19 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
       detail: workspacePayload.status === "fulfilled"
         ? `Loaded ${workspace.length} workspace records from ${resolvedEndpoints.workspaceSourceLabel.toLowerCase()}.`
         : `Using preview workspace queue because ${resolvedEndpoints.workspaceSourceLabel.toLowerCase()} failed at ${resolvedEndpoints.workspaceUrl}.`
+    },
+    {
+      label: "Members",
+      state: membersPayload.status === "fulfilled" ? membersTransport === "fixture" ? "fixture" : "live" : "fallback",
+      transport: membersPayload.status === "fulfilled" ? membersTransport ?? "remote" : "preview",
+      url: resolvedEndpoints.membersUrl,
+      detail: membersPayload.status === "fulfilled"
+        ? `Loaded ${members.length} member records from ${resolvedEndpoints.membersSourceLabel.toLowerCase()}.`
+        : `Using preview member roster because ${resolvedEndpoints.membersSourceLabel.toLowerCase()} failed at ${resolvedEndpoints.membersUrl}.`
     }
   ];
 
-  const enabledFeedCount = 3 + (motionEnabled ? 1 : 0) + (treasuryEnabled ? 1 : 0);
+  const enabledFeedCount = 4 + (motionEnabled ? 1 : 0) + (treasuryEnabled ? 1 : 0);
 
   if (failures.length === 0) {
     const successfulTransports = [
@@ -730,7 +814,8 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
       motionEnabled ? motionTransport : null,
       treasuryEnabled ? treasuryTransport : null,
       guardianTransport,
-      workspaceTransport
+      workspaceTransport,
+      membersTransport
     ].filter(Boolean);
     const allFixture = successfulTransports.every((transport) => transport === "fixture");
     const someFixture = successfulTransports.some((transport) => transport === "fixture");
@@ -743,6 +828,7 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
       treasuryMovements: treasuryEnabled ? movements : [],
       guardian,
       guardianEvents: guardianEventList,
+      members,
       source: allFixture ? "fixture" : someFixture ? "mixed" : "remote",
       syncMessage: allFixture
         ? "Loaded fixture-backed dashboard data through the normalized feed pipeline."
@@ -774,6 +860,7 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
     treasuryMovements: treasuryEnabled ? movements : [],
     guardian,
     guardianEvents: guardianEventList,
+    members,
     source: "mixed",
     syncMessage: `Loaded live data with preview fallback for ${failures.join(", ")}.`,
     lastUpdatedAt: timestamp,

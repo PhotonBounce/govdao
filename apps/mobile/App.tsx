@@ -14,12 +14,14 @@ import { useMobileShellController } from "./src/hooks/useMobileShellController";
 import { useOnchainSnapshot } from "./src/hooks/useOnchainSnapshot";
 import { useSessionController } from "./src/hooks/useSessionController";
 import { useVoteController } from "./src/hooks/useVoteController";
+import { CreateProposalScreen } from "./src/screens/CreateProposalScreen";
 import { DetailStackScreen } from "./src/screens/DetailStackScreen";
 import { ModulesScreen } from "./src/screens/ModulesScreen";
 import { OverviewScreen } from "./src/screens/OverviewScreen";
 import { ProposalsScreen } from "./src/screens/ProposalsScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
 import { TreasuryScreen } from "./src/screens/TreasuryScreen";
+import { useProposalCreationController } from "./src/hooks/useProposalCreationController";
 import { AppManifest } from "./src/types";
 import { palette, radii } from "./src/theme";
 
@@ -70,9 +72,11 @@ export default function App() {
     guardian,
     guardianEvents,
     hasModuleView,
+    hasProposalCreation,
     hasProposalView,
     hasTreasuryView,
     launchpadActions,
+    members,
     metadataConfigured,
     modules,
     motions,
@@ -90,15 +94,18 @@ export default function App() {
     workspaceItems,
     workspaceModule,
     closeDetail,
+    closeCreateProposal,
     jumpToDetail,
     openDetail,
     openGuardianEvent,
+    openMember,
     openModule,
     openMotion,
     openProposal,
     openTreasuryMovement,
     openView,
-    openWorkspace
+    openWorkspace,
+    openCreateProposal
   } = useMobileShellController(manifest);
   const {
     accessOptions,
@@ -112,6 +119,7 @@ export default function App() {
     signOut
   } = useSessionController(manifest);
   const { castVote, getVoteState, resetVote } = useVoteController(sessionIdentity);
+  const proposalCreation = useProposalCreationController(sessionIdentity);
   const { onchainSnapshot, onchainLoading } = useOnchainSnapshot(manifest);
   const dataMode = getDataModeSummary(dashboardData.source);
 
@@ -138,8 +146,28 @@ export default function App() {
           proposals={proposals}
           motions={motions}
           offchainEnabled={manifest.governance.offchain.enabled}
+          proposalCreationEnabled={hasProposalCreation}
           onSelectProposal={openProposal}
           onSelectMotion={openMotion}
+          onCreateProposal={openCreateProposal}
+        />
+      );
+    }
+
+    if (activeView === "create-proposal") {
+      return (
+        <CreateProposalScreen
+          sessionIdentity={sessionIdentity}
+          draft={proposalCreation.draft}
+          phase={proposalCreation.phase}
+          errors={proposalCreation.errors}
+          result={proposalCreation.result}
+          isSubmitting={proposalCreation.isSubmitting}
+          canSubmit={proposalCreation.canSubmit}
+          onSetField={proposalCreation.setField}
+          onSubmit={proposalCreation.submit}
+          onReset={proposalCreation.reset}
+          onBack={closeCreateProposal}
         />
       );
     }
@@ -187,12 +215,14 @@ export default function App() {
         manifest={manifest}
         warnings={warnings}
         modulesCount={modules.length}
+        members={members}
         governanceHeadline={governanceHeadline}
         governanceSubtitle={governanceSubtitle}
         onchainReady={onchainReady}
         launchpadActions={launchpadActions}
         offchainAuthLabels={offchainAuthLabels}
         onOpenView={openView}
+        onSelectMember={openMember}
       />
     );
   }
@@ -255,6 +285,7 @@ export default function App() {
         <View style={styles.navRow}>
           <NavTab active={activeView === "overview"} label="Overview" onPress={() => openView("overview")} />
           {hasProposalView ? <NavTab active={activeView === "proposals"} label="Proposals" onPress={() => openView("proposals")} /> : null}
+          {hasProposalCreation ? <NavTab active={activeView === "create-proposal"} label="Propose" onPress={() => openView("create-proposal")} /> : null}
           {hasTreasuryView ? <NavTab active={activeView === "treasury"} label="Treasury" onPress={() => openView("treasury")} /> : null}
           {hasModuleView ? <NavTab active={activeView === "modules"} label="Modules" onPress={() => openView("modules")} /> : null}
           <NavTab active={activeView === "settings"} label="Settings" onPress={() => openView("settings")} />
