@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Linking, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { ModulePill } from "../components/ModulePill";
 import { SectionCard } from "../components/SectionCard";
 import { ProposalCreationPhase } from "../data/proposalCreationSource";
@@ -12,6 +12,7 @@ interface CreateProposalScreenProps {
   phase: ProposalCreationPhase;
   errors: string[];
   result: ProposalCreationResult | null;
+  explorerUrl?: string | null;
   isSubmitting: boolean;
   canSubmit: boolean;
   onSetField: (field: keyof ProposalDraft, value: string) => void;
@@ -36,6 +37,7 @@ export function CreateProposalScreen({
   phase,
   errors,
   result,
+  explorerUrl,
   isSubmitting,
   canSubmit,
   onSetField,
@@ -74,6 +76,11 @@ export function CreateProposalScreen({
           The transaction hash above is a fixture placeholder. Wire{" "}
           <Text style={styles.code}>Governor.propose</Text> to replace it with a live submission.
         </Text>
+        {explorerUrl ? (
+          <Pressable style={styles.explorerButton} onPress={() => Linking.openURL(explorerUrl)}>
+            <Text style={styles.explorerButtonText}>View On Block Explorer ↗</Text>
+          </Pressable>
+        ) : null}
         <View style={styles.actionRow}>
           <Pressable style={styles.resetButton} onPress={onReset}>
             <Text style={styles.resetButtonText}>New Draft</Text>
@@ -267,6 +274,19 @@ const styles = StyleSheet.create({
   code: {
     fontFamily: "monospace",
     color: palette.graphite
+  },
+  explorerButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: radii.card,
+    backgroundColor: palette.graphite,
+    marginBottom: 14
+  },
+  explorerButtonText: {
+    color: palette.paper,
+    fontSize: 14,
+    fontWeight: "700",
+    textAlign: "center"
   },
   actionRow: {
     flexDirection: "row",

@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import { ModulePill } from "./ModulePill";
 import { SectionCard } from "./SectionCard";
 import { SignalRow } from "./SignalRow";
@@ -12,13 +12,14 @@ interface VotePanelProps {
   votingEnabled: boolean;
   sessionActive: boolean;
   voteState: VoteState;
+  explorerUrl?: string | null;
   onCastVote: (choice: VoteChoice) => void;
   onResetVote: () => void;
 }
 
 const choices: VoteChoice[] = ["for", "against", "abstain"];
 
-export function VotePanel({ proposalId, votingEnabled, sessionActive, voteState, onCastVote, onResetVote }: VotePanelProps) {
+export function VotePanel({ proposalId, votingEnabled, sessionActive, voteState, explorerUrl, onCastVote, onResetVote }: VotePanelProps) {
   if (!votingEnabled) {
     return null;
   }
@@ -38,6 +39,11 @@ export function VotePanel({ proposalId, votingEnabled, sessionActive, voteState,
         <SignalRow label="Voter" value={voteState.receipt.voterLabel} tone="good" />
         <SignalRow label="Address" value={shortenAddress(voteState.receipt.voter)} tone="neutral" />
         <SignalRow label="Tx hash" value={shortenAddress(voteState.receipt.txHash)} tone="neutral" />
+        {explorerUrl ? (
+          <Pressable style={styles.explorerButton} onPress={() => Linking.openURL(explorerUrl)}>
+            <Text style={styles.explorerButtonText}>View On Block Explorer ↗</Text>
+          </Pressable>
+        ) : null}
         <Pressable style={styles.secondaryButton} onPress={onResetVote}>
           <Text style={styles.secondaryButtonText}>Change Vote</Text>
         </Pressable>
@@ -112,6 +118,19 @@ const styles = StyleSheet.create({
   },
   choiceButtonTextPrimary: {
     color: palette.paper
+  },
+  explorerButton: {
+    marginTop: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderRadius: radii.card,
+    backgroundColor: palette.graphite
+  },
+  explorerButtonText: {
+    color: palette.paper,
+    fontSize: 14,
+    fontWeight: "700",
+    textAlign: "center"
   },
   secondaryButton: {
     marginTop: 12,

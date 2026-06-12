@@ -4,13 +4,16 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import manifestJson from "./src/data/app.manifest.json";
 import { DataStatusCard } from "./src/components/DataStatusCard";
 import { ModulePill } from "./src/components/ModulePill";
+import { MotionActionPanel } from "./src/components/MotionActionPanel";
 import { NavTab } from "./src/components/NavTab";
 import { RouteSummaryStrip } from "./src/components/RouteSummaryStrip";
 import { SectionCard } from "./src/components/SectionCard";
 import { ProposalIntegrityCard } from "./src/components/ProposalIntegrityCard";
 import { SessionCard } from "./src/components/SessionCard";
 import { VotePanel } from "./src/components/VotePanel";
+import { buildExplorerTxUrl } from "./src/data/explorerSource";
 import { useMobileShellController } from "./src/hooks/useMobileShellController";
+import { useMotionActionController } from "./src/hooks/useMotionActionController";
 import { useOnchainSnapshot } from "./src/hooks/useOnchainSnapshot";
 import { useSessionController } from "./src/hooks/useSessionController";
 import { useVoteController } from "./src/hooks/useVoteController";
@@ -119,6 +122,10 @@ export default function App() {
     signOut
   } = useSessionController(manifest);
   const { castVote, getVoteState, resetVote } = useVoteController(sessionIdentity);
+  const { decideMotion, getMotionActionState, resetMotionAction } = useMotionActionController(
+    sessionIdentity,
+    manifest.governance.offchain.voteAnchoringEnabled
+  );
   const proposalCreation = useProposalCreationController(sessionIdentity);
   const { onchainSnapshot, onchainLoading } = useOnchainSnapshot(manifest);
   const dataMode = getDataModeSummary(dashboardData.source);
@@ -162,6 +169,7 @@ export default function App() {
           phase={proposalCreation.phase}
           errors={proposalCreation.errors}
           result={proposalCreation.result}
+          explorerUrl={proposalCreation.result ? buildExplorerTxUrl(manifest, proposalCreation.result.txHash) : null}
           isSubmitting={proposalCreation.isSubmitting}
           canSubmit={proposalCreation.canSubmit}
           onSetField={proposalCreation.setField}
@@ -235,6 +243,7 @@ export default function App() {
     const detailProposal = currentDetail.kind === "proposal"
       ? proposals.find((proposal) => proposal.id === currentDetail.refId)
       : undefined;
+    const detailVoteState = currentDetail.kind === "proposal" ? getVoteState(currentDetail.refId) : null;
     const votePanel = currentDetail.kind === "proposal" ? (
       <>
         {detailProposal ? <ProposalIntegrityCard manifest={manifest} proposal={detailProposal} /> : null}
@@ -242,11 +251,20 @@ export default function App() {
           proposalId={currentDetail.refId}
           votingEnabled={manifest.features.voting}
           sessionActive={sessionActive}
-          voteState={getVoteState(currentDetail.refId)}
+          voteState={detailVoteState ?? getVoteState(currentDetail.refId)}
+          explorerUrl={detailVoteState?.receipt ? buildExplorerTxUrl(manifest, detailVoteState.receipt.txHash) : null}
           onCastVote={(choice) => castVote(currentDetail.refId, choice)}
           onResetVote={() => resetVote(currentDetail.refId)}
         />
       </>
+    ) : currentDetail.kind === "motion" && manifest.governance.offchain.enabled ? (
+      <MotionActionPanel
+        motionId={currentDetail.refId}
+        sessionActive={sessionActive}
+        actionState={getMotionActionState(currentDetail.refId)}
+        onDecide={(decision) => decideMotion(currentDetail.refId, decision)}
+        onReset={() => resetMotionAction(currentDetail.refId)}
+      />
     ) : undefined;
 
     return (

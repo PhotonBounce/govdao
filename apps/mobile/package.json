@@ -17,6 +17,7 @@
     "check:proposal": "node scripts/check-proposal.mjs",
     "check:create": "node scripts/check-create-proposal.mjs",
     "check:members": "node scripts/check-members.mjs",
+    "check:motion": "node scripts/check-motion.mjs",
     "generate:assets": "node scripts/generate-assets.mjs"
   },
   "dependencies": {
