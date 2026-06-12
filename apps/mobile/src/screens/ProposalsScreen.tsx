@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { ModulePill } from "../components/ModulePill";
 import { SectionCard } from "../components/SectionCard";
@@ -13,6 +13,7 @@ interface ProposalsScreenProps {
   motions: MotionItem[];
   offchainEnabled: boolean;
   proposalCreationEnabled: boolean;
+  quorumPanel?: ReactNode;
   onSelectProposal: (proposal: ProposalItem) => void;
   onSelectMotion: (motion: MotionItem) => void;
   onCreateProposal: () => void;
@@ -32,6 +33,7 @@ export function ProposalsScreen({
   motions,
   offchainEnabled,
   proposalCreationEnabled,
+  quorumPanel,
   onSelectProposal,
   onSelectMotion,
   onCreateProposal
@@ -51,6 +53,7 @@ export function ProposalsScreen({
 
   return (
     <>
+      {quorumPanel}
       <SectionCard
         eyebrow="Search & Filter"
         title="Narrow The Feed"

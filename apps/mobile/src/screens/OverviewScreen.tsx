@@ -24,8 +24,10 @@ interface OverviewScreenProps {
   onchainReady: boolean;
   launchpadActions: LaunchpadAction[];
   offchainAuthLabels: string[];
+  memberInviteEnabled?: boolean;
   onOpenView: (view: ActiveView) => void;
   onSelectMember: (member: MemberItem) => void;
+  onInviteMember?: () => void;
 }
 
 export function OverviewScreen({
@@ -38,8 +40,10 @@ export function OverviewScreen({
   onchainReady,
   launchpadActions,
   offchainAuthLabels,
+  memberInviteEnabled,
   onOpenView,
-  onSelectMember
+  onSelectMember,
+  onInviteMember
 }: OverviewScreenProps) {
   return (
     <>
@@ -140,6 +144,11 @@ export function OverviewScreen({
         subtitle="Active members loaded from the registry feed. Tap a member to view their role and on-chain address."
       >
         <MembersPanel members={members} onSelectMember={onSelectMember} />
+        {memberInviteEnabled && onInviteMember ? (
+          <Pressable style={styles.inviteButton} onPress={onInviteMember}>
+            <Text style={styles.inviteButtonText}>Invite Member →</Text>
+          </Pressable>
+        ) : null}
       </SectionCard>
     </>
   );
@@ -206,5 +215,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginTop: 8
+  },
+  inviteButton: {
+    marginTop: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: radii.card,
+    backgroundColor: palette.graphite,
+    alignSelf: "flex-start"
+  },
+  inviteButtonText: {
+    color: palette.paper,
+    fontWeight: "700",
+    fontSize: 14
   }
 });

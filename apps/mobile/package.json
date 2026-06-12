@@ -24,6 +24,9 @@
     "check:treasury-request": "node scripts/check-treasury-request.mjs",
     "check:timeline": "node scripts/check-timeline.mjs",
     "check:workspace-action": "node scripts/check-workspace-action.mjs",
+    "check:guardian-drill": "node scripts/check-guardian-drill.mjs",
+    "check:member-invite": "node scripts/check-member-invite.mjs",
+    "check:quorum": "node scripts/check-quorum.mjs",
     "generate:assets": "node scripts/generate-assets.mjs"
   },
   "dependencies": {

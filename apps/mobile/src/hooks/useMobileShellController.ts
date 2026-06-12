@@ -53,7 +53,8 @@ export function useMobileShellController(manifest: AppManifest) {
     "overview",
     ...(hasProposalView ? ["proposals"] : []),
     ...(hasProposalCreation ? ["create-proposal"] : []),
-    ...(hasTreasuryView ? ["treasury", "request-spend"] : []),
+    ...(hasTreasuryView ? ["treasury", "request-spend", "schedule-drill"] : []),
+    ...(hasProposalCreation ? ["invite-member"] : []),
     ...(hasModuleView ? ["modules"] : []),
     "activity",
     "settings"
@@ -171,6 +172,22 @@ export function useMobileShellController(manifest: AppManifest) {
       };
     }
 
+    if (view === "schedule-drill") {
+      return {
+        eyebrow: "Route",
+        title: "Schedule Guardian Drill",
+        subtitle: "Queue an emergency pause or resume drill to verify the guardian signer set. Requires an active member session."
+      };
+    }
+
+    if (view === "invite-member") {
+      return {
+        eyebrow: "Route",
+        title: "Invite Member",
+        subtitle: "Submit a new member invitation to the on-chain registry. A 24-hour timelock applies."
+      };
+    }
+
     if (view === "activity") {
       return {
         eyebrow: "Route",
@@ -240,6 +257,22 @@ export function useMobileShellController(manifest: AppManifest) {
         { label: "Per-transfer cap", value: treasury.perTransferCap, tone: "neutral" },
         { label: "Daily cap", value: treasury.dailyCap, tone: "neutral" },
         { label: "Treasury status", value: treasury.paused ? "Paused" : "Active", tone: treasury.paused ? "warning" : "good" }
+      ];
+    }
+
+    if (view === "schedule-drill") {
+      return [
+        { label: "Guardian state", value: guardian.state, tone: guardian.state === "Paused" ? "warning" : "good" },
+        { label: "Signer threshold", value: guardian.threshold, tone: "neutral" },
+        { label: "Last drill", value: guardian.lastDrill, tone: "neutral" }
+      ];
+    }
+
+    if (view === "invite-member") {
+      return [
+        { label: "Registered members", value: String(members.length), tone: members.length > 0 ? "good" : "neutral" },
+        { label: "Timelock", value: "24 hours", tone: "neutral" },
+        { label: "Registry path", value: "On-chain", tone: "good" }
       ];
     }
 
@@ -450,6 +483,24 @@ export function useMobileShellController(manifest: AppManifest) {
     setActiveView("treasury");
   }
 
+  function openScheduleDrill() {
+    setDetailStack([]);
+    setActiveView("schedule-drill");
+  }
+
+  function closeScheduleDrill() {
+    setActiveView("treasury");
+  }
+
+  function openInviteMember() {
+    setDetailStack([]);
+    setActiveView("invite-member");
+  }
+
+  function closeInviteMember() {
+    setActiveView("overview");
+  }
+
   return {
     activeView,
     availableViews,
@@ -499,6 +550,10 @@ export function useMobileShellController(manifest: AppManifest) {
     openView,
     openWorkspace,
     openCreateProposal,
-    openRequestSpend
+    openRequestSpend,
+    openScheduleDrill,
+    closeScheduleDrill,
+    openInviteMember,
+    closeInviteMember
   };
 }

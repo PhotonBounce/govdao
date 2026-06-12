@@ -19,6 +19,11 @@ import { WorkspaceActionPanel } from "./src/components/WorkspaceActionPanel";
 import { loadProposalTimeline } from "./src/data/proposalTimelineSource";
 import { useSpendRequestController } from "./src/hooks/useSpendRequestController";
 import { useWorkspaceActionController } from "./src/hooks/useWorkspaceActionController";
+import { useGuardianDrillController } from "./src/hooks/useGuardianDrillController";
+import { useMemberInviteController } from "./src/hooks/useMemberInviteController";
+import { QuorumStatusCard } from "./src/components/QuorumStatusCard";
+import { ScheduleDrillScreen } from "./src/screens/ScheduleDrillScreen";
+import { MemberInviteScreen } from "./src/screens/MemberInviteScreen";
 import { VoteBreakdownPanel } from "./src/components/VoteBreakdownPanel";
 import { DelegateProfilePanel } from "./src/components/DelegateProfilePanel";
 import { loadVoteTally, loadDelegateProfile } from "./src/data/delegateSource";
@@ -111,6 +116,8 @@ export default function App() {
     closeDetail,
     closeCreateProposal,
     closeRequestSpend,
+    closeScheduleDrill,
+    closeInviteMember,
     jumpToDetail,
     openDetail,
     openGuardianEvent,
@@ -122,7 +129,9 @@ export default function App() {
     openView,
     openWorkspace,
     openCreateProposal,
-    openRequestSpend
+    openRequestSpend,
+    openScheduleDrill,
+    openInviteMember
   } = useMobileShellController(manifest);
   const {
     accessOptions,
@@ -143,6 +152,8 @@ export default function App() {
   const proposalCreation = useProposalCreationController(sessionIdentity);
   const spendRequest = useSpendRequestController(sessionIdentity, manifest);
   const workspaceActions = useWorkspaceActionController(sessionIdentity, manifest);
+  const guardianDrill = useGuardianDrillController(sessionIdentity, manifest);
+  const memberInvite = useMemberInviteController(sessionIdentity, manifest);
   const notifications = useNotificationController(manifest);
   const { onchainSnapshot, onchainLoading } = useOnchainSnapshot(manifest);
   const dataMode = getDataModeSummary(dashboardData.source);
@@ -165,12 +176,20 @@ export default function App() {
 
   function renderActiveView() {
     if (activeView === "proposals") {
+      const quorumPanel = proposals.length > 0 ? (
+        <QuorumStatusCard
+          manifest={manifest}
+          proposalIds={proposals.map((p) => p.id)}
+          totalMembers={members.length}
+        />
+      ) : null;
       return (
         <ProposalsScreen
           proposals={proposals}
           motions={motions}
           offchainEnabled={manifest.governance.offchain.enabled}
           proposalCreationEnabled={hasProposalCreation}
+          quorumPanel={quorumPanel}
           onSelectProposal={openProposal}
           onSelectMotion={openMotion}
           onCreateProposal={openCreateProposal}
@@ -207,7 +226,9 @@ export default function App() {
           onchainSnapshot={onchainSnapshot}
           onchainLoading={onchainLoading}
           spendRequestEnabled={hasTreasuryView && !treasury.paused}
+          drillSchedulingEnabled={hasTreasuryView}
           onRequestSpend={openRequestSpend}
+          onScheduleDrill={openScheduleDrill}
           onSelectMovement={openTreasuryMovement}
           onSelectGuardianEvent={openGuardianEvent}
         />
@@ -242,6 +263,44 @@ export default function App() {
           onSubmit={spendRequest.submit}
           onReset={spendRequest.reset}
           onBack={closeRequestSpend}
+        />
+      );
+    }
+
+    if (activeView === "schedule-drill") {
+      return (
+        <ScheduleDrillScreen
+          sessionIdentity={sessionIdentity}
+          draft={guardianDrill.draft}
+          phase={guardianDrill.phase}
+          errors={guardianDrill.errors}
+          result={guardianDrill.result}
+          isSubmitting={guardianDrill.isSubmitting}
+          canSubmit={guardianDrill.canSubmit}
+          onSetDrillType={guardianDrill.setDrillType}
+          onSetWindowHours={guardianDrill.setWindowHours}
+          onSetNotes={guardianDrill.setNotes}
+          onSubmit={guardianDrill.submit}
+          onReset={guardianDrill.reset}
+          onBack={closeScheduleDrill}
+        />
+      );
+    }
+
+    if (activeView === "invite-member") {
+      return (
+        <MemberInviteScreen
+          sessionIdentity={sessionIdentity}
+          draft={memberInvite.draft}
+          phase={memberInvite.phase}
+          errors={memberInvite.errors}
+          result={memberInvite.result}
+          isSubmitting={memberInvite.isSubmitting}
+          canSubmit={memberInvite.canSubmit}
+          onSetField={memberInvite.setField}
+          onSubmit={memberInvite.submit}
+          onReset={memberInvite.reset}
+          onBack={closeInviteMember}
         />
       );
     }
@@ -283,8 +342,10 @@ export default function App() {
         onchainReady={onchainReady}
         launchpadActions={launchpadActions}
         offchainAuthLabels={offchainAuthLabels}
+        memberInviteEnabled={hasProposalCreation}
         onOpenView={openView}
         onSelectMember={openMember}
+        onInviteMember={openInviteMember}
       />
     );
   }
@@ -406,6 +467,8 @@ export default function App() {
           {hasProposalCreation ? <NavTab active={activeView === "create-proposal"} label="Propose" onPress={() => openView("create-proposal")} /> : null}
           {hasTreasuryView ? <NavTab active={activeView === "treasury"} label="Treasury" onPress={() => openView("treasury")} /> : null}
           {hasTreasuryView ? <NavTab active={activeView === "request-spend"} label="Spend" onPress={() => openView("request-spend")} /> : null}
+          {hasTreasuryView ? <NavTab active={activeView === "schedule-drill"} label="Drill" onPress={() => openView("schedule-drill")} /> : null}
+          {hasProposalCreation ? <NavTab active={activeView === "invite-member"} label="Invite" onPress={() => openView("invite-member")} /> : null}
           {hasModuleView ? <NavTab active={activeView === "modules"} label="Modules" onPress={() => openView("modules")} /> : null}
           <NavTab active={activeView === "activity"} label="Activity" onPress={() => openView("activity")} />
           <NavTab active={activeView === "settings"} label="Settings" onPress={() => openView("settings")} />

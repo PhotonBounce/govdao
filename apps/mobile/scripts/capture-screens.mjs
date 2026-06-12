@@ -68,12 +68,13 @@ await page.getByText("Sign Out", { exact: true }).waitFor({ timeout: 10000 });
 await page.waitForTimeout(300);
 await capture("signed-in");
 
-// 3. Proposals view with search + filters
+// 3. Proposals view with quorum status card + search + filters
 await clickText("Proposals", { exact: true });
 await capture("proposals");
 
 // 4. Proposal detail: integrity card + ballot
-await clickText("GOV-", { exact: false });
+// Use the proposal title (not the ID, which also appears in the quorum status card)
+await clickText("Ratify release operations checklist", { exact: false });
 await page.waitForTimeout(900);
 await capture("proposal-detail");
 
@@ -144,11 +145,38 @@ await page.getByText("Votes", { exact: true }).first().click();
 await page.waitForTimeout(300);
 await capture("activity-votes-filter");
 
-// 13. Settings with the notification preferences panel
+// 18. Schedule guardian drill — form filled and receipt
+await clickText("Drill", { exact: true });
+await page.waitForTimeout(400);
+await capture("schedule-drill-form");
+// Sign in is already done; fill the notes field and submit
+const drillInputs = page.locator("input, textarea");
+await drillInputs.last().fill("Monthly pause drill — verify all 3 signers can co-sign within the 4h window.");
+await page.waitForTimeout(200);
+await clickText("Schedule Drill", { exact: true, last: true });
+await page.getByText("Guardian Drill Queued", { exact: false }).waitFor({ timeout: 10000 });
+await page.waitForTimeout(300);
+await capture("schedule-drill-receipt");
+
+// 19. Invite member — form filled and receipt
+await clickText("Invite", { exact: true });
+await page.waitForTimeout(400);
+await capture("invite-member-form");
+const inviteInputs = page.locator("input, textarea");
+await inviteInputs.nth(0).fill("0xDeAdBeEf1234567890DeAdBeEf1234567890dEaD");
+await clickText("Delegate", { exact: true });
+await inviteInputs.last().fill("Eva Protocol");
+await page.waitForTimeout(200);
+await clickText("Submit Invitation", { exact: true });
+await page.getByText("Member Invite Pending", { exact: false }).waitFor({ timeout: 10000 });
+await page.waitForTimeout(300);
+await capture("invite-member-receipt");
+
+// 20. Settings with the notification preferences panel
 await clickText("Settings", { exact: true });
 await capture("settings");
 
-// 17. Exercise notification preferences: toggle treasury alerts on, switch to
+// 21. Exercise notification preferences: toggle treasury alerts on, switch to
 // daily digest, save, and capture the SAVED receipt.
 const treasuryToggle = page.getByRole("switch").nth(3);
 await treasuryToggle.click({ timeout: 8000 });

@@ -14,12 +14,14 @@ interface TreasuryScreenProps {
   onchainSnapshot: OnchainSnapshot;
   onchainLoading: boolean;
   spendRequestEnabled?: boolean;
+  drillSchedulingEnabled?: boolean;
   onRequestSpend?: () => void;
+  onScheduleDrill?: () => void;
   onSelectMovement: (movement: TreasuryMovementItem) => void;
   onSelectGuardianEvent: (event: GuardianEventItem) => void;
 }
 
-export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, onchainSnapshot, onchainLoading, spendRequestEnabled, onRequestSpend, onSelectMovement, onSelectGuardianEvent }: TreasuryScreenProps) {
+export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, onchainSnapshot, onchainLoading, spendRequestEnabled, drillSchedulingEnabled, onRequestSpend, onScheduleDrill, onSelectMovement, onSelectGuardianEvent }: TreasuryScreenProps) {
   return (
     <>
       <SectionCard
@@ -105,6 +107,11 @@ export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, 
         <SignalRow label="Signer threshold" value={guardian.threshold} tone="neutral" />
         <SignalRow label="Signer set" value={guardian.signers} tone="neutral" />
         <SignalRow label="Last drill" value={guardian.lastDrill} tone="neutral" />
+        {drillSchedulingEnabled && onScheduleDrill ? (
+          <Pressable style={styles.drillButton} onPress={onScheduleDrill}>
+            <Text style={styles.drillButtonText}>Schedule Drill →</Text>
+          </Pressable>
+        ) : null}
         {guardianEvents.length === 0 ? <Text style={styles.darkEmptyLine}>No guardian events are available from the active feed yet.</Text> : null}
         {guardianEvents.map((event) => (
           <Pressable key={event.id} style={styles.darkFeedItem} onPress={() => onSelectGuardianEvent(event)}>
@@ -216,5 +223,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginBottom: 8
+  },
+  drillButton: {
+    marginTop: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: radii.card,
+    borderWidth: 1,
+    borderColor: "rgba(251, 248, 239, 0.3)",
+    alignSelf: "flex-start"
+  },
+  drillButtonText: {
+    color: "#fbf8ef",
+    fontWeight: "700",
+    fontSize: 14
   }
 });
