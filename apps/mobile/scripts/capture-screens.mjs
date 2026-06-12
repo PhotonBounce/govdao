@@ -118,11 +118,18 @@ await capture("treasury");
 await clickText("Modules", { exact: true });
 await capture("modules");
 
-// 12. Settings with the notification preferences panel
+// 12. Activity log — all events, then filter to votes only
+await clickText("Activity", { exact: true });
+await capture("activity-all");
+await page.getByText("Votes", { exact: true }).first().click();
+await page.waitForTimeout(300);
+await capture("activity-votes-filter");
+
+// 13. Settings with the notification preferences panel
 await clickText("Settings", { exact: true });
 await capture("settings");
 
-// 13. Exercise notification preferences: toggle treasury alerts on, switch to
+// 14. Exercise notification preferences: toggle treasury alerts on, switch to
 // daily digest, save, and capture the SAVED receipt.
 const treasuryToggle = page.getByRole("switch").nth(3);
 await treasuryToggle.click({ timeout: 8000 });

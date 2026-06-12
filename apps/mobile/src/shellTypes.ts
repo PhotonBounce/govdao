@@ -1,4 +1,4 @@
-export type ActiveView = "overview" | "proposals" | "create-proposal" | "treasury" | "modules" | "settings";
+export type ActiveView = "overview" | "proposals" | "create-proposal" | "treasury" | "modules" | "activity" | "settings";
 
 export type DetailKind = "proposal" | "motion" | "module" | "workspace" | "treasury" | "guardian" | "member";
 

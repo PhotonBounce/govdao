@@ -19,6 +19,8 @@
     "check:members": "node scripts/check-members.mjs",
     "check:motion": "node scripts/check-motion.mjs",
     "check:notifications": "node scripts/check-notifications.mjs",
+    "check:delegate": "node scripts/check-delegate.mjs",
+    "check:activity": "node scripts/check-activity.mjs",
     "generate:assets": "node scripts/generate-assets.mjs"
   },
   "dependencies": {

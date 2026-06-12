@@ -25,6 +25,8 @@ interface DetailStackScreenProps {
   actions: DetailAction[];
   relatedDetails: RelatedDetailLink[];
   votePanel?: ReactNode;
+  voteBreakdownPanel?: ReactNode;
+  delegatePanel?: ReactNode;
   onBack: () => void;
   onOpenView: (view: ActiveView) => void;
   onJumpToDetail: (index: number) => void;
@@ -38,6 +40,8 @@ export function DetailStackScreen({
   actions,
   relatedDetails,
   votePanel,
+  voteBreakdownPanel,
+  delegatePanel,
   onBack,
   onOpenView,
   onJumpToDetail,
@@ -79,6 +83,18 @@ export function DetailStackScreen({
       </SectionCard>
 
       {votePanel}
+
+      {voteBreakdownPanel ? (
+        <SectionCard eyebrow="Vote Tally" title="Member Breakdown" subtitle="How each registered member voted on this proposal." tone={tone}>
+          {voteBreakdownPanel}
+        </SectionCard>
+      ) : null}
+
+      {delegatePanel ? (
+        <SectionCard eyebrow="Delegate Record" title="Voting History" subtitle="Participation rate and recent governance votes for this member." tone={tone}>
+          {delegatePanel}
+        </SectionCard>
+      ) : null}
 
       <SectionCard
         eyebrow="Context"

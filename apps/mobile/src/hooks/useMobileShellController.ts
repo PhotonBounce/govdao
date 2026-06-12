@@ -55,6 +55,7 @@ export function useMobileShellController(manifest: AppManifest) {
     ...(hasProposalCreation ? ["create-proposal"] : []),
     ...(hasTreasuryView ? ["treasury"] : []),
     ...(hasModuleView ? ["modules"] : []),
+    "activity",
     "settings"
   ] as ActiveView[], [hasModuleView, hasProposalCreation, hasProposalView, hasTreasuryView]);
   const currentDetail = detailStack[detailStack.length - 1] ?? null;
@@ -162,6 +163,14 @@ export function useMobileShellController(manifest: AppManifest) {
       };
     }
 
+    if (view === "activity") {
+      return {
+        eyebrow: "Route",
+        title: "Activity Log",
+        subtitle: "Full governance audit trail — proposals, votes, motions, treasury, and guardian events."
+      };
+    }
+
     if (view === "settings") {
       return {
         eyebrow: "Route",
@@ -215,6 +224,16 @@ export function useMobileShellController(manifest: AppManifest) {
         { label: "Enabled modules", value: String(modules.length), tone: modules.length > 0 ? "good" : "warning" },
         { label: "Protected routes", value: String(gatedModules), tone: gatedModules > 0 ? "good" : "neutral" },
         { label: "Ready workspace items", value: String(readyWorkspaceCount), tone: readyWorkspaceCount > 0 ? "good" : "neutral" }
+      ];
+    }
+
+    if (view === "activity") {
+      const voteCount = 4;
+      const proposalCount = 2;
+      return [
+        { label: "Total events", value: "12", tone: "good" },
+        { label: "Vote events", value: String(voteCount), tone: "good" },
+        { label: "Proposal events", value: String(proposalCount), tone: "neutral" }
       ];
     }
 

@@ -12,6 +12,10 @@ import { SectionCard } from "./src/components/SectionCard";
 import { ProposalIntegrityCard } from "./src/components/ProposalIntegrityCard";
 import { SessionCard } from "./src/components/SessionCard";
 import { VotePanel } from "./src/components/VotePanel";
+import { ActivityScreen } from "./src/screens/ActivityScreen";
+import { VoteBreakdownPanel } from "./src/components/VoteBreakdownPanel";
+import { DelegateProfilePanel } from "./src/components/DelegateProfilePanel";
+import { loadVoteTally, loadDelegateProfile } from "./src/data/delegateSource";
 import { buildExplorerTxUrl } from "./src/data/explorerSource";
 import { useMobileShellController } from "./src/hooks/useMobileShellController";
 import { useMotionActionController } from "./src/hooks/useMotionActionController";
@@ -211,6 +215,10 @@ export default function App() {
       );
     }
 
+    if (activeView === "activity") {
+      return <ActivityScreen manifest={manifest} />;
+    }
+
     if (activeView === "settings") {
       return (
         <SettingsScreen
@@ -259,6 +267,24 @@ export default function App() {
       ? proposals.find((proposal) => proposal.id === currentDetail.refId)
       : undefined;
     const detailVoteState = currentDetail.kind === "proposal" ? getVoteState(currentDetail.refId) : null;
+
+    const voteBreakdownPanel = currentDetail.kind === "proposal"
+      ? (() => {
+          const tally = loadVoteTally(manifest, currentDetail.refId);
+          return tally ? <VoteBreakdownPanel tally={tally} /> : null;
+        })()
+      : null;
+
+    const detailMember = currentDetail.kind === "member"
+      ? members.find((m) => m.id === currentDetail.refId)
+      : undefined;
+    const delegatePanel = detailMember
+      ? (() => {
+          const profile = loadDelegateProfile(manifest, detailMember.id);
+          return profile ? <DelegateProfilePanel profile={profile} /> : null;
+        })()
+      : null;
+
     const votePanel = currentDetail.kind === "proposal" ? (
       <>
         {detailProposal ? <ProposalIntegrityCard manifest={manifest} proposal={detailProposal} /> : null}
@@ -290,6 +316,8 @@ export default function App() {
         actions={detailActions}
         relatedDetails={relatedDetails}
         votePanel={votePanel}
+        voteBreakdownPanel={voteBreakdownPanel}
+        delegatePanel={delegatePanel}
         onBack={closeDetail}
         onOpenView={openView}
         onJumpToDetail={jumpToDetail}
@@ -321,6 +349,7 @@ export default function App() {
           {hasProposalCreation ? <NavTab active={activeView === "create-proposal"} label="Propose" onPress={() => openView("create-proposal")} /> : null}
           {hasTreasuryView ? <NavTab active={activeView === "treasury"} label="Treasury" onPress={() => openView("treasury")} /> : null}
           {hasModuleView ? <NavTab active={activeView === "modules"} label="Modules" onPress={() => openView("modules")} /> : null}
+          <NavTab active={activeView === "activity"} label="Activity" onPress={() => openView("activity")} />
           <NavTab active={activeView === "settings"} label="Settings" onPress={() => openView("settings")} />
         </View>
 
