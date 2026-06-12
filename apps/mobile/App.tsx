@@ -13,6 +13,12 @@ import { ProposalIntegrityCard } from "./src/components/ProposalIntegrityCard";
 import { SessionCard } from "./src/components/SessionCard";
 import { VotePanel } from "./src/components/VotePanel";
 import { ActivityScreen } from "./src/screens/ActivityScreen";
+import { SpendRequestScreen } from "./src/screens/SpendRequestScreen";
+import { ProposalTimelinePanel } from "./src/components/ProposalTimelinePanel";
+import { WorkspaceActionPanel } from "./src/components/WorkspaceActionPanel";
+import { loadProposalTimeline } from "./src/data/proposalTimelineSource";
+import { useSpendRequestController } from "./src/hooks/useSpendRequestController";
+import { useWorkspaceActionController } from "./src/hooks/useWorkspaceActionController";
 import { VoteBreakdownPanel } from "./src/components/VoteBreakdownPanel";
 import { DelegateProfilePanel } from "./src/components/DelegateProfilePanel";
 import { loadVoteTally, loadDelegateProfile } from "./src/data/delegateSource";
@@ -104,6 +110,7 @@ export default function App() {
     workspaceModule,
     closeDetail,
     closeCreateProposal,
+    closeRequestSpend,
     jumpToDetail,
     openDetail,
     openGuardianEvent,
@@ -114,7 +121,8 @@ export default function App() {
     openTreasuryMovement,
     openView,
     openWorkspace,
-    openCreateProposal
+    openCreateProposal,
+    openRequestSpend
   } = useMobileShellController(manifest);
   const {
     accessOptions,
@@ -133,6 +141,8 @@ export default function App() {
     manifest.governance.offchain.voteAnchoringEnabled
   );
   const proposalCreation = useProposalCreationController(sessionIdentity);
+  const spendRequest = useSpendRequestController(sessionIdentity, manifest);
+  const workspaceActions = useWorkspaceActionController(sessionIdentity, manifest);
   const notifications = useNotificationController(manifest);
   const { onchainSnapshot, onchainLoading } = useOnchainSnapshot(manifest);
   const dataMode = getDataModeSummary(dashboardData.source);
@@ -196,6 +206,8 @@ export default function App() {
           guardianEvents={guardianEvents}
           onchainSnapshot={onchainSnapshot}
           onchainLoading={onchainLoading}
+          spendRequestEnabled={hasTreasuryView && !treasury.paused}
+          onRequestSpend={openRequestSpend}
           onSelectMovement={openTreasuryMovement}
           onSelectGuardianEvent={openGuardianEvent}
         />
@@ -211,6 +223,25 @@ export default function App() {
           workspaceItems={workspaceItems}
           onSelectModule={openModule}
           onSelectWorkspace={openWorkspace}
+        />
+      );
+    }
+
+    if (activeView === "request-spend") {
+      return (
+        <SpendRequestScreen
+          sessionIdentity={sessionIdentity}
+          draft={spendRequest.draft}
+          phase={spendRequest.phase}
+          errors={spendRequest.errors}
+          result={spendRequest.result}
+          explorerUrl={spendRequest.result ? buildExplorerTxUrl(manifest, spendRequest.result.txHash) : null}
+          isSubmitting={spendRequest.isSubmitting}
+          canSubmit={spendRequest.canSubmit}
+          onSetField={spendRequest.setField}
+          onSubmit={spendRequest.submit}
+          onReset={spendRequest.reset}
+          onBack={closeRequestSpend}
         />
       );
     }
@@ -275,6 +306,30 @@ export default function App() {
         })()
       : null;
 
+    const proposalTimelinePanel = currentDetail.kind === "proposal"
+      ? (() => {
+          const timeline = loadProposalTimeline(manifest, currentDetail.refId);
+          return timeline ? <ProposalTimelinePanel timeline={timeline} /> : null;
+        })()
+      : null;
+
+    const detailWorkspace = currentDetail.kind === "workspace"
+      ? workspaceItems.find((w) => w.id === currentDetail.refId)
+      : undefined;
+    const workspaceActionState = detailWorkspace ? workspaceActions.getActionState(detailWorkspace.id) : null;
+    const workspaceActionPanel = detailWorkspace ? (
+      <WorkspaceActionPanel
+        itemId={detailWorkspace.id}
+        itemStatus={detailWorkspace.status}
+        sessionActive={sessionActive}
+        phase={workspaceActionState?.phase ?? "idle"}
+        result={workspaceActionState?.result ?? null}
+        error={workspaceActionState?.error ?? null}
+        onAction={(action) => workspaceActions.performAction(detailWorkspace.id, action)}
+        onReset={() => workspaceActions.resetAction(detailWorkspace.id)}
+      />
+    ) : null;
+
     const detailMember = currentDetail.kind === "member"
       ? members.find((m) => m.id === currentDetail.refId)
       : undefined;
@@ -317,7 +372,9 @@ export default function App() {
         relatedDetails={relatedDetails}
         votePanel={votePanel}
         voteBreakdownPanel={voteBreakdownPanel}
+        proposalTimelinePanel={proposalTimelinePanel}
         delegatePanel={delegatePanel}
+        workspaceActionPanel={workspaceActionPanel}
         onBack={closeDetail}
         onOpenView={openView}
         onJumpToDetail={jumpToDetail}
@@ -348,6 +405,7 @@ export default function App() {
           {hasProposalView ? <NavTab active={activeView === "proposals"} label="Proposals" onPress={() => openView("proposals")} /> : null}
           {hasProposalCreation ? <NavTab active={activeView === "create-proposal"} label="Propose" onPress={() => openView("create-proposal")} /> : null}
           {hasTreasuryView ? <NavTab active={activeView === "treasury"} label="Treasury" onPress={() => openView("treasury")} /> : null}
+          {hasTreasuryView ? <NavTab active={activeView === "request-spend"} label="Spend" onPress={() => openView("request-spend")} /> : null}
           {hasModuleView ? <NavTab active={activeView === "modules"} label="Modules" onPress={() => openView("modules")} /> : null}
           <NavTab active={activeView === "activity"} label="Activity" onPress={() => openView("activity")} />
           <NavTab active={activeView === "settings"} label="Settings" onPress={() => openView("settings")} />

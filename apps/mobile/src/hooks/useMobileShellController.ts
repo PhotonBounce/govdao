@@ -53,7 +53,7 @@ export function useMobileShellController(manifest: AppManifest) {
     "overview",
     ...(hasProposalView ? ["proposals"] : []),
     ...(hasProposalCreation ? ["create-proposal"] : []),
-    ...(hasTreasuryView ? ["treasury"] : []),
+    ...(hasTreasuryView ? ["treasury", "request-spend"] : []),
     ...(hasModuleView ? ["modules"] : []),
     "activity",
     "settings"
@@ -163,6 +163,14 @@ export function useMobileShellController(manifest: AppManifest) {
       };
     }
 
+    if (view === "request-spend") {
+      return {
+        eyebrow: "Route",
+        title: "Spend Request",
+        subtitle: "Submit a treasury spend request. Requires an active member session. Capped at 25 ETH per transfer."
+      };
+    }
+
     if (view === "activity") {
       return {
         eyebrow: "Route",
@@ -227,13 +235,19 @@ export function useMobileShellController(manifest: AppManifest) {
       ];
     }
 
+    if (view === "request-spend") {
+      return [
+        { label: "Per-transfer cap", value: treasury.perTransferCap, tone: "neutral" },
+        { label: "Daily cap", value: treasury.dailyCap, tone: "neutral" },
+        { label: "Treasury status", value: treasury.paused ? "Paused" : "Active", tone: treasury.paused ? "warning" : "good" }
+      ];
+    }
+
     if (view === "activity") {
-      const voteCount = 4;
-      const proposalCount = 2;
       return [
         { label: "Total events", value: "12", tone: "good" },
-        { label: "Vote events", value: String(voteCount), tone: "good" },
-        { label: "Proposal events", value: String(proposalCount), tone: "neutral" }
+        { label: "Vote events", value: "4", tone: "good" },
+        { label: "Proposal events", value: "2", tone: "neutral" }
       ];
     }
 
@@ -427,6 +441,15 @@ export function useMobileShellController(manifest: AppManifest) {
     setActiveView("proposals");
   }
 
+  function openRequestSpend() {
+    setDetailStack([]);
+    setActiveView("request-spend");
+  }
+
+  function closeRequestSpend() {
+    setActiveView("treasury");
+  }
+
   return {
     activeView,
     availableViews,
@@ -464,6 +487,7 @@ export function useMobileShellController(manifest: AppManifest) {
     workspaceModule,
     closeDetail,
     closeCreateProposal,
+    closeRequestSpend,
     jumpToDetail,
     openDetail,
     openGuardianEvent,
@@ -474,6 +498,7 @@ export function useMobileShellController(manifest: AppManifest) {
     openTreasuryMovement,
     openView,
     openWorkspace,
-    openCreateProposal
+    openCreateProposal,
+    openRequestSpend
   };
 }

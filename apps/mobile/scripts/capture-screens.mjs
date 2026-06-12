@@ -118,7 +118,26 @@ await capture("treasury");
 await clickText("Modules", { exact: true });
 await capture("modules");
 
-// 12. Activity log — all events, then filter to votes only
+// 12. Treasury spend request form, filled
+await clickText("Treasury", { exact: true });
+await page.waitForTimeout(400);
+await clickText("Request Spend →", { exact: true });
+await page.waitForTimeout(400);
+const spendInputs = page.locator("input, textarea");
+await spendInputs.nth(0).fill("Security tooling grant");
+await spendInputs.nth(1).fill("5.0");
+await spendInputs.nth(2).fill("0xA1b2C3d4E5f6a7B8C9d0E1f2A3B4C5D6E7F8a9B0");
+await spendInputs.nth(3).fill("Fund security tooling maintenance for the guardian signer set.");
+await page.waitForTimeout(200);
+await capture("spend-request-form");
+
+// 13. Submit spend request and capture the queued receipt
+await clickText("Submit Spend Request", { exact: true });
+await page.getByText("Spend Request Queued", { exact: false }).waitFor({ timeout: 10000 });
+await page.waitForTimeout(300);
+await capture("spend-request-receipt");
+
+// 14. Activity log — all events, then filter to votes only
 await clickText("Activity", { exact: true });
 await capture("activity-all");
 await page.getByText("Votes", { exact: true }).first().click();
@@ -129,7 +148,7 @@ await capture("activity-votes-filter");
 await clickText("Settings", { exact: true });
 await capture("settings");
 
-// 14. Exercise notification preferences: toggle treasury alerts on, switch to
+// 17. Exercise notification preferences: toggle treasury alerts on, switch to
 // daily digest, save, and capture the SAVED receipt.
 const treasuryToggle = page.getByRole("switch").nth(3);
 await treasuryToggle.click({ timeout: 8000 });

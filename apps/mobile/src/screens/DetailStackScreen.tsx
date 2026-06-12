@@ -26,7 +26,9 @@ interface DetailStackScreenProps {
   relatedDetails: RelatedDetailLink[];
   votePanel?: ReactNode;
   voteBreakdownPanel?: ReactNode;
+  proposalTimelinePanel?: ReactNode;
   delegatePanel?: ReactNode;
+  workspaceActionPanel?: ReactNode;
   onBack: () => void;
   onOpenView: (view: ActiveView) => void;
   onJumpToDetail: (index: number) => void;
@@ -41,7 +43,9 @@ export function DetailStackScreen({
   relatedDetails,
   votePanel,
   voteBreakdownPanel,
+  proposalTimelinePanel,
   delegatePanel,
+  workspaceActionPanel,
   onBack,
   onOpenView,
   onJumpToDetail,
@@ -90,9 +94,21 @@ export function DetailStackScreen({
         </SectionCard>
       ) : null}
 
+      {proposalTimelinePanel ? (
+        <SectionCard eyebrow="Lifecycle" title="Proposal Timeline" subtitle="Each state transition recorded on-chain, newest entries at the bottom." tone={tone}>
+          {proposalTimelinePanel}
+        </SectionCard>
+      ) : null}
+
       {delegatePanel ? (
         <SectionCard eyebrow="Delegate Record" title="Voting History" subtitle="Participation rate and recent governance votes for this member." tone={tone}>
           {delegatePanel}
+        </SectionCard>
+      ) : null}
+
+      {workspaceActionPanel ? (
+        <SectionCard eyebrow="Document Actions" title="Manage This Item" subtitle="Route the document to the next step in the workspace workflow." tone={tone}>
+          {workspaceActionPanel}
         </SectionCard>
       ) : null}
 

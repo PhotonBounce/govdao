@@ -4,7 +4,7 @@ import { SectionCard } from "../components/SectionCard";
 import { SignalRow } from "../components/SignalRow";
 import { OnchainSnapshot } from "../data/chainSource";
 import { GuardianEventItem, GuardianStatus, TreasuryMovementItem, TreasurySnapshot } from "../data/mobileDataSource";
-import { palette } from "../theme";
+import { palette, radii } from "../theme";
 
 interface TreasuryScreenProps {
   treasury: TreasurySnapshot;
@@ -13,11 +13,13 @@ interface TreasuryScreenProps {
   guardianEvents: GuardianEventItem[];
   onchainSnapshot: OnchainSnapshot;
   onchainLoading: boolean;
+  spendRequestEnabled?: boolean;
+  onRequestSpend?: () => void;
   onSelectMovement: (movement: TreasuryMovementItem) => void;
   onSelectGuardianEvent: (event: GuardianEventItem) => void;
 }
 
-export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, onchainSnapshot, onchainLoading, onSelectMovement, onSelectGuardianEvent }: TreasuryScreenProps) {
+export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, onchainSnapshot, onchainLoading, spendRequestEnabled, onRequestSpend, onSelectMovement, onSelectGuardianEvent }: TreasuryScreenProps) {
   return (
     <>
       <SectionCard
@@ -65,6 +67,11 @@ export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, 
         <SignalRow label="Balance" value={treasury.balance} tone="good" />
         <SignalRow label="Per-transfer cap" value={treasury.perTransferCap} tone="neutral" />
         <SignalRow label="Daily cap" value={treasury.dailyCap} tone="neutral" />
+        {spendRequestEnabled && onRequestSpend ? (
+          <Pressable style={styles.requestButton} onPress={onRequestSpend}>
+            <Text style={styles.requestButtonText}>Request Spend →</Text>
+          </Pressable>
+        ) : null}
       </SectionCard>
 
       <SectionCard
@@ -190,6 +197,19 @@ const styles = StyleSheet.create({
     color: palette.inkSoft,
     fontSize: 14,
     lineHeight: 20
+  },
+  requestButton: {
+    marginTop: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: radii.card,
+    backgroundColor: palette.graphite,
+    alignSelf: "flex-start"
+  },
+  requestButtonText: {
+    color: palette.paper,
+    fontWeight: "700",
+    fontSize: 14
   },
   darkEmptyLine: {
     color: "#d9d1c7",

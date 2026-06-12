@@ -45,6 +45,9 @@ jobs:
       - run: npm run mobile:check-notifications
       - run: npm run mobile:check-delegate
       - run: npm run mobile:check-activity
+      - run: npm run mobile:check-treasury-request
+      - run: npm run mobile:check-timeline
+      - run: npm run mobile:check-workspace-action
       - run: npm run mobile:check-chain
       - name: App config matches manifest
         run: |

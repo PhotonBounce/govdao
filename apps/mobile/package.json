@@ -21,6 +21,9 @@
     "check:notifications": "node scripts/check-notifications.mjs",
     "check:delegate": "node scripts/check-delegate.mjs",
     "check:activity": "node scripts/check-activity.mjs",
+    "check:treasury-request": "node scripts/check-treasury-request.mjs",
+    "check:timeline": "node scripts/check-timeline.mjs",
+    "check:workspace-action": "node scripts/check-workspace-action.mjs",
     "generate:assets": "node scripts/generate-assets.mjs"
   },
   "dependencies": {
