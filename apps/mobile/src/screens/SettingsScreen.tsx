@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { Linking, Pressable, StyleSheet, Text } from "react-native";
 import { SectionCard } from "../components/SectionCard";
 import { SignalRow } from "../components/SignalRow";
@@ -8,6 +9,7 @@ interface SettingsScreenProps {
   manifest: AppManifest;
   metadataConfigured: boolean;
   supportConfigured: boolean;
+  notificationPanel?: ReactNode;
 }
 
 function openExternalUrl(url: string) {
@@ -25,9 +27,11 @@ function DisclosureLink({ label, url, target }: { label: string; url: string; ta
   );
 }
 
-export function SettingsScreen({ manifest, metadataConfigured, supportConfigured }: SettingsScreenProps) {
+export function SettingsScreen({ manifest, metadataConfigured, supportConfigured, notificationPanel }: SettingsScreenProps) {
   return (
     <>
+      {notificationPanel}
+
       <SectionCard
         eyebrow="Release Ops"
         title="Support And Legal"

@@ -42,6 +42,7 @@ jobs:
       - run: npm run mobile:check-create
       - run: npm run mobile:check-members
       - run: npm run mobile:check-motion
+      - run: npm run mobile:check-notifications
       - run: npm run mobile:check-chain
       - name: App config matches manifest
         run: |

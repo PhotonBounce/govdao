@@ -118,9 +118,19 @@ await capture("treasury");
 await clickText("Modules", { exact: true });
 await capture("modules");
 
-// 12. Settings
+// 12. Settings with the notification preferences panel
 await clickText("Settings", { exact: true });
 await capture("settings");
+
+// 13. Exercise notification preferences: toggle treasury alerts on, switch to
+// daily digest, save, and capture the SAVED receipt.
+const treasuryToggle = page.getByRole("switch").nth(3);
+await treasuryToggle.click({ timeout: 8000 });
+await clickText("Daily digest", { exact: true });
+await clickText("Save Preferences", { exact: true });
+await page.getByText("SAVED", { exact: true }).waitFor({ timeout: 10000 });
+await page.waitForTimeout(300);
+await capture("notification-preferences-saved");
 
 await browser.close();
 

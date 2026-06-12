@@ -6,6 +6,7 @@ import { DataStatusCard } from "./src/components/DataStatusCard";
 import { ModulePill } from "./src/components/ModulePill";
 import { MotionActionPanel } from "./src/components/MotionActionPanel";
 import { NavTab } from "./src/components/NavTab";
+import { NotificationPanel } from "./src/components/NotificationPanel";
 import { RouteSummaryStrip } from "./src/components/RouteSummaryStrip";
 import { SectionCard } from "./src/components/SectionCard";
 import { ProposalIntegrityCard } from "./src/components/ProposalIntegrityCard";
@@ -14,6 +15,7 @@ import { VotePanel } from "./src/components/VotePanel";
 import { buildExplorerTxUrl } from "./src/data/explorerSource";
 import { useMobileShellController } from "./src/hooks/useMobileShellController";
 import { useMotionActionController } from "./src/hooks/useMotionActionController";
+import { useNotificationController } from "./src/hooks/useNotificationController";
 import { useOnchainSnapshot } from "./src/hooks/useOnchainSnapshot";
 import { useSessionController } from "./src/hooks/useSessionController";
 import { useVoteController } from "./src/hooks/useVoteController";
@@ -127,6 +129,7 @@ export default function App() {
     manifest.governance.offchain.voteAnchoringEnabled
   );
   const proposalCreation = useProposalCreationController(sessionIdentity);
+  const notifications = useNotificationController(manifest);
   const { onchainSnapshot, onchainLoading } = useOnchainSnapshot(manifest);
   const dataMode = getDataModeSummary(dashboardData.source);
 
@@ -214,6 +217,18 @@ export default function App() {
           manifest={manifest}
           metadataConfigured={metadataConfigured}
           supportConfigured={supportConfigured}
+          notificationPanel={manifest.features.pushNotifications ? (
+            <NotificationPanel
+              categories={notifications.categories}
+              preferences={notifications.preferences}
+              saveStatus={notifications.saveStatus}
+              saveResult={notifications.saveResult}
+              saveError={notifications.saveError}
+              onToggleCategory={notifications.toggleCategory}
+              onSetFrequency={notifications.setFrequency}
+              onSave={notifications.savePreferences}
+            />
+          ) : undefined}
         />
       );
     }
