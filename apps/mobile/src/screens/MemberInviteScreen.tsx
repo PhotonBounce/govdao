@@ -93,6 +93,7 @@ export function MemberInviteScreen({
         eyebrow="Registry"
         title="Invite Member"
         subtitle="Submit a member invitation to the on-chain registry. A 24-hour timelock applies before the address becomes an active governance member."
+        infoKey="invite-member"
       >
         <View style={styles.sessionRow}>
           <ModulePill label="SESSION ACTIVE" tone="pine" />
@@ -104,6 +105,7 @@ export function MemberInviteScreen({
         eyebrow="Invitation Details"
         title="Invite Form"
         subtitle="Ethereum address, role assignment, and display name are all required."
+        infoKey="member-roles"
       >
         {errors.length > 0 ? (
           <View style={styles.errorBox}>

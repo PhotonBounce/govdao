@@ -82,14 +82,14 @@ export function SpendRequestScreen({
 
   return (
     <>
-      <SectionCard eyebrow="Treasury" title="Request Spend" subtitle="Submit a spend request to the treasury timelock. Requests exceeding the 25 ETH per-transfer cap will be rejected.">
+      <SectionCard eyebrow="Treasury" title="Request Spend" subtitle="Submit a spend request to the treasury timelock. Requests exceeding the 25 ETH per-transfer cap will be rejected." infoKey="spend-request">
         <View style={styles.sessionRow}>
           <ModulePill label="SESSION ACTIVE" tone="pine" />
           <Text style={styles.sessionLabel}>{sessionIdentity.memberLabel}</Text>
         </View>
       </SectionCard>
 
-      <SectionCard eyebrow="Request Details" title="Spend Request Form" subtitle="All fields except Doc URI are required. Amount must not exceed the 25 ETH per-transfer cap.">
+      <SectionCard eyebrow="Request Details" title="Spend Request Form" subtitle="All fields except Doc URI are required. Amount must not exceed the 25 ETH per-transfer cap." infoKey="timelock">
         {errors.length > 0 ? (
           <View style={styles.errorBox}>
             {errors.map((err) => (

@@ -28,6 +28,7 @@ export function QuorumStatusCard({ manifest, proposalIds, totalMembers }: Quorum
       eyebrow="Quorum Status"
       title="Participation Summary"
       subtitle={`${statuses.length} active proposal${statuses.length !== 1 ? "s" : ""} tracked against ${totalMembers} registered members.`}
+      infoKey="quorum"
     >
       <View style={styles.summaryRow}>
         <ModulePill label={`${atQuorum} AT QUORUM`} tone="pine" />

@@ -27,6 +27,7 @@
     "check:guardian-drill": "node scripts/check-guardian-drill.mjs",
     "check:member-invite": "node scripts/check-member-invite.mjs",
     "check:quorum": "node scripts/check-quorum.mjs",
+    "check:info-content": "node scripts/check-info-content.mjs",
     "generate:assets": "node scripts/generate-assets.mjs"
   },
   "dependencies": {

@@ -51,6 +51,7 @@ jobs:
       - run: npm run mobile:check-guardian-drill
       - run: npm run mobile:check-member-invite
       - run: npm run mobile:check-quorum
+      - run: npm run mobile:check-info-content
       - run: npm run mobile:check-chain
       - name: App config matches manifest
         run: |

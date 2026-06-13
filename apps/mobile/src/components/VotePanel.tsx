@@ -30,6 +30,7 @@ export function VotePanel({ proposalId, votingEnabled, sessionActive, voteState,
         eyebrow="Vote Receipt"
         title={`Voted ${formatVoteChoice(voteState.receipt.choice)}`}
         subtitle="The transaction confirmed and this receipt is what a member would attach to a dispute or audit trail."
+        infoKey="vote-receipt"
       >
         <View style={styles.pillRow}>
           <ModulePill label="CONFIRMED" tone="pine" />
@@ -55,6 +56,7 @@ export function VotePanel({ proposalId, votingEnabled, sessionActive, voteState,
     <SectionCard
       eyebrow="Cast Vote"
       title="Member Ballot"
+      infoKey="vote-ballot"
       subtitle={
         sessionActive
           ? "Votes are signed by the active session identity and confirmed before the receipt is shown."

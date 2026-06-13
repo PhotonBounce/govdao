@@ -29,6 +29,7 @@ export function SessionCard({ status, identity, options, required, error, pendin
         eyebrow="Member Access"
         title="Session Active"
         subtitle="Protected modules and signing actions are unlocked for this member identity."
+        infoKey="member-session"
       >
         <View style={styles.pillRow}>
           <ModulePill label={identity.methodLabel.toUpperCase()} tone="pine" />
@@ -54,6 +55,7 @@ export function SessionCard({ status, identity, options, required, error, pendin
           ? "This release requires a connected member identity before protected modules and signing actions unlock."
           : "Sign in to unlock protected modules and signing actions; browsing stays open to guests."
       }
+      infoKey="wallet-connect"
     >
       {error ? <Text style={styles.errorLine}>{error}</Text> : null}
       {options.length === 0 ? (

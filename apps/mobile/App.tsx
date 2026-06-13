@@ -2,6 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { AnimatedShell } from "./src/components/AnimatedShell";
 import { ParallaxScrollView } from "./src/components/ParallaxScrollView";
+import { InfoModalProvider } from "./src/contexts/InfoModalContext";
 import manifestJson from "./src/data/app.manifest.json";
 import { DataStatusCard } from "./src/components/DataStatusCard";
 import { ModulePill } from "./src/components/ModulePill";
@@ -161,7 +162,7 @@ export default function App() {
 
   function renderViewHeader() {
     return (
-      <SectionCard eyebrow={routeDescriptor.eyebrow} title={routeDescriptor.title} subtitle={routeDescriptor.subtitle} tone="glass">
+      <SectionCard eyebrow={routeDescriptor.eyebrow} title={routeDescriptor.title} subtitle={routeDescriptor.subtitle} tone="glass" infoKey={activeView === "overview" ? "overview" : activeView === "proposals" ? "proposals-list" : activeView === "create-proposal" ? "create-proposal" : activeView === "treasury" ? "treasury" : activeView === "modules" ? "modules" : activeView === "activity" ? "activity-feed" : activeView === "settings" ? "app-settings" : undefined}>
         <View style={styles.viewHeaderRow}>
           <Text style={styles.viewHeaderMeta}>Active route: {activeView}</Text>
           <Text style={styles.viewHeaderMeta}>Stack depth: {detailStack.length}</Text>
@@ -461,6 +462,7 @@ export default function App() {
   );
 
   return (
+    <InfoModalProvider>
     <AnimatedShell>
       <StatusBar style="light" />
       <ParallaxScrollView
@@ -509,6 +511,7 @@ export default function App() {
         )}
       </ParallaxScrollView>
     </AnimatedShell>
+    </InfoModalProvider>
   );
 }
 

@@ -99,6 +99,7 @@ export function ScheduleDrillScreen({
         eyebrow="Guardian"
         title="Schedule Drill"
         subtitle="Schedule a guardian drill to verify the emergency pause and resume signer posture. Requires the full threshold of required signers."
+        infoKey="schedule-drill"
       >
         <View style={styles.sessionRow}>
           <ModulePill label="SESSION ACTIVE" tone="pine" />
@@ -110,6 +111,7 @@ export function ScheduleDrillScreen({
         eyebrow="Drill Details"
         title="Drill Configuration"
         subtitle="Select the drill type, the coordination window, and add notes for the signer set."
+        infoKey="drill-types"
       >
         {errors.length > 0 ? (
           <View style={styles.errorBox}>

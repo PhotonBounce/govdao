@@ -63,6 +63,7 @@ export function ProposalIntegrityCard({ manifest, proposal }: ProposalIntegrityC
       eyebrow="Integrity"
       title="On-Chain Status And Document Proof"
       subtitle="Reviewers should be able to confirm what the chain says about this proposal and that the off-chain document still matches its anchored hash."
+      infoKey="proposal-integrity"
     >
       <View style={styles.pillRow}>
         <ModulePill label={chainState.available ? `CHAIN ${chainState.label?.toUpperCase()}` : "CHAIN OFFLINE"} tone={chainState.available ? "pine" : "bronze"} />

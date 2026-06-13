@@ -91,6 +91,7 @@ export function DataStatusCard({ loading, source, syncMessage, lastUpdatedAt, en
       eyebrow="Data Source"
       title={title}
       subtitle={syncMessage}
+      infoKey="data-status"
     >
       <Text style={[styles.calloutTitle, callout.tone === "good" ? styles.calloutTitleGood : callout.tone === "warning" ? styles.calloutTitleWarning : styles.calloutTitleNeutral]}>{callout.title}</Text>
       <Text style={styles.calloutBody}>{callout.body}</Text>

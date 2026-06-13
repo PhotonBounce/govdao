@@ -22,6 +22,7 @@ export function MotionActionPanel({ motionId, sessionActive, actionState, onDeci
         eyebrow="Decision Receipt"
         title={formatMotionDecision(actionState.receipt.decision)}
         subtitle="The decision is recorded against the motion and becomes part of the review trail delegates audit later."
+        infoKey="decision-receipt"
       >
         <View style={styles.pillRow}>
           <ModulePill label="RECORDED" tone="pine" />
@@ -43,6 +44,7 @@ export function MotionActionPanel({ motionId, sessionActive, actionState, onDeci
     <SectionCard
       eyebrow="Delegate Review"
       title="Record A Decision"
+      infoKey="motion-decision"
       subtitle={
         sessionActive
           ? "Approvals and returns are recorded by the active session identity and anchored when the deployment enables it."

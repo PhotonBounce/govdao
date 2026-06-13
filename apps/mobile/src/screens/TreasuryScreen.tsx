@@ -60,6 +60,7 @@ export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, 
         eyebrow="Treasury Transparency"
         title="Balances And Spending Controls"
         subtitle="Members should see what the treasury holds, what it can spend, and whether spending is currently allowed."
+        infoKey="treasury"
       >
         <View style={styles.statusRow}>
           <ModulePill label={treasury.paused ? "SPENDING PAUSED" : "SPENDING ACTIVE"} tone={treasury.paused ? "rose" : "pine"} />
@@ -80,6 +81,7 @@ export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, 
         eyebrow="Recent Movements"
         title="Inflows And Outflows"
         subtitle="Every movement settles through the timelock path, so the queue below mirrors what members can verify on-chain."
+        infoKey="treasury-movements"
       >
         {movements.length === 0 ? <Text style={styles.emptyLine}>No treasury movements are available from the active feed yet.</Text> : null}
         {movements.map((movement) => (
@@ -99,6 +101,7 @@ export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, 
         title="Pause Authority Status"
         subtitle="The guardian can only pause, never spend. This panel shows its signer posture and recent emergency activity."
         tone="graphite"
+        infoKey="emergency-guardian"
       >
         <View style={styles.statusRow}>
           <ModulePill label={guardian.state.toUpperCase()} tone={guardian.state === "Paused" ? "rose" : "pine"} />

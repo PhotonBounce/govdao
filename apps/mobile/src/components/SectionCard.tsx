@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { useInfoModal } from "../contexts/InfoModalContext";
 import { darkPalette, palette, radii } from "../theme";
+import { InfoButton } from "./InfoButton";
 
 interface SectionCardProps {
   eyebrow?: string;
@@ -8,21 +10,32 @@ interface SectionCardProps {
   subtitle?: string;
   children?: ReactNode;
   tone?: "paper" | "graphite" | "glass";
+  infoKey?: string;
 }
 
-export function SectionCard({ eyebrow, title, subtitle, children, tone = "paper" }: SectionCardProps) {
+export function SectionCard({ eyebrow, title, subtitle, children, tone = "paper", infoKey }: SectionCardProps) {
+  const { openInfo } = useInfoModal();
   const dark = tone === "graphite";
   const glass = tone === "glass";
 
   const cardStyle = glass ? styles.cardGlass : dark ? styles.cardDark : styles.cardLight;
   const textStyle = glass || dark ? styles.textOnDark : styles.textOnLight;
   const subtleStyle = glass ? styles.subtleOnGlass : dark ? styles.subtleOnDark : styles.subtleOnLight;
-  const eyebrowStyle = glass ? styles.eyebrowGlass : dark || glass ? styles.textOnDark : styles.textOnLight;
+  const eyebrowStyle = glass ? styles.eyebrowGlass : dark ? styles.textOnDark : styles.textOnLight;
 
   return (
     <View style={[styles.card, cardStyle]}>
-      {eyebrow ? <Text style={[styles.eyebrow, eyebrowStyle]}>{eyebrow}</Text> : null}
-      <Text style={[styles.title, textStyle]}>{title}</Text>
+      <View style={styles.headerRow}>
+        <View style={styles.headerText}>
+          {eyebrow ? <Text style={[styles.eyebrow, eyebrowStyle]}>{eyebrow}</Text> : null}
+          <Text style={[styles.title, textStyle]}>{title}</Text>
+        </View>
+        {infoKey ? (
+          <View style={styles.infoButtonWrap}>
+            <InfoButton onPress={() => openInfo(infoKey)} />
+          </View>
+        ) : null}
+      </View>
       {subtitle ? <Text style={[styles.subtitle, subtleStyle]}>{subtitle}</Text> : null}
       {children}
     </View>
@@ -82,5 +95,18 @@ const styles = StyleSheet.create({
   },
   subtleOnLight: {
     color: palette.inkSoft
+  },
+  headerRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    marginBottom: 0
+  },
+  headerText: {
+    flex: 1,
+    marginRight: 8
+  },
+  infoButtonWrap: {
+    marginTop: 2
   }
 });

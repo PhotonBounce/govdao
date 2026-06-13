@@ -40,6 +40,7 @@ export function NotificationPanel({
       eyebrow="Alerts"
       title="Notification Preferences"
       subtitle="Choose which governance events reach this device. Categories follow the features your deployment enables."
+      infoKey="notification-preferences"
     >
       {categories.map((category) => (
         <View key={category.id} style={styles.categoryRow}>
