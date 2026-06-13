@@ -1,6 +1,7 @@
-import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { AnimatedShell } from "./src/components/AnimatedShell";
+import { ParallaxScrollView } from "./src/components/ParallaxScrollView";
 import manifestJson from "./src/data/app.manifest.json";
 import { DataStatusCard } from "./src/components/DataStatusCard";
 import { ModulePill } from "./src/components/ModulePill";
@@ -43,7 +44,7 @@ import { SettingsScreen } from "./src/screens/SettingsScreen";
 import { TreasuryScreen } from "./src/screens/TreasuryScreen";
 import { useProposalCreationController } from "./src/hooks/useProposalCreationController";
 import { AppManifest } from "./src/types";
-import { palette, radii } from "./src/theme";
+import { darkPalette, radii } from "./src/theme";
 
 const manifest = manifestJson as AppManifest;
 
@@ -160,7 +161,7 @@ export default function App() {
 
   function renderViewHeader() {
     return (
-      <SectionCard eyebrow={routeDescriptor.eyebrow} title={routeDescriptor.title} subtitle={routeDescriptor.subtitle}>
+      <SectionCard eyebrow={routeDescriptor.eyebrow} title={routeDescriptor.title} subtitle={routeDescriptor.subtitle} tone="glass">
         <View style={styles.viewHeaderRow}>
           <Text style={styles.viewHeaderMeta}>Active route: {activeView}</Text>
           <Text style={styles.viewHeaderMeta}>Stack depth: {detailStack.length}</Text>
@@ -444,23 +445,29 @@ export default function App() {
     );
   }
 
-  return (
-    <LinearGradient colors={[palette.sand, "#efe2c9", "#d8c1a6"]} style={styles.shell}>
-      <StatusBar style="dark" />
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.hero}>
-          <Text style={styles.kicker}>Google Play Release Candidate</Text>
-          <Text style={styles.title}>{manifest.app.name}</Text>
-          <Text style={styles.description}>{manifest.release.listing.fullDescription}</Text>
-          <View style={styles.pillRow}>
-            <ModulePill label={manifest.governance.mode.toUpperCase()} tone="pine" />
-            <ModulePill label={manifest.app.distribution.pricingModel.toUpperCase()} tone="bronze" />
-            <ModulePill label={`TRACK ${manifest.release.android.track.toUpperCase()}`} tone="rose" />
-            <ModulePill label={dataMode.label} tone={dataMode.tone} />
-          </View>
-          <Text style={styles.modeLine}>Current data mode: {dataMode.detail}</Text>
-        </View>
+  const heroContent = (
+    <View style={styles.hero}>
+      <Text style={styles.kicker}>Google Play Release Candidate</Text>
+      <Text style={styles.title}>{manifest.app.name}</Text>
+      <Text style={styles.description}>{manifest.release.listing.fullDescription}</Text>
+      <View style={styles.pillRow}>
+        <ModulePill label={manifest.governance.mode.toUpperCase()} tone="pine" />
+        <ModulePill label={manifest.app.distribution.pricingModel.toUpperCase()} tone="bronze" />
+        <ModulePill label={`TRACK ${manifest.release.android.track.toUpperCase()}`} tone="rose" />
+        <ModulePill label={dataMode.label} tone={dataMode.tone} />
+      </View>
+      <Text style={styles.modeLine}>Current data mode: {dataMode.detail}</Text>
+    </View>
+  );
 
+  return (
+    <AnimatedShell>
+      <StatusBar style="light" />
+      <ParallaxScrollView
+        contentContainerStyle={styles.content}
+        heroContent={heroContent}
+        heroContainerStyle={styles.heroContainer}
+      >
         <View style={styles.navRow}>
           <NavTab active={activeView === "overview"} label="Overview" onPress={() => openView("overview")} />
           {hasProposalView ? <NavTab active={activeView === "proposals"} label="Proposals" onPress={() => openView("proposals")} /> : null}
@@ -500,30 +507,29 @@ export default function App() {
             {renderActiveView()}
           </>
         )}
-      </ScrollView>
-    </LinearGradient>
+      </ParallaxScrollView>
+    </AnimatedShell>
   );
 }
 
 const styles = StyleSheet.create({
-  shell: {
-    flex: 1
-  },
   content: {
     paddingHorizontal: 18,
     paddingTop: 68,
     paddingBottom: 40
   },
+  heroContainer: {
+    marginBottom: 20
+  },
   hero: {
-    marginBottom: 20,
     padding: 22,
-    backgroundColor: "rgba(251, 248, 239, 0.84)",
+    backgroundColor: darkPalette.glassCard,
     borderRadius: radii.panel,
     borderWidth: 1,
-    borderColor: "rgba(142, 92, 50, 0.18)"
+    borderColor: darkPalette.glassBorder
   },
   kicker: {
-    color: palette.bronze,
+    color: darkPalette.softGold,
     fontSize: 12,
     fontWeight: "700",
     letterSpacing: 1.2,
@@ -534,13 +540,13 @@ const styles = StyleSheet.create({
     fontSize: 42,
     lineHeight: 44,
     fontWeight: "700",
-    color: palette.graphite,
+    color: darkPalette.dimWhite,
     marginBottom: 12
   },
   description: {
     fontSize: 16,
     lineHeight: 24,
-    color: palette.inkSoft,
+    color: "rgba(224,219,208,0.72)",
     marginBottom: 16
   },
   pillRow: {
@@ -566,29 +572,29 @@ const styles = StyleSheet.create({
     marginBottom: 4
   },
   viewHeaderMeta: {
-    color: palette.moss,
+    color: darkPalette.softGold,
     fontSize: 13,
     fontWeight: "600"
   },
   viewModeMeta: {
-    color: palette.inkSoft,
+    color: darkPalette.dimWhite,
     fontSize: 13,
     fontWeight: "600",
     marginBottom: 8
   },
   modeLine: {
-    color: palette.moss,
+    color: darkPalette.softGold,
     fontSize: 13,
     fontWeight: "600"
   },
   warningLine: {
-    color: palette.rose,
+    color: "#e87070",
     fontSize: 14,
     lineHeight: 20,
     marginTop: 6
   },
   darkMeta: {
-    color: "#d9d1c7",
+    color: darkPalette.dimWhite,
     fontSize: 14,
     lineHeight: 20,
     marginTop: 8

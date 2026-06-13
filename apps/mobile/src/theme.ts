@@ -12,6 +12,17 @@ export const palette = {
   white: "#ffffff"
 };
 
+export const darkPalette = {
+  obsidian: "#0d0d1a",
+  glowBronze: "#c98340",
+  softGold: "#e8c87a",
+  dimWhite: "#e0dbd0",
+  mutedLine: "rgba(255,255,255,0.08)",
+  glassCard: "rgba(255,255,255,0.05)",
+  glassBorder: "rgba(201,131,64,0.22)",
+  activeGlow: "rgba(201,131,64,0.18)"
+};
+
 export const radii = {
   card: 22,
   pill: 999,

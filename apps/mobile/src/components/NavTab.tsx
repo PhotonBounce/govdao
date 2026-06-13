@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text } from "react-native";
-import { palette, radii } from "../theme";
+import { darkPalette, radii } from "../theme";
 
 interface NavTabProps {
   active: boolean;
@@ -25,12 +25,12 @@ const styles = StyleSheet.create({
     borderWidth: 1
   },
   tabActive: {
-    backgroundColor: palette.graphite,
-    borderColor: palette.graphite
+    backgroundColor: darkPalette.activeGlow,
+    borderColor: darkPalette.glowBronze
   },
   tabIdle: {
-    backgroundColor: "rgba(251, 248, 239, 0.72)",
-    borderColor: palette.line
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderColor: darkPalette.mutedLine
   },
   label: {
     fontSize: 13,
@@ -38,9 +38,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4
   },
   labelActive: {
-    color: palette.paper
+    color: darkPalette.softGold
   },
   labelIdle: {
-    color: palette.inkSoft
+    color: "rgba(224,219,208,0.60)"
   }
 });
