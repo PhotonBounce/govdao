@@ -53,6 +53,7 @@ jobs:
       - run: npm run mobile:check-quorum
       - run: npm run mobile:check-info-content
       - run: npm run mobile:check-sounds
+      - run: npm run mobile:check-plan-gate
       - run: npm run mobile:check-chain
       - name: App config matches manifest
         run: |

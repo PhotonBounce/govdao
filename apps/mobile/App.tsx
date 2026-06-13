@@ -2,8 +2,11 @@ import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { AnimatedShell } from "./src/components/AnimatedShell";
 import { ParallaxScrollView } from "./src/components/ParallaxScrollView";
+import { PremiumGate } from "./src/components/PremiumGate";
 import { InfoModalProvider } from "./src/contexts/InfoModalContext";
 import { SoundProvider } from "./src/contexts/SoundContext";
+import { usePlanGate } from "./src/hooks/usePlanGate";
+import { UpgradeScreen } from "./src/screens/UpgradeScreen";
 import manifestJson from "./src/data/app.manifest.json";
 import { DataStatusCard } from "./src/components/DataStatusCard";
 import { ModulePill } from "./src/components/ModulePill";
@@ -160,6 +163,8 @@ export default function App() {
   const notifications = useNotificationController(manifest);
   const { onchainSnapshot, onchainLoading } = useOnchainSnapshot(manifest);
   const dataMode = getDataModeSummary(dashboardData.source);
+  const drillGate = usePlanGate(manifest, "guardian-drill");
+  const inviteGate = usePlanGate(manifest, "member-invite");
 
   function renderViewHeader() {
     return (
@@ -272,40 +277,48 @@ export default function App() {
 
     if (activeView === "schedule-drill") {
       return (
-        <ScheduleDrillScreen
-          sessionIdentity={sessionIdentity}
-          draft={guardianDrill.draft}
-          phase={guardianDrill.phase}
-          errors={guardianDrill.errors}
-          result={guardianDrill.result}
-          isSubmitting={guardianDrill.isSubmitting}
-          canSubmit={guardianDrill.canSubmit}
-          onSetDrillType={guardianDrill.setDrillType}
-          onSetWindowHours={guardianDrill.setWindowHours}
-          onSetNotes={guardianDrill.setNotes}
-          onSubmit={guardianDrill.submit}
-          onReset={guardianDrill.reset}
-          onBack={closeScheduleDrill}
-        />
+        <PremiumGate gate={drillGate} onUpgrade={() => openView("upgrade")}>
+          <ScheduleDrillScreen
+            sessionIdentity={sessionIdentity}
+            draft={guardianDrill.draft}
+            phase={guardianDrill.phase}
+            errors={guardianDrill.errors}
+            result={guardianDrill.result}
+            isSubmitting={guardianDrill.isSubmitting}
+            canSubmit={guardianDrill.canSubmit}
+            onSetDrillType={guardianDrill.setDrillType}
+            onSetWindowHours={guardianDrill.setWindowHours}
+            onSetNotes={guardianDrill.setNotes}
+            onSubmit={guardianDrill.submit}
+            onReset={guardianDrill.reset}
+            onBack={closeScheduleDrill}
+          />
+        </PremiumGate>
       );
     }
 
     if (activeView === "invite-member") {
       return (
-        <MemberInviteScreen
-          sessionIdentity={sessionIdentity}
-          draft={memberInvite.draft}
-          phase={memberInvite.phase}
-          errors={memberInvite.errors}
-          result={memberInvite.result}
-          isSubmitting={memberInvite.isSubmitting}
-          canSubmit={memberInvite.canSubmit}
-          onSetField={memberInvite.setField}
-          onSubmit={memberInvite.submit}
-          onReset={memberInvite.reset}
-          onBack={closeInviteMember}
-        />
+        <PremiumGate gate={inviteGate} onUpgrade={() => openView("upgrade")}>
+          <MemberInviteScreen
+            sessionIdentity={sessionIdentity}
+            draft={memberInvite.draft}
+            phase={memberInvite.phase}
+            errors={memberInvite.errors}
+            result={memberInvite.result}
+            isSubmitting={memberInvite.isSubmitting}
+            canSubmit={memberInvite.canSubmit}
+            onSetField={memberInvite.setField}
+            onSubmit={memberInvite.submit}
+            onReset={memberInvite.reset}
+            onBack={closeInviteMember}
+          />
+        </PremiumGate>
       );
+    }
+
+    if (activeView === "upgrade") {
+      return <UpgradeScreen onBack={() => openView("overview")} />;
     }
 
     if (activeView === "activity") {

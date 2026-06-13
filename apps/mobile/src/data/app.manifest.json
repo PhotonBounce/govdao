@@ -42,7 +42,8 @@
     "treasuryView": true,
     "pushNotifications": true,
     "biometricConfirm": true,
-    "fiatOnramp": false
+    "fiatOnramp": false,
+    "plan": "premium"
   },
   "services": {
     "metadataBaseUrl": "https://example.govdao.app/metadata",

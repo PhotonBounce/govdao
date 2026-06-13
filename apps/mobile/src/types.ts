@@ -41,6 +41,7 @@ export interface AppManifest {
     pushNotifications: boolean;
     biometricConfirm: boolean;
     fiatOnramp: boolean;
+    plan: "free" | "premium";
   };
   services: {
     metadataBaseUrl: string;
