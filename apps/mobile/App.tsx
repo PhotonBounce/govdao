@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { AnimatedShell } from "./src/components/AnimatedShell";
 import { ParallaxScrollView } from "./src/components/ParallaxScrollView";
 import { InfoModalProvider } from "./src/contexts/InfoModalContext";
+import { SoundProvider } from "./src/contexts/SoundContext";
 import manifestJson from "./src/data/app.manifest.json";
 import { DataStatusCard } from "./src/components/DataStatusCard";
 import { ModulePill } from "./src/components/ModulePill";
@@ -462,6 +463,7 @@ export default function App() {
   );
 
   return (
+    <SoundProvider>
     <InfoModalProvider>
     <AnimatedShell>
       <StatusBar style="light" />
@@ -512,6 +514,7 @@ export default function App() {
       </ParallaxScrollView>
     </AnimatedShell>
     </InfoModalProvider>
+    </SoundProvider>
   );
 }
 

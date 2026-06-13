@@ -28,11 +28,14 @@
     "check:member-invite": "node scripts/check-member-invite.mjs",
     "check:quorum": "node scripts/check-quorum.mjs",
     "check:info-content": "node scripts/check-info-content.mjs",
-    "generate:assets": "node scripts/generate-assets.mjs"
+    "check:sounds": "node scripts/check-sounds.mjs",
+    "generate:sounds": "node scripts/generate-sounds.mjs",
+    "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.5",
     "expo": "~53.0.17",
+    "expo-av": "~15.1.6",
     "expo-linear-gradient": "~14.1.5",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",

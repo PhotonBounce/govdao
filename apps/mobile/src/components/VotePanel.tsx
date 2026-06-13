@@ -1,4 +1,6 @@
+import { useEffect, useRef } from "react";
 import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { useSound } from "../contexts/SoundContext";
 import { ModulePill } from "./ModulePill";
 import { SectionCard } from "./SectionCard";
 import { SignalRow } from "./SignalRow";
@@ -20,6 +22,18 @@ interface VotePanelProps {
 const choices: VoteChoice[] = ["for", "against", "abstain"];
 
 export function VotePanel({ proposalId, votingEnabled, sessionActive, voteState, explorerUrl, onCastVote, onResetVote }: VotePanelProps) {
+  const { play } = useSound();
+  const confirmedRef = useRef(false);
+
+  useEffect(() => {
+    if (voteState.status === "confirmed" && !confirmedRef.current) {
+      confirmedRef.current = true;
+      play("receipt");
+    } else if (voteState.status !== "confirmed") {
+      confirmedRef.current = false;
+    }
+  }, [voteState.status]);
+
   if (!votingEnabled) {
     return null;
   }
@@ -77,7 +91,7 @@ export function VotePanel({ proposalId, votingEnabled, sessionActive, voteState,
           ) : (
             <View style={styles.choiceRow}>
               {choices.map((choice) => (
-                <Pressable key={choice} style={[styles.choiceButton, choice === "for" ? styles.choiceButtonPrimary : null]} onPress={() => onCastVote(choice)}>
+                <Pressable key={choice} style={[styles.choiceButton, choice === "for" ? styles.choiceButtonPrimary : null]} onPress={() => { play("vote"); onCastVote(choice); }}>
                   <Text style={[styles.choiceButtonText, choice === "for" ? styles.choiceButtonTextPrimary : null]}>{formatVoteChoice(choice)}</Text>
                 </Pressable>
               ))}
