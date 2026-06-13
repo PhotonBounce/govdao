@@ -40,7 +40,7 @@ export function useSessionController(manifest: AppManifest) {
     setState({ status: "connecting", identity: null, pendingMethodId: option.id, error: null });
 
     try {
-      const identity = await connectSession(option);
+      const identity = await connectSession(option, manifest);
 
       if (requestIdRef.current === requestId) {
         setState({ status: "signed-in", identity, pendingMethodId: null, error: null });

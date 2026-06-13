@@ -30,11 +30,13 @@
     "check:info-content": "node scripts/check-info-content.mjs",
     "check:sounds": "node scripts/check-sounds.mjs",
     "check:plan-gate": "node scripts/check-plan-gate.mjs",
+    "check:wallet-integration": "node scripts/check-wallet-integration.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.5",
+    "ethers": "^6.16.0",
     "expo": "~53.0.17",
     "expo-asset": "^56.0.17",
     "expo-av": "~15.1.6",

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { AppManifest } from "../types";
 import {
   ProposalCreationPhase,
   ProposalCreationResult,
@@ -10,7 +11,7 @@ import { SessionIdentity } from "../data/sessionSource";
 
 const EMPTY_DRAFT: ProposalDraft = { title: "", summary: "", docUri: "", docHash: "" };
 
-export function useProposalCreationController(identity: SessionIdentity | null) {
+export function useProposalCreationController(identity: SessionIdentity | null, manifest: AppManifest) {
   const [draft, setDraft] = useState<ProposalDraft>(EMPTY_DRAFT);
   const [phase, setPhase] = useState<ProposalCreationPhase>("idle");
   const [errors, setErrors] = useState<string[]>([]);
@@ -36,7 +37,7 @@ export function useProposalCreationController(identity: SessionIdentity | null) 
     }
 
     try {
-      const submittedResult = await submitProposalDraft(draft, identity, setPhase);
+      const submittedResult = await submitProposalDraft(draft, identity, manifest, setPhase);
       setResult(submittedResult);
     } catch (err) {
       setPhase("error");

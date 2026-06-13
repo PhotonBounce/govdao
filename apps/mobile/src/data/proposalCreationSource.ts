@@ -1,4 +1,7 @@
+import { AppManifest } from "../types";
 import { SessionIdentity } from "./sessionSource";
+import { isFixtureMode, getActiveSigner, buildContract } from "./walletProvider";
+import { GOVERNOR_ABI } from "./contractAbis";
 
 export type ProposalCreationPhase = "idle" | "validating" | "submitting" | "submitted" | "error";
 
@@ -52,6 +55,7 @@ function buildFixtureTxHash(address: string): string {
 export async function submitProposalDraft(
   draft: ProposalDraft,
   identity: SessionIdentity,
+  manifest: AppManifest,
   onPhase: (phase: ProposalCreationPhase) => void
 ): Promise<ProposalCreationResult> {
   onPhase("validating");
@@ -60,6 +64,27 @@ export async function submitProposalDraft(
   if (errors.length > 0) {
     onPhase("error");
     throw new Error(errors[0]);
+  }
+
+  if (!isFixtureMode(manifest)) {
+    const signer = getActiveSigner();
+    if (signer) {
+      try {
+        onPhase("submitting");
+        const governor = buildContract(manifest.contracts.governor, GOVERNOR_ABI, signer);
+        const description = `${draft.title}\n\n${draft.summary}${draft.docUri ? `\n\nDoc: ${draft.docUri}` : ""}${draft.docHash ? `\nHash: ${draft.docHash}` : ""}`;
+        const tx = await governor.propose([], [], [], description);
+        const receipt = await tx.wait();
+        onPhase("submitted");
+        return {
+          proposalId: receipt?.logs?.[0]?.topics?.[1] ?? tx.hash.slice(0, 12),
+          txHash: receipt?.hash ?? tx.hash
+        };
+      } catch (err) {
+        onPhase("error");
+        throw err instanceof Error ? err : new Error("On-chain proposal submission failed.");
+      }
+    }
   }
 
   await new Promise<void>((resolve) => setTimeout(resolve, 500));

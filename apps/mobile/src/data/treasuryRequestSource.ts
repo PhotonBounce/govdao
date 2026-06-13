@@ -1,5 +1,8 @@
 import { AppManifest } from "../types";
 import { SessionIdentity } from "./sessionSource";
+import { isFixtureMode, getActiveSigner, buildContract } from "./walletProvider";
+import { TIMELOCK_ABI, TREASURY_ABI } from "./contractAbis";
+import { ethers } from "ethers";
 
 export interface SpendRequestDraft {
   title: string;
@@ -16,7 +19,7 @@ export interface SpendRequestResult {
   txHash: string;
   timelockEtaLabel: string;
   timelockSeconds: number;
-  transport: "fixture";
+  transport: "fixture" | "remote";
 }
 
 const ETH_AMOUNT_RE = /^\d+(\.\d{1,18})?$/;
@@ -67,7 +70,7 @@ function buildFixtureTxHash(requestId: string): string {
 export async function submitSpendRequest(
   draft: SpendRequestDraft,
   identity: SessionIdentity | null,
-  _manifest: AppManifest,
+  manifest: AppManifest,
   onPhase: (phase: SpendRequestPhase) => void
 ): Promise<SpendRequestResult> {
   onPhase("validating");
@@ -81,6 +84,43 @@ export async function submitSpendRequest(
   if (!identity) {
     onPhase("error");
     throw new Error("Session required to submit treasury spend requests.");
+  }
+
+  if (!isFixtureMode(manifest)) {
+    const signer = getActiveSigner();
+    if (signer) {
+      try {
+        onPhase("submitting");
+        const timelock = buildContract(manifest.contracts.timelock, TIMELOCK_ABI, signer);
+        const iface = new ethers.Interface([...TREASURY_ABI]);
+        const calldata = iface.encodeFunctionData("executeSpend", [
+          draft.recipientAddress.trim(),
+          ethers.parseEther(draft.amount),
+          draft.purpose.trim()
+        ]);
+        const salt = ethers.id(`${draft.title}:${Date.now()}`);
+        const tx = await timelock.schedule(
+          manifest.contracts.treasury,
+          0n,
+          calldata,
+          ethers.ZeroHash,
+          salt,
+          86400n
+        );
+        const receipt = await tx.wait();
+        onPhase("queued");
+        return {
+          requestId: `TRX-${(receipt?.blockNumber ?? 0) % 900 + 100}`,
+          txHash: receipt?.hash ?? tx.hash,
+          timelockEtaLabel: "Timelock: 24h",
+          timelockSeconds: 86400,
+          transport: "remote"
+        };
+      } catch (err) {
+        onPhase("error");
+        throw err instanceof Error ? err : new Error("On-chain spend request failed.");
+      }
+    }
   }
 
   await new Promise((r) => setTimeout(r, 20));

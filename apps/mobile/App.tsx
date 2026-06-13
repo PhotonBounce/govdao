@@ -150,12 +150,12 @@ export default function App() {
     signIn,
     signOut
   } = useSessionController(manifest);
-  const { castVote, getVoteState, resetVote } = useVoteController(sessionIdentity);
+  const { castVote, getVoteState, resetVote } = useVoteController(sessionIdentity, manifest);
   const { decideMotion, getMotionActionState, resetMotionAction } = useMotionActionController(
     sessionIdentity,
     manifest.governance.offchain.voteAnchoringEnabled
   );
-  const proposalCreation = useProposalCreationController(sessionIdentity);
+  const proposalCreation = useProposalCreationController(sessionIdentity, manifest);
   const spendRequest = useSpendRequestController(sessionIdentity, manifest);
   const workspaceActions = useWorkspaceActionController(sessionIdentity, manifest);
   const guardianDrill = useGuardianDrillController(sessionIdentity, manifest);

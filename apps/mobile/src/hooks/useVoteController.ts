@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { AppManifest } from "../types";
 import { SessionIdentity } from "../data/sessionSource";
 import { castVoteTransaction, VoteChoice, VoteReceipt } from "../data/voteSource";
 
@@ -26,7 +27,7 @@ function getErrorMessage(error: unknown): string {
   return "The vote transaction failed unexpectedly.";
 }
 
-export function useVoteController(identity: SessionIdentity | null) {
+export function useVoteController(identity: SessionIdentity | null, manifest: AppManifest) {
   const requestIdsRef = useRef<Record<string, number>>({});
   const [voteStates, setVoteStates] = useState<Record<string, VoteState>>({});
 
@@ -49,7 +50,7 @@ export function useVoteController(identity: SessionIdentity | null) {
     setVoteState(proposalId, { status: "signing", choice, receipt: null, error: null });
 
     try {
-      const receipt = await castVoteTransaction(proposalId, choice, identity, (phase) => {
+      const receipt = await castVoteTransaction(proposalId, choice, identity, manifest, (phase) => {
         if (requestIdsRef.current[proposalId] === requestId && phase === "pending") {
           setVoteState(proposalId, { status: "pending", choice, receipt: null, error: null });
         }

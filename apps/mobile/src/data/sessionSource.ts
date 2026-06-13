@@ -1,4 +1,6 @@
 import { AppManifest } from "../types";
+import { isFixtureMode, getActiveSigner, buildContract } from "./walletProvider";
+import { MEMBER_REGISTRY_ABI } from "./contractAbis";
 
 export type AccessMethodKind = "wallet" | "offchain";
 export type SessionTransport = "fixture" | "remote";
@@ -83,9 +85,35 @@ function wait(durationMs: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, durationMs));
 }
 
-export async function connectSession(option: AccessOption): Promise<SessionIdentity> {
-  // Until a real wallet/passkey SDK is wired in, the handshake settles against
-  // the deterministic fixture signer set so flows stay testable offline.
+export async function connectSession(option: AccessOption, manifest: AppManifest): Promise<SessionIdentity> {
+  if (!isFixtureMode(manifest)) {
+    const signer = getActiveSigner();
+    if (signer) {
+      try {
+        const address = await signer.getAddress();
+        let role = "Member";
+        try {
+          const registry = buildContract(manifest.contracts.memberRegistry, MEMBER_REGISTRY_ABI, signer);
+          role = await registry.getMemberRole(address) as string;
+        } catch {
+          // registry query failure is non-fatal; default to "Member"
+        }
+        return {
+          methodId: option.id,
+          methodLabel: option.label,
+          kind: option.kind,
+          memberLabel: address.slice(0, 6) + "…" + address.slice(-4),
+          address,
+          role,
+          transport: "remote",
+          connectedAt: getTimestamp()
+        };
+      } catch {
+        // signer.getAddress() failure falls through to fixture path
+      }
+    }
+  }
+
   await wait(HANDSHAKE_DELAY_MS);
   const signer = fixtureSigners[option.id] ?? defaultSigner;
 

@@ -1,5 +1,7 @@
 import { AppManifest } from "../types";
 import { SessionIdentity } from "./sessionSource";
+import { isFixtureMode, getActiveSigner, buildContract } from "./walletProvider";
+import { MEMBER_REGISTRY_ABI } from "./contractAbis";
 
 export type InvitePhase = "idle" | "validating" | "submitting" | "pending" | "error";
 
@@ -15,7 +17,7 @@ export interface InviteReceipt {
   role: string;
   displayName: string;
   timelockLabel: string;
-  transport: "fixture";
+  transport: "fixture" | "remote";
 }
 
 const ADDRESS_RE = /^0x[0-9a-fA-F]{40}$/;
@@ -55,7 +57,7 @@ function buildInviteId(): string {
 export async function submitMemberInvite(
   draft: InviteDraft,
   identity: SessionIdentity | null,
-  _manifest: AppManifest,
+  manifest: AppManifest,
   onPhase: (phase: InvitePhase) => void
 ): Promise<InviteReceipt> {
   onPhase("validating");
@@ -69,6 +71,30 @@ export async function submitMemberInvite(
   if (!identity) {
     onPhase("error");
     throw new Error("Active member session required to submit an invitation.");
+  }
+
+  if (!isFixtureMode(manifest)) {
+    const signer = getActiveSigner();
+    if (signer) {
+      try {
+        onPhase("submitting");
+        const registry = buildContract(manifest.contracts.memberRegistry, MEMBER_REGISTRY_ABI, signer);
+        const tx = await registry.addMember(draft.address.trim(), draft.role.trim());
+        const receipt = await tx.wait();
+        onPhase("pending");
+        return {
+          inviteId: `MBR-${String((receipt?.blockNumber ?? 0) % 95 + 5).padStart(3, "0")}`,
+          address: draft.address.trim(),
+          role: draft.role.trim(),
+          displayName: draft.displayName.trim(),
+          timelockLabel: "Confirmed on-chain — registry updated",
+          transport: "remote"
+        };
+      } catch (err) {
+        onPhase("error");
+        throw err instanceof Error ? err : new Error("On-chain member invitation failed.");
+      }
+    }
   }
 
   await new Promise((r) => setTimeout(r, 20));

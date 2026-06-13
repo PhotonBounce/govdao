@@ -1,4 +1,7 @@
+import { AppManifest } from "../types";
 import { SessionIdentity } from "./sessionSource";
+import { isFixtureMode, getActiveSigner, buildContract } from "./walletProvider";
+import { GOVERNOR_ABI, VOTE_SUPPORT } from "./contractAbis";
 
 export type VoteChoice = "for" | "against" | "abstain";
 export type VotePhase = "signing" | "pending";
@@ -45,10 +48,36 @@ export async function castVoteTransaction(
   proposalId: string,
   choice: VoteChoice,
   identity: SessionIdentity,
+  manifest: AppManifest,
   onPhase?: (phase: VotePhase) => void
 ): Promise<VoteReceipt> {
-  // Until on-chain submission lands, votes settle against a fixture transaction
-  // path with the same signing/pending phases a real wallet flow would surface.
+  if (!isFixtureMode(manifest)) {
+    const signer = getActiveSigner();
+    if (signer) {
+      try {
+        onPhase?.("signing");
+        const governor = buildContract(manifest.contracts.governor, GOVERNOR_ABI, signer);
+        const support = VOTE_SUPPORT[choice];
+        const tx = await governor.castVote(proposalId, support);
+        const submittedAt = getTimestamp();
+        onPhase?.("pending");
+        const receipt = await tx.wait();
+        return {
+          proposalId,
+          choice,
+          voter: identity.address,
+          voterLabel: identity.memberLabel,
+          txHash: receipt?.hash ?? tx.hash,
+          transport: "remote",
+          submittedAt,
+          confirmedAt: getTimestamp()
+        };
+      } catch (err) {
+        throw err instanceof Error ? err : new Error("On-chain vote transaction failed.");
+      }
+    }
+  }
+
   onPhase?.("signing");
   await wait(SIGNING_DELAY_MS);
   const submittedAt = getTimestamp();
