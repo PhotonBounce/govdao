@@ -34,7 +34,7 @@ if (!walletOption) {
   process.exit(1);
 }
 
-const identity = await connectSession(walletOption);
+const identity = await connectSession(walletOption, manifest);
 const dashboard = await loadMobileDashboardData(manifest);
 const proposal = dashboard.proposals[0];
 
@@ -44,7 +44,7 @@ if (!proposal) {
 }
 
 const phases = [];
-const receipt = await castVoteTransaction(proposal.id, "for", identity, (phase) => phases.push(phase));
+const receipt = await castVoteTransaction(proposal.id, "for", identity, manifest, (phase) => phases.push(phase));
 
 console.log(JSON.stringify({
   proposal: { id: proposal.id, title: proposal.title },

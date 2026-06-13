@@ -23,7 +23,7 @@ const options = getAccessOptions(manifest);
 const walletOption = options.find((option) => option.kind === "wallet");
 const offchainOption = options.find((option) => option.kind === "offchain");
 const probes = [walletOption, offchainOption].filter(Boolean);
-const sessions = await Promise.all(probes.map((option) => connectSession(option)));
+const sessions = await Promise.all(probes.map((option) => connectSession(option, manifest)));
 
 console.log(JSON.stringify({
   required: manifest.wallet.required,
