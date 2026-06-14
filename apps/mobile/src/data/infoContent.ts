@@ -310,5 +310,11 @@ export const infoContent: Record<string, InfoEntry> = {
     body: "A unified agenda of every time-sensitive governance event: when voting opens and closes on each proposal, when timelocked actions become executable, when guardian drill windows occur, and when grace periods expire. Events are grouped by day and labelled with a live countdown so you never miss a vote or an execution window.",
     example: "\"Voting closes in 6h\" on GOV-201 means you have six hours left to cast your ballot before the window shuts.",
     onchain: "In live mode the agenda is anchored to the chain's latest block timestamp and the timelock's on-chain minimum delay, so every countdown reflects real network time rather than your device clock."
+  },
+  "preferences": {
+    title: "App Preferences",
+    body: "Personalize the app experience. Sound effects toggle the tap, vote and receipt cues. Reduce motion turns off the animated code-rain background and color cycling for a calmer, lower-power screen — useful for accessibility or saving battery. Haptics control vibration feedback, and compact navigation tightens the tab bar.",
+    example: "Turn on Reduce Motion if animations cause discomfort or you want to extend battery life on long governance sessions.",
+    onchain: "Preferences are device-local UI settings only — they never touch the chain and are not part of any transaction."
   }
 };

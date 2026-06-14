@@ -5,6 +5,7 @@ import { ParallaxScrollView } from "./src/components/ParallaxScrollView";
 import { PremiumGate } from "./src/components/PremiumGate";
 import { InfoModalProvider } from "./src/contexts/InfoModalContext";
 import { SoundProvider } from "./src/contexts/SoundContext";
+import { PreferencesProvider } from "./src/contexts/PreferencesContext";
 import { usePlanGate } from "./src/hooks/usePlanGate";
 import { UpgradeScreen } from "./src/screens/UpgradeScreen";
 import manifestJson from "./src/data/app.manifest.json";
@@ -503,6 +504,7 @@ export default function App() {
   );
 
   return (
+    <PreferencesProvider>
     <SoundProvider>
     <InfoModalProvider>
     <AnimatedShell>
@@ -558,6 +560,7 @@ export default function App() {
     </AnimatedShell>
     </InfoModalProvider>
     </SoundProvider>
+    </PreferencesProvider>
   );
 }
 

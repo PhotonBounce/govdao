@@ -356,10 +356,10 @@ const SCREENS = [
   {
     file: "13-settings.png",
     headline: "SETTINGS",
-    sub: "App configuration and notifications",
+    sub: "Preferences, notifications and app wiring",
     nav: "SETTINGS",
-    badge: "CONFIGURED",
-    bullets: ["NOTIFICATION PREFERENCES", "MANIFEST & SUPPORT STATUS", "DATA-MODE TRANSPARENCY"]
+    badge: "ACCESSIBLE",
+    bullets: ["SOUND & REDUCE-MOTION TOGGLES", "NOTIFICATION PREFERENCES", "MANIFEST & SUPPORT STATUS"]
   },
   {
     file: "14-upgrade.png",
