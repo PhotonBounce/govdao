@@ -3,9 +3,12 @@ import { useMobileDashboardData } from "./useMobileDashboardData";
 import { ActiveView, DetailState } from "../shellTypes";
 import { AppManifest } from "../types";
 import {
+  buildGuardianEventDetail,
+  buildMemberDetail,
   buildModuleDetail,
   buildMotionDetail,
   buildProposalDetail,
+  buildTreasuryMovementDetail,
   buildWorkspaceDetail,
   deriveWarnings,
   formatAuthLabel,
@@ -25,25 +28,37 @@ export function useMobileShellController(manifest: AppManifest) {
   const [selectedProposalId, setSelectedProposalId] = useState<string>("");
   const [selectedMotionId, setSelectedMotionId] = useState<string>("");
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string>("");
+  const [selectedMovementId, setSelectedMovementId] = useState<string>("");
   const [selectedModuleId, setSelectedModuleId] = useState<string>(manifest.experiences.primaryModuleId);
 
   const modules = useMemo(() => manifest.experiences.modules.filter((module) => module.enabled), [manifest]);
   const proposals = dashboardData.proposals;
   const motions = dashboardData.motions;
   const workspaceItems = dashboardData.workspaceItems;
+  const treasury = dashboardData.treasury;
+  const treasuryMovements = dashboardData.treasuryMovements;
+  const guardian = dashboardData.guardian;
+  const guardianEvents = dashboardData.guardianEvents;
+  const members = dashboardData.members;
   const primaryModule = modules.find((module) => module.id === manifest.experiences.primaryModuleId) ?? modules[0];
   const selectedModule = modules.find((module) => module.id === selectedModuleId) ?? primaryModule;
   const workspaceModule = modules.find((module) => module.id !== "dao") ?? modules[0];
   const warnings = useMemo(() => deriveWarnings(manifest), [manifest]);
   const onchainReady = Object.values(manifest.contracts).every((address) => !isPlaceholder(address));
   const hasProposalView = manifest.features.proposalFeed || manifest.governance.offchain.enabled;
+  const hasTreasuryView = manifest.features.treasuryView;
   const hasModuleView = modules.length > 1 || modules.some((module) => module.id !== "dao");
+  const hasProposalCreation = manifest.features.proposalCreation;
   const availableViews: ActiveView[] = useMemo(() => [
     "overview",
     ...(hasProposalView ? ["proposals"] : []),
+    ...(hasProposalCreation ? ["create-proposal"] : []),
+    ...(hasTreasuryView ? ["treasury", "request-spend", "schedule-drill"] : []),
+    ...(hasProposalCreation ? ["invite-member"] : []),
     ...(hasModuleView ? ["modules"] : []),
+    "activity",
     "settings"
-  ] as ActiveView[], [hasModuleView, hasProposalView]);
+  ] as ActiveView[], [hasModuleView, hasProposalCreation, hasProposalView, hasTreasuryView]);
   const currentDetail = detailStack[detailStack.length - 1] ?? null;
   const governanceHeadline = manifest.governance.mode === "on-chain"
     ? "Direct Settlement Governance"
@@ -89,6 +104,12 @@ export function useMobileShellController(manifest: AppManifest) {
     }
   }, [workspaceItems, selectedWorkspaceId]);
 
+  useEffect(() => {
+    if (treasuryMovements.length > 0 && !treasuryMovements.some((movement) => movement.id === selectedMovementId)) {
+      setSelectedMovementId(treasuryMovements[0].id);
+    }
+  }, [treasuryMovements, selectedMovementId]);
+
   function getWorkspaceModuleTitle() {
     return (workspaceModule ?? selectedModule)?.title ?? "Workspace";
   }
@@ -119,11 +140,59 @@ export function useMobileShellController(manifest: AppManifest) {
       };
     }
 
+    if (view === "create-proposal") {
+      return {
+        eyebrow: "Route",
+        title: "New Proposal",
+        subtitle: "Draft and submit a governance proposal. Requires an active member session."
+      };
+    }
+
+    if (view === "treasury") {
+      return {
+        eyebrow: "Route",
+        title: "Treasury & Safety",
+        subtitle: "Track balances, spending caps, recent movements, and the emergency guardian posture in one place."
+      };
+    }
+
     if (view === "modules") {
       return {
         eyebrow: "Route",
         title: "Companion Modules",
         subtitle: "Jump into documents, chat, analytics, and workspace operations from the same member client."
+      };
+    }
+
+    if (view === "request-spend") {
+      return {
+        eyebrow: "Route",
+        title: "Spend Request",
+        subtitle: "Submit a treasury spend request. Requires an active member session. Capped at 25 ETH per transfer."
+      };
+    }
+
+    if (view === "schedule-drill") {
+      return {
+        eyebrow: "Route",
+        title: "Schedule Guardian Drill",
+        subtitle: "Queue an emergency pause or resume drill to verify the guardian signer set. Requires an active member session."
+      };
+    }
+
+    if (view === "invite-member") {
+      return {
+        eyebrow: "Route",
+        title: "Invite Member",
+        subtitle: "Submit a new member invitation to the on-chain registry. A 24-hour timelock applies."
+      };
+    }
+
+    if (view === "activity") {
+      return {
+        eyebrow: "Route",
+        title: "Activity Log",
+        subtitle: "Full governance audit trail — proposals, votes, motions, treasury, and guardian events."
       };
     }
 
@@ -143,6 +212,14 @@ export function useMobileShellController(manifest: AppManifest) {
   }
 
   function getRouteSignals(view: ActiveView): RouteSignal[] {
+    if (view === "create-proposal") {
+      return [
+        { label: "Required fields", value: "Title, Summary", tone: "neutral" },
+        { label: "Optional fields", value: "Doc URI, Doc Hash", tone: "neutral" },
+        { label: "Settlement", value: "FIXTURE TX (until on-chain)", tone: "warning" }
+      ];
+    }
+
     if (view === "proposals") {
       const queuedCount = proposals.filter((proposal) => proposal.state === "Queued").length;
 
@@ -150,6 +227,17 @@ export function useMobileShellController(manifest: AppManifest) {
         { label: "On-chain proposals", value: String(proposals.length), tone: proposals.length > 0 ? "good" : "neutral" },
         { label: "Queued items", value: String(queuedCount), tone: queuedCount > 0 ? "warning" : "neutral" },
         { label: "Off-chain motions", value: manifest.governance.offchain.enabled ? String(motions.length) : "Disabled", tone: manifest.governance.offchain.enabled ? "good" : "neutral" }
+      ];
+    }
+
+    if (view === "treasury") {
+      const queuedMovementCount = treasuryMovements.filter((movement) => movement.status === "Queued").length;
+      const pendingGuardianCount = guardianEvents.filter((event) => event.status === "Pending").length;
+
+      return [
+        { label: "Treasury balance", value: treasury.balance, tone: "good" },
+        { label: "Queued movements", value: String(queuedMovementCount), tone: queuedMovementCount > 0 ? "warning" : "neutral" },
+        { label: "Guardian state", value: treasury.paused ? "Paused" : guardian.state, tone: treasury.paused ? "warning" : pendingGuardianCount > 0 ? "warning" : "good" }
       ];
     }
 
@@ -161,6 +249,38 @@ export function useMobileShellController(manifest: AppManifest) {
         { label: "Enabled modules", value: String(modules.length), tone: modules.length > 0 ? "good" : "warning" },
         { label: "Protected routes", value: String(gatedModules), tone: gatedModules > 0 ? "good" : "neutral" },
         { label: "Ready workspace items", value: String(readyWorkspaceCount), tone: readyWorkspaceCount > 0 ? "good" : "neutral" }
+      ];
+    }
+
+    if (view === "request-spend") {
+      return [
+        { label: "Per-transfer cap", value: treasury.perTransferCap, tone: "neutral" },
+        { label: "Daily cap", value: treasury.dailyCap, tone: "neutral" },
+        { label: "Treasury status", value: treasury.paused ? "Paused" : "Active", tone: treasury.paused ? "warning" : "good" }
+      ];
+    }
+
+    if (view === "schedule-drill") {
+      return [
+        { label: "Guardian state", value: guardian.state, tone: guardian.state === "Paused" ? "warning" : "good" },
+        { label: "Signer threshold", value: guardian.threshold, tone: "neutral" },
+        { label: "Last drill", value: guardian.lastDrill, tone: "neutral" }
+      ];
+    }
+
+    if (view === "invite-member") {
+      return [
+        { label: "Registered members", value: String(members.length), tone: members.length > 0 ? "good" : "neutral" },
+        { label: "Timelock", value: "24 hours", tone: "neutral" },
+        { label: "Registry path", value: "On-chain", tone: "good" }
+      ];
+    }
+
+    if (view === "activity") {
+      return [
+        { label: "Total events", value: "12", tone: "good" },
+        { label: "Vote events", value: "4", tone: "good" },
+        { label: "Proposal events", value: "2", tone: "neutral" }
       ];
     }
 
@@ -187,6 +307,14 @@ export function useMobileShellController(manifest: AppManifest) {
         label: "Open Governance Feed",
         subtitle: manifest.governance.offchain.enabled ? "Review proposals and operating motions together" : "Review on-chain proposals and execution timing",
         view: "proposals"
+      });
+    }
+
+    if (hasTreasuryView) {
+      actions.push({
+        label: "Open Treasury & Safety",
+        subtitle: "Review balances, spending caps, movements, and emergency guardian status",
+        view: "treasury"
       });
     }
 
@@ -229,6 +357,20 @@ export function useMobileShellController(manifest: AppManifest) {
       ];
     }
 
+    if (detail.kind === "treasury") {
+      return [
+        { label: "Back To Treasury", view: "treasury", secondary: true },
+        { label: "Open Governance Feed", view: "proposals" }
+      ];
+    }
+
+    if (detail.kind === "guardian") {
+      return [
+        { label: "Back To Treasury", view: "treasury", secondary: true },
+        { label: "Check Release Settings", view: "settings" }
+      ];
+    }
+
     return [
       { label: "Open Modules", view: "modules", secondary: true },
       { label: "Check Release Settings", view: "settings" }
@@ -261,6 +403,26 @@ export function useMobileShellController(manifest: AppManifest) {
       ];
     }
 
+    if (detail.kind === "treasury") {
+      const relatedProposal = proposals.find((proposal) => proposal.id === selectedProposalId) ?? proposals[0];
+      const relatedGuardianEvent = guardianEvents[0];
+
+      return [
+        ...(relatedProposal ? [{ label: `Review ${relatedProposal.id}`, detail: buildProposalDetail(relatedProposal) }] : []),
+        ...(relatedGuardianEvent ? [{ label: `Inspect ${relatedGuardianEvent.id}`, detail: buildGuardianEventDetail(relatedGuardianEvent, guardian) }] : [])
+      ];
+    }
+
+    if (detail.kind === "guardian") {
+      const relatedMovement = treasuryMovements.find((movement) => movement.id === selectedMovementId) ?? treasuryMovements[0];
+      const relatedWorkspace = workspaceItems.find((item) => item.type.toLowerCase().includes("runbook")) ?? workspaceItems[0];
+
+      return [
+        ...(relatedMovement ? [{ label: `Trace ${relatedMovement.id}`, detail: buildTreasuryMovementDetail(relatedMovement, treasury.custodian) }] : []),
+        ...(relatedWorkspace ? [{ label: `Open ${relatedWorkspace.id}`, detail: buildWorkspaceDetail(relatedWorkspace, getWorkspaceModuleTitle()) }] : [])
+      ];
+    }
+
     const relatedModule = selectedModule ?? workspaceModule;
     const relatedProposal = proposals.find((proposal) => proposal.id === selectedProposalId) ?? proposals[0];
 
@@ -290,6 +452,55 @@ export function useMobileShellController(manifest: AppManifest) {
     openDetail(buildWorkspaceDetail(item, getWorkspaceModuleTitle()));
   }
 
+  function openTreasuryMovement(movement: (typeof treasuryMovements)[number]) {
+    setSelectedMovementId(movement.id);
+    openDetail(buildTreasuryMovementDetail(movement, treasury.custodian));
+  }
+
+  function openGuardianEvent(event: (typeof guardianEvents)[number]) {
+    openDetail(buildGuardianEventDetail(event, guardian));
+  }
+
+  function openMember(member: (typeof members)[number]) {
+    openDetail(buildMemberDetail(member));
+  }
+
+  function openCreateProposal() {
+    setDetailStack([]);
+    setActiveView("create-proposal");
+  }
+
+  function closeCreateProposal() {
+    setActiveView("proposals");
+  }
+
+  function openRequestSpend() {
+    setDetailStack([]);
+    setActiveView("request-spend");
+  }
+
+  function closeRequestSpend() {
+    setActiveView("treasury");
+  }
+
+  function openScheduleDrill() {
+    setDetailStack([]);
+    setActiveView("schedule-drill");
+  }
+
+  function closeScheduleDrill() {
+    setActiveView("treasury");
+  }
+
+  function openInviteMember() {
+    setDetailStack([]);
+    setActiveView("invite-member");
+  }
+
+  function closeInviteMember() {
+    setActiveView("overview");
+  }
+
   return {
     activeView,
     availableViews,
@@ -300,9 +511,14 @@ export function useMobileShellController(manifest: AppManifest) {
     detailStack,
     governanceHeadline,
     governanceSubtitle,
+    guardian,
+    guardianEvents,
     hasModuleView,
+    hasProposalCreation,
     hasProposalView,
+    hasTreasuryView,
     launchpadActions: getLaunchpadActions(),
+    members,
     metadataConfigured,
     modules,
     motions,
@@ -315,16 +531,29 @@ export function useMobileShellController(manifest: AppManifest) {
     routeSignals: getRouteSignals(activeView),
     selectedModule,
     supportConfigured,
+    treasury,
+    treasuryMovements,
     warnings,
     workspaceItems,
     workspaceModule,
     closeDetail,
+    closeCreateProposal,
+    closeRequestSpend,
     jumpToDetail,
     openDetail,
+    openGuardianEvent,
+    openMember,
     openModule,
     openMotion,
     openProposal,
+    openTreasuryMovement,
     openView,
-    openWorkspace
+    openWorkspace,
+    openCreateProposal,
+    openRequestSpend,
+    openScheduleDrill,
+    closeScheduleDrill,
+    openInviteMember,
+    closeInviteMember
   };
 }

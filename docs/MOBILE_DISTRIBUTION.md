@@ -67,13 +67,21 @@ There is now a starter Expo client in [apps/mobile](apps/mobile):
 - `npm run mobile:typecheck` validates the mobile TypeScript surface
 - `npm run mobile:start` launches the Expo development server once the mobile dependencies are installed
 - the checked-in local mobile manifest uses `fixture://govdao` module endpoints so the normalized dashboard loader can be exercised without a live backend during local development
+- the dashboard loader now also serves a treasury feed (snapshot plus movement records) and a guardian feed (emergency status plus event records), rendered in the Treasury & Safety view to cover the treasury-transparency and guardian-status store requirements
+- a manifest-driven member sign-in flow offers every method from `wallet.supported` and `governance.offchain.auth`, gates `requiresAuth` modules, and currently settles against clearly-labelled fixture signers until real wallet/passkey SDKs are integrated
+- `npm run mobile:check-session` exercises the access-option list and sign-in handshakes without a device or live signer
+- proposal details now carry a session-gated ballot with signing, pending, and confirmed receipt states; settlement is fixture-backed (labelled "FIXTURE TX") until on-chain `castVote` submission is wired, and `npm run mobile:check-vote` verifies the flow headlessly
+- the Settings surface opens privacy, terms, support site, and support email through real link-outs, covering the in-app disclosure requirement for store review
+- the Treasury & Safety view performs live JSON-RPC contract reads (treasury balance and pause state, spend cap, member count, guardian pause) once the manifest carries a real RPC endpoint and contract addresses, and degrades to a clearly-labelled "not connected" panel until then; `npm run mobile:check-chain` validates both paths
+- proposal details carry an Integrity card: live `Governor.getProposalState` reads plus keccak-256 verification of the off-chain proposal document against its anchored hash (the contract's `metadataHash` scheme); `npm run mobile:check-proposal` covers hash vectors, verification, and tamper detection
+- store packaging is in place: generated icon/adaptive-icon/splash assets (`npm --prefix apps/mobile run generate:assets`), Android package and versionCode wiring in `app.json` validated against the manifest by `npm run validate:app-config`, EAS build profiles in `apps/mobile/eas.json`, draft privacy/terms documents in [docs/legal](legal), and the Play Console worksheet in [docs/PLAY_LISTING.md](PLAY_LISTING.md)
 
 The manifest now also supports:
 
 - `governance.mode` for `on-chain`, `off-chain`, or `hybrid`
 - off-chain DAO APIs and auth methods for policy, draft, and vote workflows that do not settle directly on-chain
 - `experiences.modules` so the mobile release can bundle other app functions like document rooms, support, payments, or analytics alongside governance
-- `services.mobileFeeds.*Path` so teams can override proposal, motion, and workspace feed routes without changing the client
+- `services.mobileFeeds.*Path` so teams can override proposal, motion, treasury, guardian, and workspace feed routes without changing the client
 
 ## Compliance Positioning
 

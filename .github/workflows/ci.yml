@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  contracts:
+    name: Contract suite
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run compile
+      - run: npm test
+
+  mobile:
+    name: Mobile gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/mobile/package-lock.json
+      - run: npm ci
+      - run: npm --prefix apps/mobile ci
+      - run: npm run mobile:check-manifest
+      - run: npm run mobile:typecheck
+      - run: npm run mobile:check-data
+      - run: npm run mobile:check-session
+      - run: npm run mobile:check-vote
+      - run: npm run mobile:check-proposal
+      - run: npm run mobile:check-create
+      - run: npm run mobile:check-members
+      - run: npm run mobile:check-motion
+      - run: npm run mobile:check-notifications
+      - run: npm run mobile:check-delegate
+      - run: npm run mobile:check-activity
+      - run: npm run mobile:check-treasury-request
+      - run: npm run mobile:check-timeline
+      - run: npm run mobile:check-workspace-action
+      - run: npm run mobile:check-guardian-drill
+      - run: npm run mobile:check-member-invite
+      - run: npm run mobile:check-quorum
+      - run: npm run mobile:check-info-content
+      - run: npm run mobile:check-sounds
+      - run: npm run mobile:check-plan-gate
+      - run: npm run mobile:check-wallet-integration
+      - run: npm run mobile:check-play-assets
+      - run: npm run mobile:check-analytics
+      - run: npm run mobile:check-deploy-wizard
+      - run: npm run mobile:check-screenshots
+      - run: npm run mobile:check-eye-candy
+      - run: npm run mobile:check-calendar
+      - run: npm run mobile:check-chain
+      - name: App config matches manifest
+        run: |
+          npm run export:manifest -- --output /tmp/play-manifest.json
+          npm run validate:app-config -- --manifest /tmp/play-manifest.json
+      - name: Generated assets are current
+        run: |
+          npm --prefix apps/mobile run generate:assets
+          git diff --exit-code apps/mobile/assets
+      - name: Web bundle export
+        working-directory: apps/mobile
+        env:
+          EXPO_OFFLINE: "1"
+        run: npx expo export --platform web --output-dir dist
+
+  chain-integration:
+    name: Deploy and read verification
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/mobile/package-lock.json
+      - run: npm ci
+      - run: npm --prefix apps/mobile ci
+      - name: Start hardhat node
+        run: |
+          nohup npx hardhat node > hardhat-node.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -s -X POST -H 'content-type: application/json' \
+              --data '{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber","params":[]}' \
+              http://127.0.0.1:8545 > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "hardhat node did not come up" >&2
+          tail -50 hardhat-node.log >&2
+          exit 1
+      - name: Deploy governance kernel
+        run: npx hardhat run scripts/deploy.ts --network localhost | tee deploy.log
+      - name: Read live contract state through the mobile chain layer
+        run: |
+          export CHAIN_RPC_URL=http://127.0.0.1:8545
+          export TREASURY_ADDRESS=$(grep -m1 '^Treasury:' deploy.log | awk '{print $2}')
+          export MEMBER_REGISTRY_ADDRESS=$(grep -m1 '^MemberRegistry:' deploy.log | awk '{print $2}')
+          export EMERGENCY_GUARDIAN_ADDRESS=$(grep -m1 '^EmergencyGuardian:' deploy.log | awk '{print $2}')
+          test -n "$TREASURY_ADDRESS" && test -n "$MEMBER_REGISTRY_ADDRESS" && test -n "$EMERGENCY_GUARDIAN_ADDRESS"
+          npm run mobile:check-chain

@@ -51,7 +51,10 @@
     "mobileFeeds": {
       "proposalsPath": "/mobile/proposals",
       "motionsPath": "/mobile/motions",
-      "workspacePath": "/mobile/workspace"
+      "treasuryPath": "/mobile/treasury",
+      "guardianPath": "/mobile/guardian",
+      "workspacePath": "/mobile/workspace",
+      "membersPath": "/mobile/members"
     }
   },
   "support": {

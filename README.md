@@ -25,6 +25,8 @@ Google Play, App Store, and enterprise distribution do not sell raw smart contra
 
 See [docs/MOBILE_DISTRIBUTION.md](docs/MOBILE_DISTRIBUTION.md), [docs/COMMERCIALIZATION.md](docs/COMMERCIALIZATION.md), and [config/mobile-app.manifest.example.json](config/mobile-app.manifest.example.json).
 
+For current build status and the next planned milestones, see [docs/PROJECT_HANDOFF.md](docs/PROJECT_HANDOFF.md).
+
 ## Commands
 
 - `npm run compile`
@@ -33,10 +35,15 @@ See [docs/MOBILE_DISTRIBUTION.md](docs/MOBILE_DISTRIBUTION.md), [docs/COMMERCIAL
 - `npm run deploy:sepolia`
 - `npm run export:manifest -- --output config/mobile-app.manifest.local.json`
 - `npm run validate:google-play -- --manifest config/mobile-app.manifest.local.json`
+- `npm run validate:app-config -- --manifest config/mobile-app.manifest.local.json`
 - `npm run release:google-play`
 - `npm run mobile:sync-manifest`
 - `npm run mobile:check-manifest`
 - `npm run mobile:check-data`
+- `npm run mobile:check-session`
+- `npm run mobile:check-vote`
+- `npm run mobile:check-chain`
+- `npm run mobile:check-proposal`
 - `npm run mobile:validate`
 - `npm run mobile:typecheck`
 - `npm run mobile:start`

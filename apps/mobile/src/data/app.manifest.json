@@ -42,7 +42,8 @@
     "treasuryView": true,
     "pushNotifications": true,
     "biometricConfirm": true,
-    "fiatOnramp": false
+    "fiatOnramp": false,
+    "plan": "premium"
   },
   "services": {
     "metadataBaseUrl": "https://example.govdao.app/metadata",
@@ -51,7 +52,10 @@
     "mobileFeeds": {
       "proposalsPath": "/mobile/proposals",
       "motionsPath": "/mobile/motions",
-      "workspacePath": "/mobile/workspace"
+      "treasuryPath": "/mobile/treasury",
+      "guardianPath": "/mobile/guardian",
+      "workspacePath": "/mobile/workspace",
+      "membersPath": "/mobile/members"
     }
   },
   "support": {

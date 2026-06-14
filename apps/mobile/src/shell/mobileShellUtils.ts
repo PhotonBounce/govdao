@@ -1,4 +1,4 @@
-import { MotionItem, ProposalItem, WorkspaceItem } from "../data/mobileDataSource";
+import { GuardianEventItem, GuardianStatus, MemberItem, MotionItem, ProposalItem, TreasuryMovementItem, WorkspaceItem } from "../data/mobileDataSource";
 import { ActiveView, DetailState } from "../shellTypes";
 import { AppManifest } from "../types";
 
@@ -154,6 +154,33 @@ export function buildModuleDetail(module: ModuleItem, manifest: AppManifest): De
   };
 }
 
+export function buildTreasuryMovementDetail(movement: TreasuryMovementItem, custodian: string): DetailState {
+  return {
+    refId: movement.id,
+    kind: "treasury",
+    eyebrow: "Treasury Movement",
+    title: movement.title,
+    summary: `${movement.direction} of ${movement.amount} with ${movement.counterparty}, settled through ${custodian}.`,
+    owner: movement.counterparty,
+    nextStep: movement.nextStep,
+    meta: [`Status ${movement.status}`, `Direction ${movement.direction}`, `Amount ${movement.amount}`]
+  };
+}
+
+export function buildGuardianEventDetail(event: GuardianEventItem, guardian: GuardianStatus): DetailState {
+  return {
+    refId: event.id,
+    kind: "guardian",
+    eyebrow: "Guardian Event",
+    title: event.title,
+    summary: `${event.severity} guardian event while the signer set is in ${guardian.state.toLowerCase()} at ${guardian.threshold}.`,
+    owner: event.owner,
+    nextStep: event.nextStep,
+    tone: "graphite",
+    meta: [`Severity ${event.severity}`, `Status ${event.status}`, `Threshold ${guardian.threshold}`]
+  };
+}
+
 export function buildWorkspaceDetail(item: WorkspaceItem, moduleTitle: string): DetailState {
   return {
     refId: item.id,
@@ -164,5 +191,19 @@ export function buildWorkspaceDetail(item: WorkspaceItem, moduleTitle: string): 
     owner: item.owner,
     nextStep: item.nextStep,
     meta: [`Status ${item.status}`, `Type ${item.type}`, `Module ${moduleTitle}`]
+  };
+}
+
+export function buildMemberDetail(member: MemberItem): DetailState {
+  const shortAddress = `${member.address.slice(0, 6)}…${member.address.slice(-4)}`;
+  return {
+    refId: member.id,
+    kind: "member",
+    eyebrow: "Member Profile",
+    title: member.displayName,
+    summary: `${member.role} — joined ${member.joinedAt}. On-chain address ${shortAddress}.`,
+    owner: member.displayName,
+    nextStep: `Review ${member.displayName}'s participation in active proposals and motions.`,
+    meta: [`Status ${member.status}`, `Role ${member.role}`, `Joined ${member.joinedAt}`]
   };
 }

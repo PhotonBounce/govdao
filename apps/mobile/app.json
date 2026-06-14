@@ -5,10 +5,12 @@
     "scheme": "govdao",
     "version": "0.1.0",
     "orientation": "portrait",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#f3efe3"
+      "backgroundColor": "#0d0d1a"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -19,9 +21,12 @@
     },
     "android": {
       "package": "com.govdao.app",
+      "versionCode": 1,
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#f3efe3"
-      }
+      },
+      "permissions": []
     },
     "web": {
       "bundler": "metro"

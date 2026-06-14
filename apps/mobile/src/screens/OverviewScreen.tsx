@@ -1,11 +1,12 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { MembersPanel } from "../components/MembersPanel";
 import { ModulePill } from "../components/ModulePill";
 import { SectionCard } from "../components/SectionCard";
 import { SignalRow } from "../components/SignalRow";
+import { MemberItem } from "../data/mobileDataSource";
+import { ActiveView } from "../shellTypes";
 import { AppManifest } from "../types";
 import { palette, radii } from "../theme";
-
-type ActiveView = "overview" | "proposals" | "modules" | "settings";
 
 interface LaunchpadAction {
   label: string;
@@ -17,24 +18,32 @@ interface OverviewScreenProps {
   manifest: AppManifest;
   warnings: string[];
   modulesCount: number;
+  members: MemberItem[];
   governanceHeadline: string;
   governanceSubtitle: string;
   onchainReady: boolean;
   launchpadActions: LaunchpadAction[];
   offchainAuthLabels: string[];
+  memberInviteEnabled?: boolean;
   onOpenView: (view: ActiveView) => void;
+  onSelectMember: (member: MemberItem) => void;
+  onInviteMember?: () => void;
 }
 
 export function OverviewScreen({
   manifest,
   warnings,
   modulesCount,
+  members,
   governanceHeadline,
   governanceSubtitle,
   onchainReady,
   launchpadActions,
   offchainAuthLabels,
-  onOpenView
+  memberInviteEnabled,
+  onOpenView,
+  onSelectMember,
+  onInviteMember
 }: OverviewScreenProps) {
   return (
     <>
@@ -128,6 +137,19 @@ export function OverviewScreen({
         <Text style={styles.darkMeta}>Vote storage: {manifest.governance.offchain.voteStorage}</Text>
         <Text style={styles.darkMeta}>Off-chain API: {manifest.governance.offchain.apiBaseUrl}</Text>
       </SectionCard>
+
+      <SectionCard
+        eyebrow="Member Registry"
+        title={`${members.length} Registered Member${members.length !== 1 ? "s" : ""}`}
+        subtitle="Active members loaded from the registry feed. Tap a member to view their role and on-chain address."
+      >
+        <MembersPanel members={members} onSelectMember={onSelectMember} />
+        {memberInviteEnabled && onInviteMember ? (
+          <Pressable style={styles.inviteButton} onPress={onInviteMember}>
+            <Text style={styles.inviteButtonText}>Invite Member →</Text>
+          </Pressable>
+        ) : null}
+      </SectionCard>
     </>
   );
 }
@@ -193,5 +215,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginTop: 8
+  },
+  inviteButton: {
+    marginTop: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: radii.card,
+    backgroundColor: palette.graphite,
+    alignSelf: "flex-start"
+  },
+  inviteButtonText: {
+    color: palette.paper,
+    fontWeight: "700",
+    fontSize: 14
   }
 });

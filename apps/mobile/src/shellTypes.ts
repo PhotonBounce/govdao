@@ -1,6 +1,6 @@
-export type ActiveView = "overview" | "proposals" | "modules" | "settings";
+export type ActiveView = "overview" | "proposals" | "create-proposal" | "treasury" | "request-spend" | "schedule-drill" | "invite-member" | "modules" | "activity" | "analytics" | "calendar" | "settings" | "upgrade" | "deploy-wizard";
 
-export type DetailKind = "proposal" | "motion" | "module" | "workspace";
+export type DetailKind = "proposal" | "motion" | "module" | "workspace" | "treasury" | "guardian" | "member";
 
 export type DetailState = {
   refId: string;

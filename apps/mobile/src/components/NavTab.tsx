@@ -1,5 +1,6 @@
-import { Pressable, StyleSheet, Text } from "react-native";
-import { palette, radii } from "../theme";
+import { StyleSheet, Text } from "react-native";
+import { AnimatedPressable } from "./AnimatedPressable";
+import { darkPalette, radii } from "../theme";
 
 interface NavTabProps {
   active: boolean;
@@ -9,9 +10,14 @@ interface NavTabProps {
 
 export function NavTab({ active, label, onPress }: NavTabProps) {
   return (
-    <Pressable onPress={onPress} style={[styles.tab, active ? styles.tabActive : styles.tabIdle]}>
+    <AnimatedPressable
+      onPress={onPress}
+      sound="tap"
+      intensity="subtle"
+      style={[styles.tab, active ? styles.tabActive : styles.tabIdle]}
+    >
       <Text style={[styles.label, active ? styles.labelActive : styles.labelIdle]}>{label}</Text>
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 
@@ -25,12 +31,12 @@ const styles = StyleSheet.create({
     borderWidth: 1
   },
   tabActive: {
-    backgroundColor: palette.graphite,
-    borderColor: palette.graphite
+    backgroundColor: darkPalette.activeGlow,
+    borderColor: darkPalette.glowBronze
   },
   tabIdle: {
-    backgroundColor: "rgba(251, 248, 239, 0.72)",
-    borderColor: palette.line
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderColor: darkPalette.mutedLine
   },
   label: {
     fontSize: 13,
@@ -38,9 +44,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.4
   },
   labelActive: {
-    color: palette.paper
+    color: darkPalette.softGold
   },
   labelIdle: {
-    color: palette.inkSoft
+    color: "rgba(224,219,208,0.60)"
   }
 });

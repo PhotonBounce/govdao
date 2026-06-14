@@ -41,6 +41,7 @@ export interface AppManifest {
     pushNotifications: boolean;
     biometricConfirm: boolean;
     fiatOnramp: boolean;
+    plan: "free" | "premium";
   };
   services: {
     metadataBaseUrl: string;
@@ -49,7 +50,10 @@ export interface AppManifest {
     mobileFeeds: {
       proposalsPath: string;
       motionsPath: string;
+      treasuryPath: string;
+      guardianPath: string;
       workspacePath: string;
+      membersPath: string;
     };
   };
   support: {
