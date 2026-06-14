@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useRef } from "react";
 import { Animated, StyleSheet } from "react-native";
 import { CodeRainBackground } from "./CodeRainBackground";
 import { BG_CYCLE } from "../utils/animations";
+import { usePreferences } from "../contexts/PreferencesContext";
 
 const CYCLE = [...BG_CYCLE];
 
@@ -13,8 +14,11 @@ interface AnimatedShellProps {
 
 export function AnimatedShell({ children }: AnimatedShellProps) {
   const anim = useRef(new Animated.Value(0)).current;
+  const { prefs } = usePreferences();
+  const reduceMotion = prefs.reduceMotion;
 
   useEffect(() => {
+    if (reduceMotion) return;
     const loop = Animated.loop(
       Animated.sequence(
         CYCLE.slice(0, -1).map((_, i) =>
@@ -28,12 +32,17 @@ export function AnimatedShell({ children }: AnimatedShellProps) {
     );
     loop.start();
     return () => loop.stop();
-  }, [anim]);
+  }, [anim, reduceMotion]);
 
   const backgroundColor = anim.interpolate({
     inputRange: CYCLE.map((_, i) => i),
     outputRange: CYCLE,
   });
+
+  // Reduce-motion: render a static obsidian backdrop with no rain or color cycle.
+  if (reduceMotion) {
+    return <Animated.View style={[styles.shell, { backgroundColor: CYCLE[0] }]}>{children}</Animated.View>;
+  }
 
   return (
     <Animated.View style={[styles.shell, { backgroundColor }]}>

@@ -61,6 +61,7 @@ jobs:
       - run: npm run mobile:check-screenshots
       - run: npm run mobile:check-eye-candy
       - run: npm run mobile:check-calendar
+      - run: npm run mobile:check-preferences
       - run: npm run mobile:check-chain
       - name: App config matches manifest
         run: |

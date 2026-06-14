@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { Linking, Pressable, StyleSheet, Text } from "react-native";
 import { SectionCard } from "../components/SectionCard";
 import { SignalRow } from "../components/SignalRow";
+import { PreferencesPanel } from "../components/PreferencesPanel";
 import { AppManifest } from "../types";
 import { palette, radii } from "../theme";
 
@@ -30,6 +31,8 @@ function DisclosureLink({ label, url, target }: { label: string; url: string; ta
 export function SettingsScreen({ manifest, metadataConfigured, supportConfigured, notificationPanel }: SettingsScreenProps) {
   return (
     <>
+      <PreferencesPanel />
+
       {notificationPanel}
 
       <SectionCard
