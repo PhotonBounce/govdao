@@ -163,6 +163,23 @@ export function eventTypeLabel(type: ActivityEventType): string {
   return labels[type];
 }
 
+export function exportActivityCsv(events: ActivityEvent[]): string {
+  const header = "id,type,title,actor,summary,timestamp,refId";
+  const rows = events.map((e) =>
+    [e.id, e.type, `"${e.title.replace(/"/g, '""')}"`, `"${e.actor.replace(/"/g, '""')}"`, `"${e.summary.replace(/"/g, '""')}"`, e.timestamp, e.refId ?? ""].join(",")
+  );
+  return [header, ...rows].join("\n");
+}
+
+export function exportActivityJson(events: ActivityEvent[]): string {
+  return JSON.stringify(events, null, 2);
+}
+
+export function filterActivityByDateRange(events: ActivityEvent[], days: number): ActivityEvent[] {
+  const cutoff = new Date(Date.now() - days * 86400 * 1000).toISOString();
+  return events.filter((e) => e.timestamp >= cutoff);
+}
+
 export function eventTypeTone(type: ActivityEventType): "pine" | "bronze" | "rose" {
   const tones: Record<ActivityEventType, "pine" | "bronze" | "rose"> = {
     proposal: "pine",

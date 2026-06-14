@@ -19,6 +19,9 @@ import { ProposalIntegrityCard } from "./src/components/ProposalIntegrityCard";
 import { SessionCard } from "./src/components/SessionCard";
 import { VotePanel } from "./src/components/VotePanel";
 import { ActivityScreen } from "./src/screens/ActivityScreen";
+import { AnalyticsScreen } from "./src/screens/AnalyticsScreen";
+import { DeployWizardScreen } from "./src/screens/DeployWizardScreen";
+import { loadAnalytics } from "./src/data/analyticsSource";
 import { SpendRequestScreen } from "./src/screens/SpendRequestScreen";
 import { ProposalTimelinePanel } from "./src/components/ProposalTimelinePanel";
 import { WorkspaceActionPanel } from "./src/components/WorkspaceActionPanel";
@@ -165,6 +168,8 @@ export default function App() {
   const dataMode = getDataModeSummary(dashboardData.source);
   const drillGate = usePlanGate(manifest, "guardian-drill");
   const inviteGate = usePlanGate(manifest, "member-invite");
+  const analyticsGate = usePlanGate(manifest, "delegate-analytics");
+  const deployWizardGate = usePlanGate(manifest, "deploy-wizard");
 
   function renderViewHeader() {
     return (
@@ -323,6 +328,22 @@ export default function App() {
 
     if (activeView === "activity") {
       return <ActivityScreen manifest={manifest} />;
+    }
+
+    if (activeView === "analytics") {
+      return (
+        <PremiumGate gate={analyticsGate} onUpgrade={() => openView("upgrade")}>
+          <AnalyticsScreen analytics={loadAnalytics(manifest)} />
+        </PremiumGate>
+      );
+    }
+
+    if (activeView === "deploy-wizard") {
+      return (
+        <PremiumGate gate={deployWizardGate} onUpgrade={() => openView("upgrade")}>
+          <DeployWizardScreen manifest={manifest} sessionActive={sessionActive} onBack={() => openView("settings")} />
+        </PremiumGate>
+      );
     }
 
     if (activeView === "settings") {
@@ -495,6 +516,8 @@ export default function App() {
           {hasProposalCreation ? <NavTab active={activeView === "invite-member"} label="Invite" onPress={() => openView("invite-member")} /> : null}
           {hasModuleView ? <NavTab active={activeView === "modules"} label="Modules" onPress={() => openView("modules")} /> : null}
           <NavTab active={activeView === "activity"} label="Activity" onPress={() => openView("activity")} />
+          <NavTab active={activeView === "analytics"} label="Analytics" onPress={() => openView("analytics")} />
+          <NavTab active={activeView === "deploy-wizard"} label="Deploy" onPress={() => openView("deploy-wizard")} />
           <NavTab active={activeView === "settings"} label="Settings" onPress={() => openView("settings")} />
         </View>
 

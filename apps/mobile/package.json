@@ -31,6 +31,9 @@
     "check:sounds": "node scripts/check-sounds.mjs",
     "check:plan-gate": "node scripts/check-plan-gate.mjs",
     "check:wallet-integration": "node scripts/check-wallet-integration.mjs",
+    "check:play-assets": "node scripts/check-play-assets.mjs",
+    "check:analytics": "node scripts/check-analytics.mjs",
+    "check:deploy-wizard": "node scripts/check-deploy-wizard.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs"
   },

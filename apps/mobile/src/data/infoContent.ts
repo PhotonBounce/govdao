@@ -292,5 +292,17 @@ export const infoContent: Record<string, InfoEntry> = {
     body: "A step-by-step history of a proposal's journey from submission to execution. Each step shows the block, timestamp, and any transaction hash. The current step is highlighted — so you always know exactly where the proposal is in its lifecycle.",
     example: "A timeline showing Submitted → Voting (current) tells you voting is open right now and you still have time to cast your ballot.",
     onchain: "Each state transition emits a ProposalStateChanged event that populates the timeline."
+  },
+  "analytics": {
+    title: "Governance Analytics",
+    body: "A real-time health dashboard for your DAO. Tracks participation rates across proposals, the ratio of passed to failed votes, total delegate activity, and how close each vote came to quorum. Premium members see the full breakdown with per-proposal sparklines and delegate leaderboards.",
+    example: "An average participation rate of 78% means more than three-quarters of eligible members voted on each proposal — excellent for an on-chain DAO.",
+    onchain: "Participation data is calculated from VoteCast events on the Governor contract. All data is public and verifiable."
+  },
+  "deploy-wizard": {
+    title: "Contract Deploy Wizard",
+    body: "A step-by-step wizard that deploys all five GOVDAO smart contracts to any EVM-compatible chain in the correct dependency order: MemberRegistry → Timelock → Governor → Treasury → EmergencyGuardian. Each step requires your wallet to sign one deployment transaction. After completion, the deployed addresses are exported as a manifest fragment you can use to configure the app.",
+    example: "Deploy to Sepolia testnet first to verify governance flows before going to mainnet.",
+    onchain: "Each contract deployment is an on-chain transaction. Deployment requires ETH for gas — have at least 0.1 ETH on the target chain."
   }
 };

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="GOVDAO — On-chain Ethereum governance, in your pocket. Vote, delegate, and track proposals from your mobile wallet." />
+  <meta property="og:title" content="GOVDAO — On-Chain Governance App" />
+  <meta property="og:description" content="Cast votes, run guardian drills, and track governance analytics directly from your Ethereum wallet." />
+  <meta property="og:type" content="website" />
+  <title>GOVDAO — On-Chain Governance in Your Pocket</title>
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 1 — HERO
+  ════════════════════════════════════════════════════════════════ -->
+
+  <section class="hero" id="hero" aria-label="Hero">
+    <div class="hero-bg-overlay"></div>
+
+    <!-- Governance seal: parallax target -->
+    <img
+      id="hero-seal"
+      class="hero-seal"
+      src="assets/seal.svg"
+      alt=""
+      aria-hidden="true"
+    />
+
+    <div class="hero-content">
+      <h1 class="hero-wordmark">GOVDAO</h1>
+      <p class="hero-tagline">On-chain governance, in your pocket.</p>
+      <div class="hero-ctas">
+        <a
+          href="https://play.google.com/store"
+          class="btn-primary"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="View GOVDAO on Google Play"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M3.18 23.76a2 2 0 0 0 2.07-.18l11.07-6.42-2.93-2.93-10.21 9.53zM20.43 10.5l-2.45-1.42L14.9 12l3.08 3.08 2.45-1.42A2 2 0 0 0 20.43 10.5zM3 .72A2 2 0 0 0 2 2.47v19.06a2 2 0 0 0 1 1.75l.12.07 10.68-10.68v-.25L3.12.65 3 .72zM13.25 13.25l-10.07 10.07.12.07a2 2 0 0 0 2.07-.18L16.93 17l-3.68-3.75z"/>
+          </svg>
+          View on Google Play
+        </a>
+        <a
+          href="./demo/index.html"
+          class="btn-secondary"
+          aria-label="Try the GOVDAO web demo"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          Try Web Demo
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 2 — FEATURES
+  ════════════════════════════════════════════════════════════════ -->
+
+  <section class="section" id="features" aria-label="Features">
+    <div class="section-inner">
+      <p class="section-label fade-in">What GOVDAO does</p>
+      <h2 class="section-heading slide-up">Governance tools built for the chain</h2>
+      <p class="section-sub slide-up delay-1">
+        Everything you need to participate meaningfully in decentralised governance —
+        directly from your wallet, no browser extension required.
+      </p>
+
+      <div class="features-grid">
+
+        <div class="glass-card feature-card fade-in">
+          <span class="feature-icon" aria-hidden="true">🗳</span>
+          <h3 class="feature-title">Vote On-Chain</h3>
+          <p class="feature-desc">
+            Cast votes directly through your connected wallet. Every decision anchored
+            to Ethereum. No custodian, no proxy — your signature, your governance.
+          </p>
+        </div>
+
+        <div class="glass-card feature-card fade-in delay-1">
+          <span class="feature-icon" aria-hidden="true">🔐</span>
+          <h3 class="feature-title">Guardian Drills</h3>
+          <p class="feature-desc">
+            Schedule emergency pause drills with multi-sig confirmation. Security
+            rehearsals built-in so your team is ready before a real incident strikes.
+          </p>
+        </div>
+
+        <div class="glass-card feature-card fade-in delay-2">
+          <span class="feature-icon" aria-hidden="true">📊</span>
+          <h3 class="feature-title">Governance Analytics</h3>
+          <p class="feature-desc">
+            Track participation rates, quorum distance, and delegate performance in
+            real time. Stay informed before every vote closes.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 3 — APP DEMO (phone mockup)
+  ════════════════════════════════════════════════════════════════ -->
+
+  <section class="section demo-section" id="demo" aria-label="App Demo">
+    <div class="demo-inner">
+
+      <div class="demo-copy slide-up">
+        <div class="live-badge" aria-label="Live interactive demo">
+          <span class="live-dot" aria-hidden="true"></span>
+          Live Demo
+        </div>
+        <p class="section-label">See it in action</p>
+        <h2 class="section-heading">Governance at a glance</h2>
+        <p>
+          Browse active proposals, check quorum status, and cast votes — all within
+          an interface designed for mobile-first users. The demo below is the real app,
+          running in your browser.
+        </p>
+        <a href="./demo/index.html" class="btn-primary">Open Full Demo</a>
+      </div>
+
+      <div class="phone-wrapper" id="phone-wrapper" aria-label="GOVDAO app phone mockup">
+        <div class="phone-frame" role="img" aria-label="Mobile phone showing the GOVDAO app">
+          <div class="phone-notch" aria-hidden="true"></div>
+          <div class="phone-screen">
+            <iframe
+              src="./demo/index.html"
+              title="GOVDAO live demo"
+              loading="lazy"
+              sandbox="allow-scripts allow-same-origin"
+            ></iframe>
+            <!-- Fallback shown when iframe cannot load (demo not yet generated) -->
+            <noscript>
+              <div class="phone-screen-placeholder">
+                <div class="placeholder-logo">GOVDAO</div>
+                <p>Interactive demo — open in browser for full experience.</p>
+              </div>
+            </noscript>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       COUNTERS STRIP
+  ════════════════════════════════════════════════════════════════ -->
+
+  <section class="section counters-section" id="counters" aria-label="Governance statistics">
+    <div class="section-inner">
+      <div class="counters-grid">
+
+        <div class="counter-item fade-in">
+          <div
+            class="counter-number"
+            data-count-to="247"
+            data-suffix=""
+            data-decimals="0"
+            aria-label="247 proposals"
+          >0</div>
+          <div class="counter-label">Proposals Tracked</div>
+        </div>
+
+        <div class="counter-item fade-in delay-1">
+          <div
+            class="counter-number"
+            data-count-to="89"
+            data-suffix="%"
+            data-decimals="0"
+            aria-label="89% participation"
+          >0%</div>
+          <div class="counter-label">Avg. Participation</div>
+        </div>
+
+        <div class="counter-item fade-in delay-2">
+          <div
+            class="counter-number"
+            data-count-to="4.2"
+            data-suffix=" ETH"
+            data-decimals="1"
+            aria-label="4.2 ETH treasury"
+          >0 ETH</div>
+          <div class="counter-label">Treasury Monitored</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 4 — HOW IT WORKS
+  ════════════════════════════════════════════════════════════════ -->
+
+  <section class="section" id="how-it-works" aria-label="How It Works">
+    <div class="section-inner">
+      <p class="section-label fade-in">How It Works</p>
+      <h2 class="section-heading slide-up">Four steps to your first vote</h2>
+      <p class="section-sub slide-up delay-1">
+        From wallet connection to confirmed on-chain vote in under a minute.
+      </p>
+
+      <div class="timeline-container" role="list">
+
+        <!-- SVG connector line -->
+        <div class="timeline-svg-wrapper" aria-hidden="true">
+          <svg class="timeline-connector" viewBox="0 0 900 2" preserveAspectRatio="none">
+            <line
+              class="timeline-connector-line"
+              x1="56"
+              y1="1"
+              x2="844"
+              y2="1"
+            />
+          </svg>
+        </div>
+
+        <div class="timeline-step slide-up" role="listitem">
+          <div class="step-number" aria-label="Step 1">1</div>
+          <div class="step-title">Connect Wallet</div>
+          <p class="step-desc">Link your Ethereum wallet via WalletConnect or injected provider.</p>
+        </div>
+
+        <div class="timeline-step slide-up delay-1" role="listitem">
+          <div class="step-number" aria-label="Step 2">2</div>
+          <div class="step-title">Browse Proposals</div>
+          <p class="step-desc">View active, pending, and historical governance proposals at a glance.</p>
+        </div>
+
+        <div class="timeline-step slide-up delay-2" role="listitem">
+          <div class="step-number" aria-label="Step 3">3</div>
+          <div class="step-title">Vote On-Chain</div>
+          <p class="step-desc">Sign your vote with your wallet. It lands on Ethereum, permanently.</p>
+        </div>
+
+        <div class="timeline-step slide-up delay-3" role="listitem">
+          <div class="step-number" aria-label="Step 4">4</div>
+          <div class="step-title">Track Results</div>
+          <p class="step-desc">Follow live vote tallies, quorum progress, and final outcomes.</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 5 — PRIVACY & LEGAL
+  ════════════════════════════════════════════════════════════════ -->
+
+  <section class="section" id="legal" aria-label="Privacy and Legal">
+    <div class="section-inner">
+      <p class="section-label fade-in">Trust &amp; Transparency</p>
+      <h2 class="section-heading slide-up">Non-custodial by design</h2>
+      <p class="section-sub slide-up delay-1">
+        We never hold your keys, never store your wallet address on a server, and never
+        sell your data. What happens on-chain, stays on-chain.
+      </p>
+
+      <div class="legal-grid">
+
+        <a href="./privacy-policy.html" class="glass-card legal-card fade-in" aria-label="Read Privacy Policy">
+          <span class="legal-icon" aria-hidden="true">🔒</span>
+          <div>
+            <div class="legal-card-title">Privacy Policy</div>
+            <p class="legal-card-desc">
+              GDPR and CCPA compliant. We collect no personal data. Wallet addresses are
+              read client-side only and never transmitted to our servers.
+            </p>
+          </div>
+        </a>
+
+        <a href="./terms.html" class="glass-card legal-card fade-in delay-1" aria-label="Read Terms of Service">
+          <span class="legal-icon" aria-hidden="true">📄</span>
+          <div>
+            <div class="legal-card-title">Terms of Service</div>
+            <p class="legal-card-desc">
+              No financial advice. Smart contract risks acknowledged. You control your
+              keys and bear responsibility for all on-chain actions.
+            </p>
+          </div>
+        </a>
+
+      </div>
+
+      <p class="powered-by fade-in">
+        Powered by <span>Ethereum</span> &mdash; every vote is a permanent, public, on-chain record.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 6 — FOOTER
+  ════════════════════════════════════════════════════════════════ -->
+
+  <footer aria-label="Site footer">
+    <div class="footer-inner">
+      <span class="footer-wordmark">GOVDAO</span>
+      <span class="footer-copy">&copy; 2026 GOVDAO. All rights reserved.</span>
+      <nav class="footer-links" aria-label="Footer links">
+        <a href="./privacy-policy.html">Privacy</a>
+        <a href="./terms.html">Terms</a>
+        <a href="./demo/index.html">Demo</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="assets/main.js"></script>
+
+</body>
+</html>
