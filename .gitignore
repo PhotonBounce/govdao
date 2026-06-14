@@ -9,3 +9,12 @@ coverage.json
 out.txt
 apps/mobile/dist/
 .expo/
+
+# Android signing — NEVER commit keystores or their passwords
+*.keystore
+*.jks
+keystore.properties
+apps/mobile/credentials.json
+apps/mobile/android/app/*.keystore
+apps/mobile/android/app/*.jks
+secrets/

@@ -1,13 +1,9 @@
 import { ReactNode, useEffect, useRef } from "react";
 import { Animated, StyleSheet } from "react-native";
+import { CodeRainBackground } from "./CodeRainBackground";
+import { BG_CYCLE } from "../utils/animations";
 
-const CYCLE = [
-  "#0d0d1a",
-  "#0a1a14",
-  "#1a0d0d",
-  "#0d1214",
-  "#0d0d1a",
-];
+const CYCLE = [...BG_CYCLE];
 
 const STEP_MS = 2500;
 
@@ -41,6 +37,7 @@ export function AnimatedShell({ children }: AnimatedShellProps) {
 
   return (
     <Animated.View style={[styles.shell, { backgroundColor }]}>
+      <CodeRainBackground seed={1337} columns={12} />
       {children}
     </Animated.View>
   );

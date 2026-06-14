@@ -1,5 +1,5 @@
-import { Pressable, StyleSheet, Text } from "react-native";
-import { useSound } from "../contexts/SoundContext";
+import { StyleSheet, Text } from "react-native";
+import { AnimatedPressable } from "./AnimatedPressable";
 import { darkPalette, radii } from "../theme";
 
 interface NavTabProps {
@@ -9,17 +9,15 @@ interface NavTabProps {
 }
 
 export function NavTab({ active, label, onPress }: NavTabProps) {
-  const { play } = useSound();
-
-  function handlePress() {
-    play("tap");
-    onPress();
-  }
-
   return (
-    <Pressable onPress={handlePress} style={[styles.tab, active ? styles.tabActive : styles.tabIdle]}>
+    <AnimatedPressable
+      onPress={onPress}
+      sound="tap"
+      intensity="subtle"
+      style={[styles.tab, active ? styles.tabActive : styles.tabIdle]}
+    >
       <Text style={[styles.label, active ? styles.labelActive : styles.labelIdle]}>{label}</Text>
-    </Pressable>
+    </AnimatedPressable>
   );
 }
 
