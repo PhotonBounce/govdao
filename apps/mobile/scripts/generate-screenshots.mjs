@@ -274,7 +274,15 @@ const SCREENS = [
     bullets: ["FOR / AGAINST / ABSTAIN BALLOTS", "CRYPTOGRAPHIC VOTE RECEIPT", "PROPOSAL INTEGRITY CHECK"]
   },
   {
-    file: "03-treasury.png",
+    file: "03-propose.png",
+    headline: "NEW PROPOSAL",
+    sub: "Draft and submit a proposal from your phone",
+    nav: "PROPOSE",
+    badge: "ON-CHAIN",
+    bullets: ["TITLE, SUMMARY & DOC HASH", "VALIDATED BEFORE SUBMIT", "WALLET-SIGNED PROPOSE TX"]
+  },
+  {
+    file: "04-treasury.png",
     headline: "TREASURY",
     sub: "Transparent spend with timelock protection",
     nav: "TREASURY",
@@ -282,7 +290,55 @@ const SCREENS = [
     bullets: ["PER-TRANSFER & DAILY SPEND CAPS", "TIMELOCKED SPEND REQUESTS", "EMERGENCY GUARDIAN DRILLS"]
   },
   {
-    file: "04-analytics.png",
+    file: "05-spend.png",
+    headline: "SPEND REQUEST",
+    sub: "Queue a treasury transfer through the timelock",
+    nav: "SPEND",
+    badge: "CAPPED",
+    bullets: ["RECIPIENT, AMOUNT & PURPOSE", "ENFORCED 25 ETH PER-TX CAP", "SCHEDULED VIA TIMELOCK"]
+  },
+  {
+    file: "06-drill.png",
+    headline: "GUARDIAN DRILL",
+    sub: "Rehearse the emergency pause mechanism",
+    nav: "DRILL",
+    badge: "PREMIUM",
+    bullets: ["PAUSE / RESUME / FULL-CYCLE", "SCHEDULED DRILL WINDOW", "GUARDIAN THRESHOLD AWARE"]
+  },
+  {
+    file: "07-invite.png",
+    headline: "INVITE MEMBER",
+    sub: "Add a delegate to the on-chain registry",
+    nav: "INVITE",
+    badge: "PREMIUM",
+    bullets: ["VALIDATED WALLET ADDRESS", "ROLE ASSIGNMENT", "REGISTRY ADDMEMBER TX"]
+  },
+  {
+    file: "08-modules.png",
+    headline: "MODULES",
+    sub: "Workspace add-ons for your organization",
+    nav: "MODULES",
+    badge: "EXTENSIBLE",
+    bullets: ["DAO & WORKSPACE MODULES", "PER-MODULE AUTH GATING", "ACTIONABLE WORK ITEMS"]
+  },
+  {
+    file: "09-activity.png",
+    headline: "ACTIVITY",
+    sub: "Every governance event in one feed",
+    nav: "ACTIVITY",
+    badge: "EXPORTABLE",
+    bullets: ["FILTER BY TYPE & DATE RANGE", "VOTES, SPEND, DRILLS, MEMBERS", "CSV / JSON EXPORT (PREMIUM)"]
+  },
+  {
+    file: "10-calendar.png",
+    headline: "CALENDAR",
+    sub: "Never miss a vote, execution or drill window",
+    nav: "CALENDAR",
+    badge: "LIVE COUNTDOWN",
+    bullets: ["VOTING OPEN & CLOSE DEADLINES", "TIMELOCK EXECUTION ETAS", "ANCHORED TO CHAIN BLOCK TIME"]
+  },
+  {
+    file: "11-analytics.png",
     headline: "ANALYTICS",
     sub: "Participation, pass rate and top delegates",
     nav: "ANALYTICS",
@@ -290,7 +346,7 @@ const SCREENS = [
     bullets: ["PARTICIPATION TREND SPARKBARS", "PASS / FAIL RATIO & QUORUM DISTANCE", "TOP DELEGATE LEADERBOARD"]
   },
   {
-    file: "05-deploy.png",
+    file: "12-deploy.png",
     headline: "DEPLOY WIZARD",
     sub: "Bootstrap a governance instance in five steps",
     nav: "DEPLOY",
@@ -298,12 +354,20 @@ const SCREENS = [
     bullets: ["GUIDED 5-CONTRACT DEPLOYMENT", "PER-STEP ADDRESS & TX HASH", "EXPORT MANIFEST FRAGMENT"]
   },
   {
-    file: "06-calendar.png",
-    headline: "CALENDAR",
-    sub: "Never miss a vote, execution or drill window",
-    nav: "CALENDAR",
-    badge: "LIVE COUNTDOWN",
-    bullets: ["VOTING OPEN & CLOSE DEADLINES", "TIMELOCK EXECUTION ETAS", "ANCHORED TO CHAIN BLOCK TIME"]
+    file: "13-settings.png",
+    headline: "SETTINGS",
+    sub: "App configuration and notifications",
+    nav: "SETTINGS",
+    badge: "CONFIGURED",
+    bullets: ["NOTIFICATION PREFERENCES", "MANIFEST & SUPPORT STATUS", "DATA-MODE TRANSPARENCY"]
+  },
+  {
+    file: "14-upgrade.png",
+    headline: "GO PREMIUM",
+    sub: "Unlock drills, analytics, export and deploy",
+    nav: "OVERVIEW",
+    badge: planBadge,
+    bullets: ["GUARDIAN DRILLS & DEPLOY WIZARD", "DELEGATE ANALYTICS DASHBOARD", "ACTIVITY CSV / JSON EXPORT"]
   }
 ];
 
