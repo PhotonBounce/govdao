@@ -3,6 +3,25 @@
 This document explains how to get a real, installable APK onto your phone — **without
 Expo Go** — and why the build can't happen inside the Claude Code cloud container.
 
+## Quick start on Windows: `stat.bat`
+
+The fastest way to test locally is the launcher at the repo root. Double-click
+**`stat.bat`** (or run it from a terminal in the repo root). On first run it checks
+for Node, installs dependencies, then shows a menu:
+
+| Option | What it does |
+|--------|--------------|
+| 1 | Open the app in your web browser (fastest preview) |
+| 2 | Start the dev server for your phone — scan the QR in **Expo Go** (same Wi-Fi) |
+| 3 | Same, but in tunnel mode (phone on a different network) |
+| 4 | Run **all** QA gates (typecheck + every check, mirrors CI) |
+| 5 | Typecheck only |
+| 6 | Regenerate icons, feature graphic, sounds, and screenshots |
+| 7 | Build an installable **APK via EAS** (no local Android SDK needed) |
+| 8 | Export the static web bundle to `apps\mobile\dist` |
+
+Options 2 and 7 are the two ways to get the app onto a physical phone.
+
 ## Why the cloud container can't build the APK
 
 The remote session that generated this code runs in an isolated Linux container with:
