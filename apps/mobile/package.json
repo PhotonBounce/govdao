@@ -36,6 +36,7 @@
     "check:deploy-wizard": "node scripts/check-deploy-wizard.mjs",
     "check:screenshots": "node scripts/check-screenshots.mjs",
     "check:eye-candy": "node scripts/check-eye-candy.mjs",
+    "check:calendar": "node scripts/check-calendar.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:screenshots": "node scripts/generate-screenshots.mjs",
     "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs && node scripts/generate-screenshots.mjs"

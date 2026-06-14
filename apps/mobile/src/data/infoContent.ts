@@ -304,5 +304,11 @@ export const infoContent: Record<string, InfoEntry> = {
     body: "A step-by-step wizard that deploys all five GOVDAO smart contracts to any EVM-compatible chain in the correct dependency order: MemberRegistry → Timelock → Governor → Treasury → EmergencyGuardian. Each step requires your wallet to sign one deployment transaction. After completion, the deployed addresses are exported as a manifest fragment you can use to configure the app.",
     example: "Deploy to Sepolia testnet first to verify governance flows before going to mainnet.",
     onchain: "Each contract deployment is an on-chain transaction. Deployment requires ETH for gas — have at least 0.1 ETH on the target chain."
+  },
+  "governance-calendar": {
+    title: "Governance Calendar",
+    body: "A unified agenda of every time-sensitive governance event: when voting opens and closes on each proposal, when timelocked actions become executable, when guardian drill windows occur, and when grace periods expire. Events are grouped by day and labelled with a live countdown so you never miss a vote or an execution window.",
+    example: "\"Voting closes in 6h\" on GOV-201 means you have six hours left to cast your ballot before the window shuts.",
+    onchain: "In live mode the agenda is anchored to the chain's latest block timestamp and the timelock's on-chain minimum delay, so every countdown reflects real network time rather than your device clock."
   }
 };

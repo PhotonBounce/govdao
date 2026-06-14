@@ -296,6 +296,14 @@ const SCREENS = [
     nav: "DEPLOY",
     badge: "PREMIUM",
     bullets: ["GUIDED 5-CONTRACT DEPLOYMENT", "PER-STEP ADDRESS & TX HASH", "EXPORT MANIFEST FRAGMENT"]
+  },
+  {
+    file: "06-calendar.png",
+    headline: "CALENDAR",
+    sub: "Never miss a vote, execution or drill window",
+    nav: "CALENDAR",
+    badge: "LIVE COUNTDOWN",
+    bullets: ["VOTING OPEN & CLOSE DEADLINES", "TIMELOCK EXECUTION ETAS", "ANCHORED TO CHAIN BLOCK TIME"]
   }
 ];
 

@@ -21,7 +21,9 @@ import { VotePanel } from "./src/components/VotePanel";
 import { ActivityScreen } from "./src/screens/ActivityScreen";
 import { AnalyticsScreen } from "./src/screens/AnalyticsScreen";
 import { DeployWizardScreen } from "./src/screens/DeployWizardScreen";
+import { GovernanceCalendarScreen } from "./src/screens/GovernanceCalendarScreen";
 import { loadAnalytics } from "./src/data/analyticsSource";
+import { loadGovernanceCalendar } from "./src/data/governanceCalendarSource";
 import { SpendRequestScreen } from "./src/screens/SpendRequestScreen";
 import { ProposalTimelinePanel } from "./src/components/ProposalTimelinePanel";
 import { WorkspaceActionPanel } from "./src/components/WorkspaceActionPanel";
@@ -173,7 +175,7 @@ export default function App() {
 
   function renderViewHeader() {
     return (
-      <SectionCard eyebrow={routeDescriptor.eyebrow} title={routeDescriptor.title} subtitle={routeDescriptor.subtitle} tone="glass" infoKey={activeView === "overview" ? "overview" : activeView === "proposals" ? "proposals-list" : activeView === "create-proposal" ? "create-proposal" : activeView === "treasury" ? "treasury" : activeView === "modules" ? "modules" : activeView === "activity" ? "activity-feed" : activeView === "settings" ? "app-settings" : undefined}>
+      <SectionCard eyebrow={routeDescriptor.eyebrow} title={routeDescriptor.title} subtitle={routeDescriptor.subtitle} tone="glass" infoKey={activeView === "overview" ? "overview" : activeView === "proposals" ? "proposals-list" : activeView === "create-proposal" ? "create-proposal" : activeView === "treasury" ? "treasury" : activeView === "modules" ? "modules" : activeView === "activity" ? "activity-feed" : activeView === "calendar" ? "governance-calendar" : activeView === "settings" ? "app-settings" : undefined}>
         <View style={styles.viewHeaderRow}>
           <Text style={styles.viewHeaderMeta}>Active route: {activeView}</Text>
           <Text style={styles.viewHeaderMeta}>Stack depth: {detailStack.length}</Text>
@@ -336,6 +338,10 @@ export default function App() {
           <AnalyticsScreen analytics={loadAnalytics(manifest)} />
         </PremiumGate>
       );
+    }
+
+    if (activeView === "calendar") {
+      return <GovernanceCalendarScreen calendar={loadGovernanceCalendar(manifest)} />;
     }
 
     if (activeView === "deploy-wizard") {
@@ -516,6 +522,7 @@ export default function App() {
           {hasProposalCreation ? <NavTab active={activeView === "invite-member"} label="Invite" onPress={() => openView("invite-member")} /> : null}
           {hasModuleView ? <NavTab active={activeView === "modules"} label="Modules" onPress={() => openView("modules")} /> : null}
           <NavTab active={activeView === "activity"} label="Activity" onPress={() => openView("activity")} />
+          <NavTab active={activeView === "calendar"} label="Calendar" onPress={() => openView("calendar")} />
           <NavTab active={activeView === "analytics"} label="Analytics" onPress={() => openView("analytics")} />
           <NavTab active={activeView === "deploy-wizard"} label="Deploy" onPress={() => openView("deploy-wizard")} />
           <NavTab active={activeView === "settings"} label="Settings" onPress={() => openView("settings")} />

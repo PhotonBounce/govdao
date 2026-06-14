@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const dir = path.resolve(__dirname, "../../../config/play-store/screenshots");
 
-const EXPECTED = ["01-overview.png", "02-proposals.png", "03-treasury.png", "04-analytics.png", "05-deploy.png"];
+const EXPECTED = ["01-overview.png", "02-proposals.png", "03-treasury.png", "04-analytics.png", "05-deploy.png", "06-calendar.png"];
 const PNG_MAGIC = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 
 let passed = 0, failed = 0;
