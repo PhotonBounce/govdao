@@ -316,5 +316,11 @@ export const infoContent: Record<string, InfoEntry> = {
     body: "Personalize the app experience. Sound effects toggle the tap, vote and receipt cues. Reduce motion turns off the animated code-rain background and color cycling for a calmer, lower-power screen — useful for accessibility or saving battery. Haptics control vibration feedback, and compact navigation tightens the tab bar.",
     example: "Turn on Reduce Motion if animations cause discomfort or you want to extend battery life on long governance sessions.",
     onchain: "Preferences are device-local UI settings only — they never touch the chain and are not part of any transaction."
+  },
+  "search": {
+    title: "Quick Jump Search",
+    body: "A command palette for the whole app. Type any part of a screen name — or a related word like \"vote\", \"funds\", \"deadline\" or \"stats\" — and jump straight there. Results are ranked so the closest match sits on top, which keeps every screen one tap away even as the app grows.",
+    example: "Typing \"spend\" surfaces both the Treasury and the Spend Request screens; \"stats\" jumps you to Analytics.",
+    onchain: "Search runs entirely on-device over the app's screen index — no query ever leaves your phone."
   }
 };
