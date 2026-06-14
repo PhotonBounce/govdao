@@ -368,6 +368,14 @@ const SCREENS = [
     nav: "OVERVIEW",
     badge: planBadge,
     bullets: ["GUARDIAN DRILLS & DEPLOY WIZARD", "DELEGATE ANALYTICS DASHBOARD", "ACTIVITY CSV / JSON EXPORT"]
+  },
+  {
+    file: "15-search.png",
+    headline: "QUICK JUMP",
+    sub: "Search any screen — one tap away",
+    nav: "SEARCH",
+    badge: "ON-DEVICE",
+    bullets: ["TYPE VOTE, FUNDS, STATS, DEPLOY", "RANKED BEST-MATCH RESULTS", "JUMP STRAIGHT TO ANY SCREEN"]
   }
 ];
 

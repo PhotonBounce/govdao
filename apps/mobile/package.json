@@ -38,6 +38,7 @@
     "check:eye-candy": "node scripts/check-eye-candy.mjs",
     "check:calendar": "node scripts/check-calendar.mjs",
     "check:preferences": "node scripts/check-preferences.mjs",
+    "check:search": "node scripts/check-search.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:screenshots": "node scripts/generate-screenshots.mjs",
     "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs && node scripts/generate-screenshots.mjs"

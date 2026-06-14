@@ -23,6 +23,7 @@ import { ActivityScreen } from "./src/screens/ActivityScreen";
 import { AnalyticsScreen } from "./src/screens/AnalyticsScreen";
 import { DeployWizardScreen } from "./src/screens/DeployWizardScreen";
 import { GovernanceCalendarScreen } from "./src/screens/GovernanceCalendarScreen";
+import { SearchScreen } from "./src/screens/SearchScreen";
 import { loadAnalytics } from "./src/data/analyticsSource";
 import { loadGovernanceCalendar } from "./src/data/governanceCalendarSource";
 import { SpendRequestScreen } from "./src/screens/SpendRequestScreen";
@@ -176,7 +177,7 @@ export default function App() {
 
   function renderViewHeader() {
     return (
-      <SectionCard eyebrow={routeDescriptor.eyebrow} title={routeDescriptor.title} subtitle={routeDescriptor.subtitle} tone="glass" infoKey={activeView === "overview" ? "overview" : activeView === "proposals" ? "proposals-list" : activeView === "create-proposal" ? "create-proposal" : activeView === "treasury" ? "treasury" : activeView === "modules" ? "modules" : activeView === "activity" ? "activity-feed" : activeView === "calendar" ? "governance-calendar" : activeView === "settings" ? "app-settings" : undefined}>
+      <SectionCard eyebrow={routeDescriptor.eyebrow} title={routeDescriptor.title} subtitle={routeDescriptor.subtitle} tone="glass" infoKey={activeView === "overview" ? "overview" : activeView === "proposals" ? "proposals-list" : activeView === "create-proposal" ? "create-proposal" : activeView === "treasury" ? "treasury" : activeView === "modules" ? "modules" : activeView === "activity" ? "activity-feed" : activeView === "calendar" ? "governance-calendar" : activeView === "search" ? "search" : activeView === "settings" ? "app-settings" : undefined}>
         <View style={styles.viewHeaderRow}>
           <Text style={styles.viewHeaderMeta}>Active route: {activeView}</Text>
           <Text style={styles.viewHeaderMeta}>Stack depth: {detailStack.length}</Text>
@@ -343,6 +344,10 @@ export default function App() {
 
     if (activeView === "calendar") {
       return <GovernanceCalendarScreen calendar={loadGovernanceCalendar(manifest)} />;
+    }
+
+    if (activeView === "search") {
+      return <SearchScreen onJump={(view) => openView(view)} />;
     }
 
     if (activeView === "deploy-wizard") {
@@ -516,6 +521,7 @@ export default function App() {
       >
         <View style={styles.navRow}>
           <NavTab active={activeView === "overview"} label="Overview" onPress={() => openView("overview")} />
+          <NavTab active={activeView === "search"} label="Search" onPress={() => openView("search")} />
           {hasProposalView ? <NavTab active={activeView === "proposals"} label="Proposals" onPress={() => openView("proposals")} /> : null}
           {hasProposalCreation ? <NavTab active={activeView === "create-proposal"} label="Propose" onPress={() => openView("create-proposal")} /> : null}
           {hasTreasuryView ? <NavTab active={activeView === "treasury"} label="Treasury" onPress={() => openView("treasury")} /> : null}
