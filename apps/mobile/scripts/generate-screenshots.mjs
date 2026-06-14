@@ -122,6 +122,35 @@ function verticalGradient(px) {
     for (let x = 0; x < W; x += 1) setPx(px, x, y, c);
   }
 }
+
+// Faint code-rain backdrop mirroring the app's CodeRainBackground component.
+function codeRainBackdrop(px, seed) {
+  let a = seed >>> 0;
+  const rand = () => {
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const HEX = "0123456789ABCDEF";
+  const cols = 16;
+  for (let c = 0; c < cols; c += 1) {
+    const x = 30 + Math.round((c / (cols - 1)) * (W - 80));
+    const startY = Math.round(rand() * 200);
+    const len = 14 + Math.floor(rand() * 22);
+    const scale = 3;
+    for (let i = 0; i < len; i += 1) {
+      const ch = HEX[Math.floor(rand() * 16)];
+      const y = startY + i * 52;
+      if (y > H - 60) break;
+      // head glyph brighter, tail fades
+      const fade = 1 - i / len;
+      const tint = i === 0 ? SOFT_GOLD : GLOW_BRONZE;
+      const col = [Math.round(tint[0] * (0.18 + fade * 0.12)), Math.round(tint[1] * (0.18 + fade * 0.12)), Math.round(tint[2] * (0.18 + fade * 0.12))];
+      drawLeft(px, ch, x, y, scale, col);
+    }
+  }
+}
 // Centered text helper
 function drawCentered(px, text, cy, scale, color, spacing = 1) {
   const tw = measureText(text, scale, spacing);
@@ -144,6 +173,7 @@ function statusBar(px) {
 function screenshot(headline, sub, navLabel, bullets, badge) {
   const px = newCanvas();
   verticalGradient(px);
+  codeRainBackdrop(px, 0x6e + headline.length * 31);
   statusBar(px);
 
   // Brand seal mark (concentric rings + GOVDAO)
