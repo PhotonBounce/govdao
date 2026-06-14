@@ -1,6 +1,6 @@
 @echo off
 REM ============================================================================
-REM  stat.bat  -  GOVDAO local test launcher (Windows)
+REM  start.bat  -  GOVDAO local test launcher (Windows)
 REM
 REM  Double-click this file, or run it from a terminal in the repo root.
 REM  It checks your toolchain, installs dependencies on first run, then gives

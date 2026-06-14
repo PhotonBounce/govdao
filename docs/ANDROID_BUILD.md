@@ -3,10 +3,10 @@
 This document explains how to get a real, installable APK onto your phone — **without
 Expo Go** — and why the build can't happen inside the Claude Code cloud container.
 
-## Quick start on Windows: `stat.bat`
+## Quick start on Windows: `start.bat`
 
 The fastest way to test locally is the launcher at the repo root. Double-click
-**`stat.bat`** (or run it from a terminal in the repo root). On first run it checks
+**`start.bat`** (or run it from a terminal in the repo root). On first run it checks
 for Node, installs dependencies, then shows a menu:
 
 | Option | What it does |
