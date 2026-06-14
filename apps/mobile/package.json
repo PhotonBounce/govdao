@@ -34,8 +34,10 @@
     "check:play-assets": "node scripts/check-play-assets.mjs",
     "check:analytics": "node scripts/check-analytics.mjs",
     "check:deploy-wizard": "node scripts/check-deploy-wizard.mjs",
+    "check:screenshots": "node scripts/check-screenshots.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
-    "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs"
+    "generate:screenshots": "node scripts/generate-screenshots.mjs",
+    "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs && node scripts/generate-screenshots.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.5",

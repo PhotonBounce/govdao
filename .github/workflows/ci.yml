@@ -58,6 +58,7 @@ jobs:
       - run: npm run mobile:check-play-assets
       - run: npm run mobile:check-analytics
       - run: npm run mobile:check-deploy-wizard
+      - run: npm run mobile:check-screenshots
       - run: npm run mobile:check-chain
       - name: App config matches manifest
         run: |
