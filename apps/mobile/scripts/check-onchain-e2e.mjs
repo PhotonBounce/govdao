@@ -64,12 +64,12 @@ async function main() {
   assert("isFixtureMode is false for live config", walletProvider.isFixtureMode(manifest) === false);
 
   const provider = new ethers.JsonRpcProvider(rpcUrl);
-  // Disable ethers' response cache (default 250ms). The test fires propose→vote in
-  // quick succession; without this, the cached eth_getTransactionCount hands back a
-  // stale nonce and the second tx reverts with NONCE_EXPIRED. A real user never votes
-  // within 250ms of proposing, so this only matters for the back-to-back test.
-  provider.cacheTimeout = -1;
-  const wallet = new ethers.Wallet(env("E2E_SIGNER_KEY"), provider);
+  // Wrap the wallet in a NonceManager: it tracks the nonce locally and increments
+  // after each send, so the rapid propose→vote sequence doesn't depend on ethers'
+  // cached eth_getTransactionCount (which handed back a stale nonce → NONCE_EXPIRED).
+  // A real user never votes within 250ms of proposing, so this only matters for the
+  // back-to-back test; the app's signing code is unchanged.
+  const wallet = new ethers.NonceManager(new ethers.Wallet(env("E2E_SIGNER_KEY"), provider));
   const address = await wallet.getAddress();
   walletProvider.setActiveSigner(wallet, address);
   assert("active signer registered", walletProvider.getActiveSigner() !== null);
