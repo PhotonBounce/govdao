@@ -30,9 +30,11 @@ export SUPPORT_WEBSITE="https://photon-bounce.com" SUPPORT_EMAIL="contact@photon
        TERMS_URL="https://photon-bounce.com/terms.html"
 bash scripts/deploy-and-wire.sh sepolia
 ```
-This deploys all five contracts, writes `deployments/sepolia.json`, and generates
-`config/mobile-app.manifest.production.json` wired to the new addresses — then lists
-any fields that still need real values. The manual steps below explain each piece.
+This deploys all five contracts, writes `deployments/sepolia.json`, generates
+`config/mobile-app.manifest.production.json` wired to the new addresses, and **runs the
+full Google Play validator** on it — telling you immediately whether it's store-ready or
+exactly which fields still need real values. (Re-validate any time with
+`npm run validate:production`.) The manual steps below explain each piece.
 
 ## Phase 1 — Deploy contracts to a testnet (Sepolia) 🔒
 1. Get a Sepolia RPC URL (Alchemy/Infura/public) and a deployer private key funded with

@@ -32,10 +32,21 @@ echo "[1/2] Deploying contracts..."
 npx hardhat run scripts/deploy.ts --network "${NET}"
 
 echo ""
-echo "[2/2] Wiring production manifest..."
+echo "[2/3] Wiring production manifest..."
 npx ts-node scripts/wire-manifest.ts --network "${NET}"
 
 echo ""
-echo "Done. Next: validate and build —"
-echo "  npm run validate:google-play -- --manifest config/mobile-app.manifest.production.json"
-echo "  (then follow docs/RELEASE_CHECKLIST.md phases 3-5)"
+echo "[3/3] Validating production manifest for Google Play..."
+PROD_MANIFEST="config/mobile-app.manifest.production.json"
+if npx ts-node scripts/validate-google-play-release.ts --manifest "${PROD_MANIFEST}"; then
+  echo ""
+  echo "✅ Production manifest is store-ready. Next: build a signed AAB —"
+  echo "   cd apps/mobile && eas build -p android --profile production"
+  echo "   (see docs/RELEASE_CHECKLIST.md phases 3-5)"
+else
+  echo ""
+  echo "⚠️  Validation flagged fields that still need real values (above)."
+  echo "    Set them via env (RPC_URL, SUPPORT_WEBSITE, PRIVACY_POLICY_URL, …) and re-run,"
+  echo "    or edit ${PROD_MANIFEST} directly, then re-validate:"
+  echo "    npm run validate:google-play -- --manifest ${PROD_MANIFEST}"
+fi
