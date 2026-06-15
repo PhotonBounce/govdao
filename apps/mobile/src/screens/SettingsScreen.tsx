@@ -11,6 +11,7 @@ interface SettingsScreenProps {
   metadataConfigured: boolean;
   supportConfigured: boolean;
   notificationPanel?: ReactNode;
+  pushStatusCard?: ReactNode;
 }
 
 function openExternalUrl(url: string) {
@@ -28,11 +29,12 @@ function DisclosureLink({ label, url, target }: { label: string; url: string; ta
   );
 }
 
-export function SettingsScreen({ manifest, metadataConfigured, supportConfigured, notificationPanel }: SettingsScreenProps) {
+export function SettingsScreen({ manifest, metadataConfigured, supportConfigured, notificationPanel, pushStatusCard }: SettingsScreenProps) {
   return (
     <>
       <PreferencesPanel />
 
+      {pushStatusCard}
       {notificationPanel}
 
       <SectionCard

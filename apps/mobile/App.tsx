@@ -52,6 +52,8 @@ import { LiveProposalsPanel } from "./src/components/LiveProposalsPanel";
 import { AdBanner } from "./src/components/AdBanner";
 import { useInterstitialAd } from "./src/hooks/useInterstitialAd";
 import { shouldShowInterstitial } from "./src/data/adsConfig";
+import { PushStatusCard } from "./src/components/PushStatusCard";
+import { usePushNotifications } from "./src/hooks/usePushNotifications";
 import { useSessionController } from "./src/hooks/useSessionController";
 import { useVoteController } from "./src/hooks/useVoteController";
 import { CreateProposalScreen } from "./src/screens/CreateProposalScreen";
@@ -179,6 +181,7 @@ export default function App() {
   const { liveProposals, liveProposalsLoading, refreshLiveProposals } = useLiveProposals(manifest);
   const proposalLifecycle = useProposalLifecycle(manifest, refreshLiveProposals);
   const { showInterstitial } = useInterstitialAd(manifest);
+  const push = usePushNotifications(manifest);
   const navCountRef = useRef(0);
   useEffect(() => {
     navCountRef.current += 1;
@@ -393,6 +396,9 @@ export default function App() {
           manifest={manifest}
           metadataConfigured={metadataConfigured}
           supportConfigured={supportConfigured}
+          pushStatusCard={manifest.features.pushNotifications ? (
+            <PushStatusCard state={push.state} onRegister={push.register} />
+          ) : undefined}
           notificationPanel={manifest.features.pushNotifications ? (
             <NotificationPanel
               categories={notifications.categories}

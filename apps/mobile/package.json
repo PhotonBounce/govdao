@@ -43,6 +43,7 @@
     "check:live-proposals": "node scripts/check-live-proposals.mjs",
     "check:proposal-lifecycle": "node scripts/check-proposal-lifecycle.mjs",
     "check:ads-config": "node scripts/check-ads-config.mjs",
+    "check:push-config": "node scripts/check-push-config.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:screenshots": "node scripts/generate-screenshots.mjs",
     "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs && node scripts/generate-screenshots.mjs"
@@ -53,7 +54,9 @@
     "expo": "~53.0.17",
     "expo-asset": "^56.0.17",
     "expo-av": "~15.1.6",
+    "expo-device": "~7.1.4",
     "expo-linear-gradient": "~14.1.5",
+    "expo-notifications": "^0.31.5",
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
     "react-dom": "^19.0.0",
