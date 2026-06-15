@@ -97,6 +97,20 @@ exactly which fields still need real values. (Re-validate any time with
 11. Promote Internal → Closed → Production once you've tested the signed build on a
     real device.
 
+## Phase 6 — iOS / App Store (optional, parallel to Android) 🔒
+The same codebase ships to iOS. `eas.json` has iOS build/submit profiles and `app.json`
+sets the bundle id (`com.govdao.app`), Face ID / tracking usage strings, and the AdMob
+iOS app id.
+```bash
+cd apps/mobile
+eas build -p ios --profile production       # needs an Apple Developer account
+eas submit -p ios --profile production      # set ascAppId in eas.json first
+```
+Fill the App Store listing from `config/app-store/listing.md`, the privacy labels from
+`config/app-store/app-privacy.md`, and the review notes from
+`config/app-store/review-notes.md`. (Create a separate iOS AdMob app id and iOS
+RevenueCat key for production.)
+
 ## Definition of "fully ready"
 `npm run validate:google-play` passes with **zero** errors, the app is connected to a
 deployed contract set, the live flow has been tested on-device against that chain, the
