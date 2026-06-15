@@ -18,6 +18,7 @@ jobs:
       - run: npm ci
       - run: npm run compile
       - run: npm test
+      - run: npm run check:wire-manifest
 
   mobile:
     name: Mobile gates
