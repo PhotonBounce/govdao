@@ -45,6 +45,8 @@ import { useMobileShellController } from "./src/hooks/useMobileShellController";
 import { useMotionActionController } from "./src/hooks/useMotionActionController";
 import { useNotificationController } from "./src/hooks/useNotificationController";
 import { useOnchainSnapshot } from "./src/hooks/useOnchainSnapshot";
+import { useLiveProposals } from "./src/hooks/useLiveProposals";
+import { LiveProposalsPanel } from "./src/components/LiveProposalsPanel";
 import { useSessionController } from "./src/hooks/useSessionController";
 import { useVoteController } from "./src/hooks/useVoteController";
 import { CreateProposalScreen } from "./src/screens/CreateProposalScreen";
@@ -169,6 +171,7 @@ export default function App() {
   const memberInvite = useMemberInviteController(sessionIdentity, manifest);
   const notifications = useNotificationController(manifest);
   const { onchainSnapshot, onchainLoading } = useOnchainSnapshot(manifest);
+  const { liveProposals, liveProposalsLoading } = useLiveProposals(manifest);
   const dataMode = getDataModeSummary(dashboardData.source);
   const drillGate = usePlanGate(manifest, "guardian-drill");
   const inviteGate = usePlanGate(manifest, "member-invite");
@@ -200,6 +203,9 @@ export default function App() {
           totalMembers={members.length}
         />
       ) : null;
+      const liveProposalsPanel = (liveProposals.available || liveProposalsLoading) ? (
+        <LiveProposalsPanel result={liveProposals} loading={liveProposalsLoading} />
+      ) : null;
       return (
         <ProposalsScreen
           proposals={proposals}
@@ -207,6 +213,7 @@ export default function App() {
           offchainEnabled={manifest.governance.offchain.enabled}
           proposalCreationEnabled={hasProposalCreation}
           quorumPanel={quorumPanel}
+          liveProposalsPanel={liveProposalsPanel}
           onSelectProposal={openProposal}
           onSelectMotion={openMotion}
           onCreateProposal={openCreateProposal}

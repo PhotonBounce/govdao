@@ -14,6 +14,7 @@ interface ProposalsScreenProps {
   offchainEnabled: boolean;
   proposalCreationEnabled: boolean;
   quorumPanel?: ReactNode;
+  liveProposalsPanel?: ReactNode;
   onSelectProposal: (proposal: ProposalItem) => void;
   onSelectMotion: (motion: MotionItem) => void;
   onCreateProposal: () => void;
@@ -34,6 +35,7 @@ export function ProposalsScreen({
   offchainEnabled,
   proposalCreationEnabled,
   quorumPanel,
+  liveProposalsPanel,
   onSelectProposal,
   onSelectMotion,
   onCreateProposal
@@ -54,6 +56,7 @@ export function ProposalsScreen({
   return (
     <>
       {quorumPanel}
+      {liveProposalsPanel}
       <SectionCard
         eyebrow="Search & Filter"
         title="Narrow The Feed"

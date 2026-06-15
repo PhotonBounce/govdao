@@ -1,4 +1,7 @@
 import { AppManifest } from "../types";
+import { ethers } from "ethers";
+import { getProvider } from "./walletProvider";
+import { GOVERNOR_ABI } from "./contractAbis";
 
 export interface OnchainSnapshot {
   available: boolean;
@@ -157,6 +160,79 @@ export async function loadProposalChainState(manifest: AppManifest, onchainId: s
       label: null,
       detail: `Live proposal status is unavailable: ${message}.`
     };
+  }
+}
+
+export interface LiveProposal {
+  id: string;
+  onchainIndex: number;
+  proposer: string;
+  metadataURI: string;
+  metadataHash: string;
+  stateLabel: string;
+  forVotes: string;
+  againstVotes: string;
+  abstainVotes: string;
+}
+
+export interface LiveProposalsResult {
+  available: boolean;
+  detail: string;
+  proposals: LiveProposal[];
+}
+
+/**
+ * Reads the most recent proposals directly from the deployed Governor. Returns an
+ * empty, unavailable result in fixture mode (no RPC / placeholder governor) so the
+ * UI degrades cleanly. Read-only — no signer required.
+ */
+export async function loadLiveProposals(manifest: AppManifest, limit = 10): Promise<LiveProposalsResult> {
+  if (!isGovernorConfigured(manifest)) {
+    return { available: false, detail: "Live proposals need a real RPC endpoint and a deployed Governor address.", proposals: [] };
+  }
+
+  const provider = getProvider(manifest);
+  if (!provider) {
+    return { available: false, detail: "Provider is unavailable for live proposal reads.", proposals: [] };
+  }
+
+  try {
+    const governor = new ethers.Contract(manifest.contracts.governor, [...GOVERNOR_ABI], provider);
+    const count = Number(await governor.proposalCount());
+    const proposals: LiveProposal[] = [];
+    const start = Math.max(1, count - limit + 1);
+
+    for (let i = count; i >= start; i -= 1) {
+      const p = await governor.getProposal(i);
+      let stateLabel = "Unknown";
+      try {
+        stateLabel = PROPOSAL_STATE_LABELS[Number(await governor.getProposalState(i))] ?? "Unknown";
+      } catch {
+        // state read is best-effort
+      }
+      proposals.push({
+        id: `GOV-${i}`,
+        onchainIndex: i,
+        proposer: p.proposer,
+        metadataURI: p.metadataURI,
+        metadataHash: p.metadataHash,
+        stateLabel,
+        forVotes: String(p.forVotes),
+        againstVotes: String(p.againstVotes),
+        abstainVotes: String(p.abstainVotes),
+      });
+    }
+
+    return {
+      available: true,
+      detail: count === 0
+        ? `No proposals on ${manifest.chain.name} yet.`
+        : `Read ${proposals.length} of ${count} proposal(s) live from ${manifest.chain.name}.`,
+      proposals,
+    };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "the Governor read failed";
+    return { available: false, detail: `Live proposals unavailable: ${message}.`, proposals: [] };
   }
 }
 
