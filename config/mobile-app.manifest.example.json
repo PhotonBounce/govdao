@@ -23,10 +23,10 @@
     ]
   },
   "chain": {
-    "id": 11155111,
-    "name": "sepolia",
-    "rpcUrl": "https://YOUR_RPC_ENDPOINT",
-    "blockExplorer": "https://sepolia.etherscan.io"
+    "id": 1,
+    "name": "ethereum",
+    "rpcUrl": "https://YOUR_MAINNET_RPC_ENDPOINT",
+    "blockExplorer": "https://etherscan.io"
   },
   "contracts": {
     "memberRegistry": "0x0000000000000000000000000000000000000000",
