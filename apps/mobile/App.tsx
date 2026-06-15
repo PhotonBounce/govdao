@@ -60,6 +60,7 @@ import { countUpcomingReminders } from "./src/data/reminderSource";
 import { BiometricStatusCard } from "./src/components/BiometricStatusCard";
 import { useBiometricGate } from "./src/hooks/useBiometricGate";
 import { useDeepLinks } from "./src/hooks/useDeepLinks";
+import { useInAppPurchase } from "./src/hooks/useInAppPurchase";
 import { useSessionController } from "./src/hooks/useSessionController";
 import { useVoteController } from "./src/hooks/useVoteController";
 import { CreateProposalScreen } from "./src/screens/CreateProposalScreen";
@@ -191,6 +192,7 @@ export default function App() {
   const governanceCalendar = useMemo(() => loadGovernanceCalendar(manifest), [manifest]);
   const reminders = useGovernanceReminders(manifest, governanceCalendar);
   const biometric = useBiometricGate(manifest);
+  const iap = useInAppPurchase(manifest);
   useDeepLinks(openView);
   const navCountRef = useRef(0);
   useEffect(() => {
@@ -369,7 +371,7 @@ export default function App() {
     }
 
     if (activeView === "upgrade") {
-      return <UpgradeScreen onBack={() => openView("overview")} />;
+      return <UpgradeScreen onBack={() => openView("overview")} iapState={iap.state} onPurchase={iap.purchase} onRestore={iap.restore} />;
     }
 
     if (activeView === "activity") {
