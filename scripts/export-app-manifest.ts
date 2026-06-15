@@ -176,10 +176,10 @@ export function buildManifest(): AppManifest {
       supported: getOptionalList("APP_WALLET_SUPPORTED", ["walletconnect", "coinbase-wallet", "injected"])
     },
     chain: {
-      id: getOptionalNumber("CHAIN_ID", 11155111),
-      name: getEnv("CHAIN_NAME", "sepolia"),
-      rpcUrl: getEnv("CHAIN_RPC_URL", "https://YOUR_RPC_ENDPOINT"),
-      blockExplorer: getEnv("CHAIN_BLOCK_EXPLORER", "https://sepolia.etherscan.io")
+      id: getOptionalNumber("CHAIN_ID", 1),
+      name: getEnv("CHAIN_NAME", "ethereum"),
+      rpcUrl: getEnv("CHAIN_RPC_URL", "https://YOUR_MAINNET_RPC_ENDPOINT"),
+      blockExplorer: getEnv("CHAIN_BLOCK_EXPLORER", "https://etherscan.io")
     },
     contracts: {
       memberRegistry: getEnv("MEMBER_REGISTRY_ADDRESS", "0x0000000000000000000000000000000000000000"),

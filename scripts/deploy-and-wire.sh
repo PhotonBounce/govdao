@@ -22,10 +22,26 @@ cd "${REPO_ROOT}"
 echo "=== GOVDAO deploy-and-wire → ${NET} ==="
 
 if [[ "${NET}" != "localhost" && "${NET}" != "hardhat" ]]; then
-  : "${SEPOLIA_RPC_URL:?Set SEPOLIA_RPC_URL (or your network RPC) before deploying}"
   : "${DEPLOYER_PRIVATE_KEY:?Set DEPLOYER_PRIVATE_KEY (a funded account) before deploying}"
-  # Default the manifest RPC to the deploy RPC unless RPC_URL is set explicitly.
-  export RPC_URL="${RPC_URL:-${SEPOLIA_RPC_URL}}"
+
+  # Pick the network's RPC env var, falling back to a generic RPC_URL.
+  if [[ "${NET}" == "mainnet" ]]; then
+    : "${MAINNET_RPC_URL:?Set MAINNET_RPC_URL (your Ethereum mainnet RPC) before deploying}"
+    export RPC_URL="${RPC_URL:-${MAINNET_RPC_URL}}"
+    echo ""
+    echo "############################################################"
+    echo "#  MAINNET DEPLOYMENT — this spends REAL ETH and is        #"
+    echo "#  IRREVERSIBLE. Double-check DEPLOYER_PRIVATE_KEY is a     #"
+    echo "#  funded account you control and the gas price is sane.    #"
+    echo "############################################################"
+    if [[ "${CONFIRM_MAINNET:-}" != "yes" ]]; then
+      echo "Refusing to proceed: set CONFIRM_MAINNET=yes to acknowledge a real-money mainnet deploy." >&2
+      exit 1
+    fi
+  else
+    : "${SEPOLIA_RPC_URL:?Set SEPOLIA_RPC_URL (or your network RPC) before deploying}"
+    export RPC_URL="${RPC_URL:-${SEPOLIA_RPC_URL}}"
+  fi
 fi
 
 echo "[1/2] Deploying contracts..."

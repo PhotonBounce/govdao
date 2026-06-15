@@ -62,12 +62,16 @@ npm --prefix apps/mobile run web   # run the app in a browser
 
 ## Going live (demo → testnet → published)
 
-One command deploys the contracts and generates a wired production manifest:
+The app is configured for **Ethereum mainnet** (`chain.id` 1). One command deploys the
+contracts and generates a wired production manifest:
 
 ```bash
-export SEPOLIA_RPC_URL="https://..." DEPLOYER_PRIVATE_KEY="0x..."
-bash scripts/deploy-and-wire.sh sepolia
+export MAINNET_RPC_URL="https://..." DEPLOYER_PRIVATE_KEY="0x..." CONFIRM_MAINNET=yes
+bash scripts/deploy-and-wire.sh mainnet
 ```
+
+A mainnet deploy spends real ETH and is irreversible — a free Sepolia dry-run first is
+recommended (`bash scripts/deploy-and-wire.sh sepolia`).
 
 Then validate, host the legal pages, sign, and submit. The full ordered path —
 including which steps need your machine/keys — is in

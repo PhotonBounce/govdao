@@ -19,41 +19,48 @@ session, only on your machine.
 - ⛔ Never deployed to a public testnet/mainnet.
 - ⛔ No signed Android build produced; privacy policy not yet hosted.
 
+The app is configured for **Ethereum mainnet** (`chain.id` 1). The deploy targets
+mainnet by default; a Sepolia dry-run first is strongly recommended (it's free) but
+optional.
+
 ## One-command shortcut (Phases 1–2) 🔒
-Deploy and generate a wired production manifest in a single step:
+Deploy to mainnet and generate a wired production manifest in a single step:
 ```bash
-export SEPOLIA_RPC_URL="https://..."          # network RPC
-export DEPLOYER_PRIVATE_KEY="0x..."           # funded deployer
+export MAINNET_RPC_URL="https://..."          # your Ethereum mainnet RPC (Alchemy/Infura)
+export DEPLOYER_PRIVATE_KEY="0x..."           # account funded with REAL ETH for gas
+export CONFIRM_MAINNET=yes                    # explicit acknowledgement (real money)
 # optional store-listing values used to fill the manifest:
 export SUPPORT_WEBSITE="https://photon-bounce.com" SUPPORT_EMAIL="contact@photon-bounce.com" \
        PRIVACY_POLICY_URL="https://photon-bounce.com/privacy-policy.html" \
        TERMS_URL="https://photon-bounce.com/terms.html"
-bash scripts/deploy-and-wire.sh sepolia
+bash scripts/deploy-and-wire.sh mainnet
 ```
-This deploys all five contracts, writes `deployments/sepolia.json`, generates
+This deploys all five contracts, writes `deployments/mainnet.json`, generates
 `config/mobile-app.manifest.production.json` wired to the new addresses, and **runs the
-full Google Play validator** on it — telling you immediately whether it's store-ready or
-exactly which fields still need real values. (Re-validate any time with
-`npm run validate:production`.) The manual steps below explain each piece.
+full store validator** on it. (Re-validate any time with `npm run validate:production`.)
 
-## Phase 1 — Deploy contracts to a testnet (Sepolia) 🔒
-1. Get a Sepolia RPC URL (Alchemy/Infura/public) and a deployer private key funded with
-   a little Sepolia ETH (from a faucet).
+> ⚠️ A mainnet deploy spends **real ETH** and is **irreversible**. Estimate gas first,
+> deploy at a low-gas time, and consider a free Sepolia dry-run:
+> `SEPOLIA_RPC_URL=... DEPLOYER_PRIVATE_KEY=... bash scripts/deploy-and-wire.sh sepolia`.
+
+## Phase 1 — Deploy contracts to Ethereum mainnet 🔒
+1. Get a mainnet RPC URL (Alchemy/Infura) and a deployer private key funded with enough
+   ETH for gas (the five-contract bootstrap is ~15 transactions).
 2. Export them and deploy:
    ```bash
-   export SEPOLIA_RPC_URL="https://..."
+   export MAINNET_RPC_URL="https://..."
    export DEPLOYER_PRIVATE_KEY="0x..."         # funded account
    # optional: seed extra members/proposers
    export INITIAL_PROPOSERS="0xabc...,0xdef..."
-   npx hardhat run scripts/deploy.ts --network sepolia | tee deploy.sepolia.log
+   npm run deploy:mainnet | tee deploy.mainnet.log
    ```
 3. Copy the five printed addresses (MemberRegistry, Timelock, Governor, Treasury,
    EmergencyGuardian).
 
 ## Phase 2 — Wire the app to the live deployment
 4. In `config/mobile-app.manifest.example.json` (or a production copy), set:
-   - `chain.rpcUrl` → your Sepolia RPC URL
-   - `chain.id` / `chain.name` → 11155111 / sepolia (already set)
+   - `chain.rpcUrl` → your mainnet RPC URL
+   - `chain.id` / `chain.name` → 1 / ethereum (already set)
    - `contracts.*` → the five deployed addresses
    - `support.website`, `email`, `privacyPolicyUrl`, `termsOfServiceUrl`, and the
      `services.*` URLs → real HTTPS values
