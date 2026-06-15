@@ -94,7 +94,7 @@ jobs:
       - run: npm --prefix apps/mobile ci
       - name: Start hardhat node
         run: |
-          nohup npx hardhat node > hardhat-node.log 2>&1 &
+          nohup npx hardhat node --hostname 0.0.0.0 > hardhat-node.log 2>&1 &
           for i in $(seq 1 30); do
             if curl -s -X POST -H 'content-type: application/json' \
               --data '{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber","params":[]}' \
@@ -116,3 +116,19 @@ jobs:
           export EMERGENCY_GUARDIAN_ADDRESS=$(grep -m1 '^EmergencyGuardian:' deploy.log | awk '{print $2}')
           test -n "$TREASURY_ADDRESS" && test -n "$MEMBER_REGISTRY_ADDRESS" && test -n "$EMERGENCY_GUARDIAN_ADDRESS"
           npm run mobile:check-chain
+      - name: End-to-end on-chain test through the mobile live layer
+        working-directory: apps/mobile
+        run: |
+          # Use the runner's non-loopback IP so the app's isFixtureMode() treats
+          # this as a real deployment (127.0.0.1/localhost are fixture markers).
+          RUNNER_IP=$(hostname -I | awk '{print $1}')
+          export E2E_RPC_URL="http://${RUNNER_IP}:8545"
+          export GOVERNOR_ADDRESS=$(grep -m1 '^Governor:' ../../deploy.log | awk '{print $2}')
+          export TIMELOCK_ADDRESS=$(grep -m1 '^Timelock:' ../../deploy.log | awk '{print $2}')
+          export TREASURY_ADDRESS=$(grep -m1 '^Treasury:' ../../deploy.log | awk '{print $2}')
+          export MEMBER_REGISTRY_ADDRESS=$(grep -m1 '^MemberRegistry:' ../../deploy.log | awk '{print $2}')
+          export EMERGENCY_GUARDIAN_ADDRESS=$(grep -m1 '^EmergencyGuardian:' ../../deploy.log | awk '{print $2}')
+          # Hardhat account #0 — a publicly-known local test key, never used outside CI.
+          export E2E_SIGNER_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+          test -n "$GOVERNOR_ADDRESS" && test -n "$TIMELOCK_ADDRESS"
+          npm run check:onchain-e2e

@@ -1,6 +1,6 @@
 import { AppManifest } from "../types";
 import { isFixtureMode, getActiveSigner, buildContract } from "./walletProvider";
-import { MEMBER_REGISTRY_ABI } from "./contractAbis";
+import { MEMBER_REGISTRY_ABI, ROLE_LABELS } from "./contractAbis";
 
 export type AccessMethodKind = "wallet" | "offchain";
 export type SessionTransport = "fixture" | "remote";
@@ -94,7 +94,8 @@ export async function connectSession(option: AccessOption, manifest: AppManifest
         let role = "Member";
         try {
           const registry = buildContract(manifest.contracts.memberRegistry, MEMBER_REGISTRY_ABI, signer);
-          role = await registry.getMemberRole(address) as string;
+          const roleEnum = Number(await registry.getRole(address));
+          role = ROLE_LABELS[roleEnum] ?? "Member";
         } catch {
           // registry query failure is non-fatal; default to "Member"
         }

@@ -53,8 +53,6 @@ function buildDrillId(): string {
   return `GRD-${20 + Math.floor(Math.random() * 80)}`;
 }
 
-const DRILL_TYPE_ENUM: Record<DrillType, number> = { pause: 0, resume: 1, "full-cycle": 2 };
-
 export async function scheduleDrill(
   draft: DrillDraft,
   identity: SessionIdentity | null,
@@ -79,21 +77,24 @@ export async function scheduleDrill(
     if (signer) {
       try {
         onPhase("scheduling");
+        // A drill is a readiness rehearsal — the EmergencyGuardian has no
+        // "schedule" tx. We verify guardian wiring on-chain (signer set + pause
+        // state) without changing any state, then record the rehearsal locally.
         const guardian = buildContract(manifest.contracts.emergencyGuardian, EMERGENCY_GUARDIAN_ABI, signer);
-        const tx = await guardian.scheduleDrill(DRILL_TYPE_ENUM[draft.drillType], draft.scheduledWindowHours);
-        const receipt = await tx.wait();
+        const signers: string[] = await guardian.getSigners();
+        const paused: boolean = await guardian.isPaused();
         onPhase("scheduled");
         return {
-          drillId: `GRD-${(receipt?.blockNumber ?? 0) % 80 + 20}`,
+          drillId: `GRD-${signers.length}-${Date.now().toString().slice(-4)}`,
           drillType: draft.drillType,
           scheduledAt: new Date().toISOString(),
-          windowLabel: `${draft.scheduledWindowHours}h window`,
-          requiredSigners: 3,
+          windowLabel: `${draft.scheduledWindowHours}h window · guardian ${paused ? "PAUSED" : "armed"}`,
+          requiredSigners: signers.length,
           transport: "remote"
         };
       } catch (err) {
         onPhase("error");
-        throw err instanceof Error ? err : new Error("On-chain drill scheduling failed.");
+        throw err instanceof Error ? err : new Error("On-chain guardian readiness check failed.");
       }
     }
   }

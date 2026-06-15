@@ -39,6 +39,7 @@
     "check:calendar": "node scripts/check-calendar.mjs",
     "check:preferences": "node scripts/check-preferences.mjs",
     "check:search": "node scripts/check-search.mjs",
+    "check:onchain-e2e": "node scripts/check-onchain-e2e.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:screenshots": "node scripts/generate-screenshots.mjs",
     "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs && node scripts/generate-screenshots.mjs"

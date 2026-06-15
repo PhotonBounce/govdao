@@ -11,7 +11,7 @@ export const infoContent: Record<string, InfoEntry> = {
     title: "Governance Overview",
     body: "Your command center for the DAO. Shows live member count, active proposals, treasury health, and guardian status at a glance so you can see what needs attention before diving into any section.",
     example: "If the guardian is paused, a warning appears here first — you don't have to hunt for it.",
-    onchain: "Reads from MemberRegistry.memberCount() and Treasury.paused() in a single multicall."
+    onchain: "Reads MemberRegistry.getMemberCount() and Treasury.paused() over the configured RPC endpoint."
   },
   "member-registry": {
     title: "Member Registry",
@@ -48,7 +48,7 @@ export const infoContent: Record<string, InfoEntry> = {
     title: "Member Session",
     body: "Your active identity for this governance session. The session is tied to the connected wallet address. Your role (Proposer, Delegate, Guardian, Reviewer) determines which actions you can take. Sessions are stateless — nothing is stored on a server.",
     example: "Connecting as a Guardian wallet unlocks the Emergency Pause and Drill controls that are hidden from regular delegates.",
-    onchain: "MemberRegistry.getMemberRole(address) is called once at sign-in to determine your permissions."
+    onchain: "MemberRegistry.getRole(address) is called once at sign-in and mapped from the Role enum (NONE, MEMBER, PROPOSER, EXECUTOR, ADMIN, GUARDIAN) to a label."
   },
   "wallet-connect": {
     title: "WalletConnect",
@@ -67,13 +67,13 @@ export const infoContent: Record<string, InfoEntry> = {
     title: "Proposals",
     body: "On-chain governance proposals that the full membership votes on. Each proposal has a title, summary, and optional supporting document hash. Proposals progress through Draft → Voting → Queued → Executed states tracked on-chain.",
     example: "A proposal to upgrade the treasury spend cap requires 50%+1 of members to vote For before it moves to the timelock queue.",
-    onchain: "Governor.state(proposalId) returns the current state as a uint8 enum."
+    onchain: "Governor.getProposalState(proposalId) returns the current state as a uint8 enum."
   },
   "quorum": {
     title: "Quorum",
     body: "The minimum number of unique member votes required before a proposal outcome is binding. Quorum prevents a tiny minority from passing consequential changes when most members haven't weighed in. It's calculated as a percentage of total membership, rounded up.",
     example: "With 7 members and a 50% quorum threshold, at least 4 members must vote (⌈7×0.5⌉ = 4).",
-    onchain: "Governor.quorumNumerator() / quorumDenominator() define the fraction; quorum(blockNumber) returns the absolute count."
+    onchain: "Governor.quorumNumerator() over the constant QUORUM_DENOMINATOR (100) defines the fraction; Governor.quorumVotes(proposalId) returns the absolute count required."
   },
   "voting-period": {
     title: "Voting Period",
@@ -85,13 +85,13 @@ export const infoContent: Record<string, InfoEntry> = {
     title: "Proposal Integrity",
     body: "A cryptographic fingerprint of the proposal's on-chain calldata. If the description or calldata ever changes after submission, the hash won't match — instantly proving tampering. This is what makes on-chain governance trustless.",
     example: "Two identical-looking proposals with different calldata have completely different hashes, exposing any bait-and-switch attempt.",
-    onchain: "Computed as keccak256(abi.encode(targets, values, calldatas, descriptionHash)) — matches Governor.hashProposal()."
+    onchain: "Each proposal carries a metadataHash (keccak256 of its off-chain metadata) stored on the Governor and verifiable against the document."
   },
   "proposal-states": {
     title: "Proposal States",
     body: "Every proposal moves through a lifecycle: Pending (not yet voteable) → Active (voting open) → Succeeded or Defeated (voting closed) → Queued (awaiting timelock) → Executed (changes applied on-chain). Cancelled and Expired are terminal failure states.",
     example: "A proposal that reaches Quorum but loses the vote moves to Defeated and cannot be re-queued without a new submission.",
-    onchain: "Governor.state(proposalId) returns values from the ProposalState enum (0=Pending, 1=Active, 4=Succeeded, 7=Executed…)."
+    onchain: "Governor.getProposalState(proposalId) returns the ProposalState enum (0=Proposed, 1=Voting, 2=Defeated, 3=Succeeded, 4=Queued, 5=Cancelled, 6=Executed)."
   },
   "vote-ballot": {
     title: "Member Ballot",
@@ -109,7 +109,7 @@ export const infoContent: Record<string, InfoEntry> = {
     title: "Vote Tally",
     body: "A live breakdown of For / Against / Abstain votes by count and weight. If delegation is active, one member may represent the voting power of multiple delegates. The tally refreshes whenever the on-chain snapshot updates.",
     example: "A delegate holding 3 delegated votes counts as 3 in the For column if they vote For.",
-    onchain: "Governor.proposalVotes(proposalId) returns (againstVotes, forVotes, abstainVotes) as uint256 weights."
+    onchain: "Governor.getProposal(proposalId) returns the proposal struct including forVotes, againstVotes and abstainVotes as uint256 weights."
   },
 
   // ── Create Proposal ──────────────────────────────────────────────────────
@@ -156,13 +156,13 @@ export const infoContent: Record<string, InfoEntry> = {
     title: "Treasury",
     body: "The on-chain vault holding DAO funds. All outflows require a governance-approved spend request routed through the timelock. The balance, pause state, and per-transaction cap are visible at a glance. Pausing the treasury prevents any outflows until unpaused by guardian consensus.",
     example: "If a suspicious transaction is detected, any guardian can pause the treasury within seconds, buying time to investigate.",
-    onchain: "Treasury.balance() returns current ETH balance; Treasury.paused() returns the pause state."
+    onchain: "Treasury.getBalance() returns the current ETH balance; Treasury.paused() returns the pause state."
   },
   "spend-cap": {
     title: "Per-Transaction Spend Cap",
     body: "The maximum ETH that can leave the treasury in a single spend request. This cap is a hard limit enforced by the smart contract — no single request can exceed it, even if the governance vote passes. Changing the cap requires a full governance proposal.",
     example: "A cap of 25 ETH means a request for 30 ETH will revert on-chain even if approved, protecting against fat-finger errors.",
-    onchain: "Treasury.spendCapPerTx() — enforced inside Treasury.executeSpend() with a require() check."
+    onchain: "Treasury.spendCapPerTx() exposes the cap; it is enforced inside Treasury.transferETH() with a require() check."
   },
   "treasury-movements": {
     title: "Treasury Movements",
@@ -174,13 +174,13 @@ export const infoContent: Record<string, InfoEntry> = {
     title: "Spend Request",
     body: "A formal request to release funds from the treasury. The request specifies a title, ETH amount, recipient address, and purpose statement. It's routed through the timelock — a mandatory delay before execution that gives members time to veto if something looks wrong.",
     example: "A spend request for 5 ETH to pay a security auditor goes into the queue, waits the timelock period, then executes automatically.",
-    onchain: "Queued via Timelock.schedule(treasury, 0, Treasury.executeSpend.selector + calldata) with the configured delay."
+    onchain: "A spend is enacted through governance: a proposal whose action calls Treasury.transferETH(recipient, amount) is queued via Timelock.queueAction after it passes."
   },
   "timelock": {
     title: "Timelock",
     body: "A mandatory waiting period between when an action is approved and when it executes. The timelock gives the community time to detect and veto malicious or mistaken decisions before they take effect. All treasury outflows and governance parameter changes go through the timelock.",
     example: "A 48-hour timelock means even if a proposal passes at midnight, it won't execute until 48 hours later — giving plenty of time to raise an alarm.",
-    onchain: "TimelockController.getMinDelay() returns the current delay in seconds. Operations are identified by a bytes32 id."
+    onchain: "Timelock.getDelay() returns the current delay in seconds. Queued actions are identified by a bytes32 actionId."
   },
 
   // ── Guardian ─────────────────────────────────────────────────────────────
@@ -206,7 +206,7 @@ export const infoContent: Record<string, InfoEntry> = {
     title: "Schedule Drill",
     body: "Queue a new guardian drill for the co-signing team. Choose the drill type (pause, resume, or full-cycle), set a completion window in hours, and add notes describing what the team should test. The drill is logged on-chain when the window opens.",
     example: "A full-cycle drill tests both pause and unpause in sequence — verifying the entire emergency response flow end-to-end.",
-    onchain: "EmergencyGuardian.scheduleDrill(drillType, windowHours) emits DrillScheduled with a drillId for tracking."
+    onchain: "A drill is a readiness rehearsal: the app reads EmergencyGuardian.getSigners() and isPaused() to confirm the guardian is armed, without changing state."
   },
   "drill-types": {
     title: "Drill Types",
@@ -232,7 +232,7 @@ export const infoContent: Record<string, InfoEntry> = {
     title: "Invite Member",
     body: "Propose adding a new address to the Member Registry with a specific role. The invite is queued in a 24-hour timelock — giving existing members a window to veto if the address is wrong or the role is inappropriate. After the timelock, the address is added automatically.",
     example: "Inviting a new Delegate takes 24 hours from invitation to active membership — plan ahead for governance votes that need their participation.",
-    onchain: "MemberRegistry.addMember(address, role) is called via Timelock.schedule() with a 24-hour delay."
+    onchain: "A member is added through governance: a proposal whose action calls MemberRegistry.addMember(address, role) takes effect once executed."
   },
   "member-roles": {
     title: "Member Roles",
