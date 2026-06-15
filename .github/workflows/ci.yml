@@ -70,6 +70,7 @@ jobs:
       - run: npm run mobile:check-push-config
       - run: npm run mobile:check-reminders
       - run: npm run mobile:check-biometric
+      - run: npm run mobile:check-deeplinks
       - run: npm run mobile:check-chain
       - name: App config matches manifest
         run: |

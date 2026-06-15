@@ -8,6 +8,7 @@ import { darkPalette, radii } from "../theme";
 interface PushStatusCardProps {
   state: PushState;
   onRegister: () => void;
+  onSendTest?: () => void;
 }
 
 function statusTone(status: PushState["status"]): "pine" | "bronze" | "rose" {
@@ -16,7 +17,7 @@ function statusTone(status: PushState["status"]): "pine" | "bronze" | "rose" {
   return "bronze";
 }
 
-export function PushStatusCard({ state, onRegister }: PushStatusCardProps) {
+export function PushStatusCard({ state, onRegister, onSendTest }: PushStatusCardProps) {
   return (
     <SectionCard tone="glass" eyebrow="Alerts" title="Push Notifications" infoKey="notification-preferences">
       <View style={styles.statusRow}>
@@ -28,6 +29,11 @@ export function PushStatusCard({ state, onRegister }: PushStatusCardProps) {
       {state.supported && state.status !== "granted" ? (
         <AnimatedPressable onPress={onRegister} sound="tap" intensity="subtle" style={styles.button}>
           <Text style={styles.buttonText}>Enable governance alerts</Text>
+        </AnimatedPressable>
+      ) : null}
+      {state.supported && state.status === "granted" && onSendTest ? (
+        <AnimatedPressable onPress={onSendTest} sound="tap" intensity="subtle" style={styles.button}>
+          <Text style={styles.buttonText}>Send test notification</Text>
         </AnimatedPressable>
       ) : null}
     </SectionCard>

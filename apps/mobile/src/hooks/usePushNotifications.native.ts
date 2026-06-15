@@ -15,6 +15,7 @@ import {
 export interface PushController {
   state: PushState;
   register: () => void;
+  sendTest: () => void;
 }
 
 // Foreground notifications surface as a banner with sound.
@@ -96,11 +97,27 @@ export function usePushNotifications(manifest: AppManifest): PushController {
     }
   }, [manifest]);
 
+  const sendTest = useCallback(async () => {
+    if (Platform.OS === "web") return;
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "GOVDAO test alert",
+          body: "Notifications are working — you'll get governance alerts like this.",
+          data: { tag: "govdao-test" },
+        },
+        trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 2 },
+      });
+    } catch {
+      // ignore — surfaced via the card detail if permission is missing
+    }
+  }, []);
+
   useEffect(() => {
     if (!Device.isDevice) {
       setState({ supported: false, status: "unsupported", token: null, detail: "Push notifications need a physical device (not a simulator)." });
     }
   }, []);
 
-  return { state, register };
+  return { state, register, sendTest };
 }
