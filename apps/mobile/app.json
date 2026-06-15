@@ -17,7 +17,13 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.govdao.app"
+      "bundleIdentifier": "com.govdao.app",
+      "buildNumber": "2",
+      "infoPlist": {
+        "NSFaceIDUsageDescription": "GOVDAO uses Face ID to confirm on-chain governance actions before they are signed.",
+        "NSUserTrackingUsageDescription": "This identifier is used to show more relevant ads in the free tier.",
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.govdao.app",
@@ -39,7 +45,8 @@
         "react-native-google-mobile-ads",
         {
           "androidAppId": "ca-app-pub-7584543130600454~4392371847",
-          "iosAppId": "ca-app-pub-7584543130600454~4392371847"
+          "iosAppId": "ca-app-pub-7584543130600454~4392371847",
+          "userTrackingUsageDescription": "This identifier is used to show more relevant ads in the free tier."
         }
       ],
       [
