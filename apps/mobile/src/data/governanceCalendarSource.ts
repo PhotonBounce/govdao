@@ -94,12 +94,12 @@ export async function loadGovernanceCalendarLive(manifest: AppManifest): Promise
       try {
         const block = await provider.getBlock("latest");
         const anchorMs = block ? Number(block.timestamp) * 1000 : Date.now();
-        // Touch the timelock min-delay so the live agenda reflects on-chain config.
+        // Touch the timelock delay so the live agenda reflects on-chain config.
         try {
           const timelock = buildContract(manifest.contracts.timelock, TIMELOCK_ABI, provider);
-          await timelock.getMinDelay();
+          await timelock.getDelay();
         } catch {
-          /* min-delay read is best-effort */
+          /* delay read is best-effort */
         }
         return { events: buildEvents(anchorMs), anchorMs, transport: "remote" };
       } catch {

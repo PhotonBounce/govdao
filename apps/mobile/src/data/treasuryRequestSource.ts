@@ -1,7 +1,7 @@
 import { AppManifest } from "../types";
 import { SessionIdentity } from "./sessionSource";
 import { isFixtureMode, getActiveSigner, buildContract } from "./walletProvider";
-import { TIMELOCK_ABI, TREASURY_ABI } from "./contractAbis";
+import { GOVERNOR_ABI, TREASURY_ABI } from "./contractAbis";
 import { ethers } from "ethers";
 
 export interface SpendRequestDraft {
@@ -91,28 +91,40 @@ export async function submitSpendRequest(
     if (signer) {
       try {
         onPhase("submitting");
-        const timelock = buildContract(manifest.contracts.timelock, TIMELOCK_ABI, signer);
-        const iface = new ethers.Interface([...TREASURY_ABI]);
-        const calldata = iface.encodeFunctionData("executeSpend", [
+        // Treasury spends are enacted through governance: create a proposal whose
+        // executable action calls treasury.transferETH(recipient, amount). After it
+        // passes a vote and clears the timelock it can be queued and executed.
+        const governor = buildContract(manifest.contracts.governor, GOVERNOR_ABI, signer);
+        const treasuryIface = new ethers.Interface([...TREASURY_ABI]);
+        const calldata = treasuryIface.encodeFunctionData("transferETH", [
           draft.recipientAddress.trim(),
-          ethers.parseEther(draft.amount),
-          draft.purpose.trim()
+          ethers.parseEther(draft.amount)
         ]);
-        const salt = ethers.id(`${draft.title}:${Date.now()}`);
-        const tx = await timelock.schedule(
-          manifest.contracts.treasury,
-          0n,
-          calldata,
-          ethers.ZeroHash,
-          salt,
-          86400n
-        );
+        const metadataURI = draft.docUri?.trim() || `govdao://spend/${encodeURIComponent(draft.title.trim())}`;
+        const metadataHash = ethers.keccak256(ethers.toUtf8Bytes(`${draft.title}\n${draft.purpose}\n${draft.amount}`));
+
+        const tx = await governor.propose([manifest.contracts.treasury], [0n], [calldata], metadataURI, metadataHash);
         const receipt = await tx.wait();
+
+        let proposalId = "";
+        for (const log of receipt?.logs ?? []) {
+          try {
+            const parsed = governor.interface.parseLog({ topics: [...log.topics], data: log.data });
+            if (parsed?.name === "ProposalCreated") {
+              proposalId = String(parsed.args.proposalId);
+              break;
+            }
+          } catch {
+            // not a Governor event — skip
+          }
+        }
+        if (!proposalId) proposalId = String(await governor.proposalCount());
+
         onPhase("queued");
         return {
-          requestId: `TRX-${(receipt?.blockNumber ?? 0) % 900 + 100}`,
+          requestId: `GOV-${proposalId}`,
           txHash: receipt?.hash ?? tx.hash,
-          timelockEtaLabel: "Timelock: 24h",
+          timelockEtaLabel: "Governance vote, then timelock",
           timelockSeconds: 86400,
           transport: "remote"
         };

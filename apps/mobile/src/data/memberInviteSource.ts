@@ -1,7 +1,8 @@
+import { ethers } from "ethers";
 import { AppManifest } from "../types";
 import { SessionIdentity } from "./sessionSource";
 import { isFixtureMode, getActiveSigner, buildContract } from "./walletProvider";
-import { MEMBER_REGISTRY_ABI } from "./contractAbis";
+import { GOVERNOR_ABI, MEMBER_REGISTRY_ABI, roleNameToEnum } from "./contractAbis";
 
 export type InvitePhase = "idle" | "validating" | "submitting" | "pending" | "error";
 
@@ -78,16 +79,42 @@ export async function submitMemberInvite(
     if (signer) {
       try {
         onPhase("submitting");
-        const registry = buildContract(manifest.contracts.memberRegistry, MEMBER_REGISTRY_ABI, signer);
-        const tx = await registry.addMember(draft.address.trim(), draft.role.trim());
+        // MemberRegistry.addMember is governance-gated (onlyGovernance), so a member
+        // can't add directly. The correct path is a proposal whose action calls
+        // registry.addMember(account, role); it takes effect once executed.
+        const governor = buildContract(manifest.contracts.governor, GOVERNOR_ABI, signer);
+        const registryIface = new ethers.Interface([...MEMBER_REGISTRY_ABI]);
+        const calldata = registryIface.encodeFunctionData("addMember", [
+          draft.address.trim(),
+          roleNameToEnum(draft.role)
+        ]);
+        const metadataURI = `govdao://invite/${encodeURIComponent(draft.displayName.trim())}`;
+        const metadataHash = ethers.keccak256(ethers.toUtf8Bytes(`${draft.address}\n${draft.role}\n${draft.displayName}`));
+
+        const tx = await governor.propose([manifest.contracts.memberRegistry], [0n], [calldata], metadataURI, metadataHash);
         const receipt = await tx.wait();
+
+        let proposalId = "";
+        for (const log of receipt?.logs ?? []) {
+          try {
+            const parsed = governor.interface.parseLog({ topics: [...log.topics], data: log.data });
+            if (parsed?.name === "ProposalCreated") {
+              proposalId = String(parsed.args.proposalId);
+              break;
+            }
+          } catch {
+            // not a Governor event — skip
+          }
+        }
+        if (!proposalId) proposalId = String(await governor.proposalCount());
+
         onPhase("pending");
         return {
-          inviteId: `MBR-${String((receipt?.blockNumber ?? 0) % 95 + 5).padStart(3, "0")}`,
+          inviteId: `GOV-${proposalId}`,
           address: draft.address.trim(),
           role: draft.role.trim(),
           displayName: draft.displayName.trim(),
-          timelockLabel: "Confirmed on-chain — registry updated",
+          timelockLabel: "Proposed on-chain — pending vote & execution",
           transport: "remote"
         };
       } catch (err) {
