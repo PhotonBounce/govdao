@@ -30,7 +30,7 @@ const walletProvider = require(path.join(dataDir, "walletProvider.ts"));
 const { getAccessOptions, connectSession } = require(path.join(dataDir, "sessionSource.ts"));
 const { submitProposalDraft } = require(path.join(dataDir, "proposalCreationSource.ts"));
 const { castVoteTransaction } = require(path.join(dataDir, "voteSource.ts"));
-const { loadOnchainSnapshot } = require(path.join(dataDir, "chainSource.ts"));
+const { loadOnchainSnapshot, loadLiveProposals } = require(path.join(dataDir, "chainSource.ts"));
 const { scheduleDrill } = require(path.join(dataDir, "guardianDrillSource.ts"));
 const { GOVERNOR_ABI } = require(path.join(dataDir, "contractAbis.ts"));
 
@@ -120,6 +120,16 @@ async function main() {
   assert("governor.hasVoted true", hasVoted === true);
   const after = await governor.getProposal(result.proposalId);
   assert("forVotes incremented to 1", Number(after.forVotes) === 1, String(after.forVotes));
+
+  console.log("\nE2E: loadLiveProposals reads the proposal back from the Governor");
+  const live = await loadLiveProposals(manifest, 10);
+  assert("live proposals available", live.available === true, live.detail);
+  assert("live proposals non-empty", live.proposals.length >= 1, String(live.proposals.length));
+  const created = live.proposals.find((p) => p.onchainIndex === Number(result.proposalId));
+  assert("created proposal present in live read", !!created, `looking for #${result.proposalId}`);
+  assert("live proposal proposer matches", !!created && created.proposer.toLowerCase() === address.toLowerCase());
+  assert("live proposal metadataURI matches", !!created && created.metadataURI === draft.docUri, created?.metadataURI);
+  assert("live proposal reflects the for-vote", !!created && created.forVotes === "1", created?.forVotes);
 
   console.log("\nE2E: guardian readiness check reads live signer set");
   const drill = await scheduleDrill(
