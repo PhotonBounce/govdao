@@ -39,8 +39,13 @@ This deploys all five contracts, writes `deployments/mainnet.json`, generates
 `config/mobile-app.manifest.production.json` wired to the new addresses, and **runs the
 full store validator** on it. (Re-validate any time with `npm run validate:production`.)
 
-> ⚠️ A mainnet deploy spends **real ETH** and is **irreversible**. Estimate gas first,
-> deploy at a low-gas time, and consider a free Sepolia dry-run:
+> ⚠️ A mainnet deploy spends **real ETH** and is **irreversible**. See the cost first
+> with the free preflight (dry-runs the whole deploy on an in-memory chain and prices it
+> at live gas — nothing is broadcast):
+> ```bash
+> MAINNET_RPC_URL=https://...  npm run estimate:gas
+> ```
+> Then deploy at a low-gas time, and consider a free Sepolia dry-run:
 > `SEPOLIA_RPC_URL=... DEPLOYER_PRIVATE_KEY=... bash scripts/deploy-and-wire.sh sepolia`.
 
 ## Phase 1 — Deploy contracts to Ethereum mainnet 🔒
