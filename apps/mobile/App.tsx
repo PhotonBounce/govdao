@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { AnimatedShell } from "./src/components/AnimatedShell";
@@ -61,6 +61,11 @@ import { BiometricStatusCard } from "./src/components/BiometricStatusCard";
 import { useBiometricGate } from "./src/hooks/useBiometricGate";
 import { useDeepLinks } from "./src/hooks/useDeepLinks";
 import { useInAppPurchase } from "./src/hooks/useInAppPurchase";
+import { OnboardingScreen } from "./src/screens/OnboardingScreen";
+import { HealthScoreCard } from "./src/components/HealthScoreCard";
+import { AchievementsScreen } from "./src/screens/AchievementsScreen";
+import { computeHealthScore, FIXTURE_HEALTH_INPUTS } from "./src/data/healthScoreSource";
+import { evaluateAchievements, FIXTURE_MEMBER_STATS } from "./src/data/achievementsSource";
 import { useSessionController } from "./src/hooks/useSessionController";
 import { useVoteController } from "./src/hooks/useVoteController";
 import { CreateProposalScreen } from "./src/screens/CreateProposalScreen";
@@ -193,6 +198,8 @@ export default function App() {
   const reminders = useGovernanceReminders(manifest, governanceCalendar);
   const biometric = useBiometricGate(manifest);
   const iap = useInAppPurchase(manifest);
+  const [showOnboarding, setShowOnboarding] = useState(true);
+  const healthScore = useMemo(() => computeHealthScore(FIXTURE_HEALTH_INPUTS), []);
   useDeepLinks(openView);
   const navCountRef = useRef(0);
   useEffect(() => {
@@ -209,7 +216,7 @@ export default function App() {
 
   function renderViewHeader() {
     return (
-      <SectionCard eyebrow={routeDescriptor.eyebrow} title={routeDescriptor.title} subtitle={routeDescriptor.subtitle} tone="glass" infoKey={activeView === "overview" ? "overview" : activeView === "proposals" ? "proposals-list" : activeView === "create-proposal" ? "create-proposal" : activeView === "treasury" ? "treasury" : activeView === "modules" ? "modules" : activeView === "activity" ? "activity-feed" : activeView === "calendar" ? "governance-calendar" : activeView === "search" ? "search" : activeView === "settings" ? "app-settings" : undefined}>
+      <SectionCard eyebrow={routeDescriptor.eyebrow} title={routeDescriptor.title} subtitle={routeDescriptor.subtitle} tone="glass" infoKey={activeView === "overview" ? "overview" : activeView === "proposals" ? "proposals-list" : activeView === "create-proposal" ? "create-proposal" : activeView === "treasury" ? "treasury" : activeView === "modules" ? "modules" : activeView === "activity" ? "activity-feed" : activeView === "calendar" ? "governance-calendar" : activeView === "search" ? "search" : activeView === "achievements" ? "achievements" : activeView === "settings" ? "app-settings" : undefined}>
         <View style={styles.viewHeaderRow}>
           <Text style={styles.viewHeaderMeta}>Active route: {activeView}</Text>
           <Text style={styles.viewHeaderMeta}>Stack depth: {detailStack.length}</Text>
@@ -400,6 +407,10 @@ export default function App() {
       return <SearchScreen onJump={(view) => openView(view)} />;
     }
 
+    if (activeView === "achievements") {
+      return <AchievementsScreen achievements={evaluateAchievements(FIXTURE_MEMBER_STATS)} />;
+    }
+
     if (activeView === "deploy-wizard") {
       return (
         <PremiumGate gate={deployWizardGate} onUpgrade={() => openView("upgrade")}>
@@ -438,6 +449,7 @@ export default function App() {
       <OverviewScreen
         manifest={manifest}
         warnings={warnings}
+        healthCard={<HealthScoreCard health={healthScore} />}
         modulesCount={modules.length}
         members={members}
         governanceHeadline={governanceHeadline}
@@ -562,6 +574,19 @@ export default function App() {
     </View>
   );
 
+  if (showOnboarding) {
+    return (
+      <PreferencesProvider>
+      <SoundProvider>
+      <AnimatedShell>
+        <StatusBar style="light" />
+        <OnboardingScreen onDone={() => setShowOnboarding(false)} />
+      </AnimatedShell>
+      </SoundProvider>
+      </PreferencesProvider>
+    );
+  }
+
   return (
     <PreferencesProvider>
     <SoundProvider>
@@ -584,6 +609,7 @@ export default function App() {
           {hasProposalCreation ? <NavTab active={activeView === "invite-member"} label="Invite" onPress={() => openView("invite-member")} /> : null}
           {hasModuleView ? <NavTab active={activeView === "modules"} label="Modules" onPress={() => openView("modules")} /> : null}
           <NavTab active={activeView === "activity"} label="Activity" onPress={() => openView("activity")} />
+          <NavTab active={activeView === "achievements"} label="Badges" onPress={() => openView("achievements")} />
           <NavTab active={activeView === "calendar"} label="Calendar" onPress={() => openView("calendar")} />
           <NavTab active={activeView === "analytics"} label="Analytics" onPress={() => openView("analytics")} />
           <NavTab active={activeView === "deploy-wizard"} label="Deploy" onPress={() => openView("deploy-wizard")} />
