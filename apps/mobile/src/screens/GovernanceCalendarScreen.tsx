@@ -15,6 +15,7 @@ import { darkPalette, radii } from "../theme";
 
 interface GovernanceCalendarScreenProps {
   calendar: GovernanceCalendar;
+  remindersCard?: import("react").ReactNode;
 }
 
 function EventRow({ event, nowMs }: { event: CalendarEvent; nowMs: number }) {
@@ -41,7 +42,7 @@ function toneColor(tone: "pine" | "bronze" | "rose"): string {
   return darkPalette.glowBronze;
 }
 
-export function GovernanceCalendarScreen({ calendar }: GovernanceCalendarScreenProps) {
+export function GovernanceCalendarScreen({ calendar, remindersCard }: GovernanceCalendarScreenProps) {
   const nowMs = calendar.anchorMs;
   const upcoming = useMemo(() => upcomingEvents(calendar, nowMs), [calendar, nowMs]);
   const groups = useMemo(() => groupEventsByDay(upcoming), [upcoming]);
@@ -60,6 +61,8 @@ export function GovernanceCalendarScreen({ calendar }: GovernanceCalendarScreenP
           <CountChip label="Grace" value={counts["grace-expiry"]} tone="rose" />
         </View>
       </SectionCard>
+
+      {remindersCard}
 
       {groups.map((group) => (
         <SectionCard key={group.isoDate} tone="glass" eyebrow={`${group.events.length} event${group.events.length === 1 ? "" : "s"}`} title={group.dayLabel} infoKey="governance-calendar">

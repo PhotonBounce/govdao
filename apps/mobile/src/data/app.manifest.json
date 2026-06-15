@@ -2,7 +2,7 @@
   "app": {
     "name": "GOVDAO",
     "bundleId": "com.govdao.app",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "environment": "sepolia",
     "distribution": {
       "channel": "google-play",
@@ -108,7 +108,7 @@
   "release": {
     "android": {
       "applicationId": "com.govdao.app",
-      "versionCode": 1,
+      "versionCode": 2,
       "track": "internal"
     },
     "listing": {

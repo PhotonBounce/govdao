@@ -44,6 +44,7 @@
     "check:proposal-lifecycle": "node scripts/check-proposal-lifecycle.mjs",
     "check:ads-config": "node scripts/check-ads-config.mjs",
     "check:push-config": "node scripts/check-push-config.mjs",
+    "check:reminders": "node scripts/check-reminders.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:screenshots": "node scripts/generate-screenshots.mjs",
     "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs && node scripts/generate-screenshots.mjs"
