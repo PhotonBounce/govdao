@@ -6,6 +6,7 @@ import {
   LifecycleAction,
   LifecyclePhase,
 } from "../data/proposalLifecycleSource";
+import { useBiometricGate } from "./useBiometricGate";
 
 interface ActionState {
   proposalId: string;
@@ -16,8 +17,16 @@ interface ActionState {
 
 export function useProposalLifecycle(manifest: AppManifest, onChanged?: () => void) {
   const [state, setState] = useState<ActionState | null>(null);
+  const biometric = useBiometricGate(manifest);
 
   async function run(action: LifecycleAction, proposalId: string) {
+    // Require a biometric confirmation before these on-chain actions (when the
+    // manifest asks for it and the device supports it). No-op on web.
+    const confirmed = await biometric.confirm(action);
+    if (!confirmed) {
+      setState({ proposalId, action, phase: "error", error: "Biometric confirmation was cancelled." });
+      return;
+    }
     setState({ proposalId, action, phase: "signing", error: null });
     try {
       const fn = action === "queue" ? queueProposal : executeProposal;

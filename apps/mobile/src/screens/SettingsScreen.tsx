@@ -12,6 +12,7 @@ interface SettingsScreenProps {
   supportConfigured: boolean;
   notificationPanel?: ReactNode;
   pushStatusCard?: ReactNode;
+  biometricCard?: ReactNode;
 }
 
 function openExternalUrl(url: string) {
@@ -29,11 +30,12 @@ function DisclosureLink({ label, url, target }: { label: string; url: string; ta
   );
 }
 
-export function SettingsScreen({ manifest, metadataConfigured, supportConfigured, notificationPanel, pushStatusCard }: SettingsScreenProps) {
+export function SettingsScreen({ manifest, metadataConfigured, supportConfigured, notificationPanel, pushStatusCard, biometricCard }: SettingsScreenProps) {
   return (
     <>
       <PreferencesPanel />
 
+      {biometricCard}
       {pushStatusCard}
       {notificationPanel}
 
