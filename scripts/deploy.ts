@@ -1,4 +1,6 @@
-import { ethers } from "hardhat";
+import { ethers, network } from "hardhat";
+import * as fs from "fs";
+import * as path from "path";
 
 function parseAddressList(name: string): string[] {
   const raw = process.env[name];
@@ -146,9 +148,28 @@ async function main() {
   await treasury.finalizeBootstrap();
   console.log("Bootstrap finalized — deployer privileges revoked");
 
+  // Emit a machine-readable record so `wire-manifest` can build a production manifest.
+  const deployment = {
+    network: network.name,
+    chainId: Number((await ethers.provider.getNetwork()).chainId),
+    deployedAt: new Date().toISOString(),
+    contracts: {
+      memberRegistry: await memberRegistry.getAddress(),
+      timelock: await timelock.getAddress(),
+      governor: await governor.getAddress(),
+      treasury: await treasury.getAddress(),
+      emergencyGuardian: await emergencyGuardian.getAddress(),
+    },
+  };
+  const outDir = path.join(__dirname, "..", "deployments");
+  fs.mkdirSync(outDir, { recursive: true });
+  const outFile = path.join(outDir, `${network.name}.json`);
+  fs.writeFileSync(outFile, `${JSON.stringify(deployment, null, 2)}\n`);
+
   console.log("\n=== Deployment Complete ===");
   console.log("All contracts deployed and wired. Bootstrap admin privileges revoked.");
   console.log("Governance execution now runs through the timelock and seeded member set.");
+  console.log(`Deployment record written to deployments/${network.name}.json`);
 }
 
 main().catch((error) => {

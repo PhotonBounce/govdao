@@ -19,6 +19,21 @@ session, only on your machine.
 - ⛔ Never deployed to a public testnet/mainnet.
 - ⛔ No signed Android build produced; privacy policy not yet hosted.
 
+## One-command shortcut (Phases 1–2) 🔒
+Deploy and generate a wired production manifest in a single step:
+```bash
+export SEPOLIA_RPC_URL="https://..."          # network RPC
+export DEPLOYER_PRIVATE_KEY="0x..."           # funded deployer
+# optional store-listing values used to fill the manifest:
+export SUPPORT_WEBSITE="https://photon-bounce.com" SUPPORT_EMAIL="contact@photon-bounce.com" \
+       PRIVACY_POLICY_URL="https://photon-bounce.com/privacy-policy.html" \
+       TERMS_URL="https://photon-bounce.com/terms.html"
+bash scripts/deploy-and-wire.sh sepolia
+```
+This deploys all five contracts, writes `deployments/sepolia.json`, and generates
+`config/mobile-app.manifest.production.json` wired to the new addresses — then lists
+any fields that still need real values. The manual steps below explain each piece.
+
 ## Phase 1 — Deploy contracts to a testnet (Sepolia) 🔒
 1. Get a Sepolia RPC URL (Alchemy/Infura/public) and a deployer private key funded with
    a little Sepolia ETH (from a faucet).

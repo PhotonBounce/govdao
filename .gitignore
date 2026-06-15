@@ -18,3 +18,9 @@ apps/mobile/credentials.json
 apps/mobile/android/app/*.keystore
 apps/mobile/android/app/*.jks
 secrets/
+
+# Per-operator deployment records + generated production manifest (addresses are
+# public, but this is environment-specific output — keep the repo demo-mode)
+deployments/
+config/mobile-app.manifest.production.json
+config/mobile-app.manifest.generated.json
