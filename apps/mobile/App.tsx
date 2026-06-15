@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { AnimatedShell } from "./src/components/AnimatedShell";
@@ -54,6 +54,9 @@ import { useInterstitialAd } from "./src/hooks/useInterstitialAd";
 import { shouldShowInterstitial } from "./src/data/adsConfig";
 import { PushStatusCard } from "./src/components/PushStatusCard";
 import { usePushNotifications } from "./src/hooks/usePushNotifications";
+import { GovernanceRemindersCard } from "./src/components/GovernanceRemindersCard";
+import { useGovernanceReminders } from "./src/hooks/useGovernanceReminders";
+import { countUpcomingReminders } from "./src/data/reminderSource";
 import { useSessionController } from "./src/hooks/useSessionController";
 import { useVoteController } from "./src/hooks/useVoteController";
 import { CreateProposalScreen } from "./src/screens/CreateProposalScreen";
@@ -182,6 +185,8 @@ export default function App() {
   const proposalLifecycle = useProposalLifecycle(manifest, refreshLiveProposals);
   const { showInterstitial } = useInterstitialAd(manifest);
   const push = usePushNotifications(manifest);
+  const governanceCalendar = useMemo(() => loadGovernanceCalendar(manifest), [manifest]);
+  const reminders = useGovernanceReminders(manifest, governanceCalendar);
   const navCountRef = useRef(0);
   useEffect(() => {
     navCountRef.current += 1;
@@ -375,7 +380,13 @@ export default function App() {
     }
 
     if (activeView === "calendar") {
-      return <GovernanceCalendarScreen calendar={loadGovernanceCalendar(manifest)} />;
+      const remindersCard = manifest.features.pushNotifications ? (
+        <GovernanceRemindersCard
+          controller={reminders}
+          upcomingCount={countUpcomingReminders(governanceCalendar, governanceCalendar.anchorMs)}
+        />
+      ) : undefined;
+      return <GovernanceCalendarScreen calendar={governanceCalendar} remindersCard={remindersCard} />;
     }
 
     if (activeView === "search") {

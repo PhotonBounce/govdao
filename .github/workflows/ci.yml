@@ -68,6 +68,7 @@ jobs:
       - run: npm run mobile:check-proposal-lifecycle
       - run: npm run mobile:check-ads-config
       - run: npm run mobile:check-push-config
+      - run: npm run mobile:check-reminders
       - run: npm run mobile:check-chain
       - name: App config matches manifest
         run: |

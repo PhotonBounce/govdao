@@ -163,7 +163,7 @@ export function buildManifest(): AppManifest {
     app: {
       name: getEnv("APP_NAME", "GOVDAO"),
       bundleId: getEnv("APP_BUNDLE_ID", "com.govdao.app"),
-      version: getEnv("APP_VERSION", "0.1.0"),
+      version: getEnv("APP_VERSION", "0.2.0"),
       environment: getEnv("APP_ENVIRONMENT", "sepolia"),
       distribution: {
         channel: getEnv("APP_DISTRIBUTION_CHANNEL", "google-play") as DistributionChannel,
@@ -257,7 +257,7 @@ export function buildManifest(): AppManifest {
     release: {
       android: {
         applicationId: getEnv("ANDROID_APPLICATION_ID", getEnv("APP_BUNDLE_ID", "com.govdao.app")),
-        versionCode: getOptionalNumber("ANDROID_VERSION_CODE", 1),
+        versionCode: getOptionalNumber("ANDROID_VERSION_CODE", 2),
         track: getEnv("ANDROID_RELEASE_TRACK", "internal") as ReleaseTrack
       },
       listing: {
