@@ -1,8 +1,12 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { darkPalette, radii } from "../theme";
+import { IapState, describeIapStatus } from "../data/iapConfig";
 
 interface UpgradeScreenProps {
   onBack: () => void;
+  iapState?: IapState;
+  onPurchase?: () => void;
+  onRestore?: () => void;
 }
 
 const FREE_FEATURES = [
@@ -24,7 +28,8 @@ const PREMIUM_FEATURES = [
   "Priority support",
 ];
 
-export function UpgradeScreen({ onBack }: UpgradeScreenProps) {
+export function UpgradeScreen({ onBack, iapState, onPurchase, onRestore }: UpgradeScreenProps) {
+  const premium = iapState?.premium === true;
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <Pressable onPress={onBack} style={styles.backButton}>
@@ -63,9 +68,15 @@ export function UpgradeScreen({ onBack }: UpgradeScreenProps) {
               <Text style={[styles.featureText, styles.featureTextPremium]}>{f}</Text>
             </View>
           ))}
-          <Pressable style={styles.upgradeButton}>
-            <Text style={styles.upgradeButtonText}>Subscribe via Google Play →</Text>
+          <Pressable style={[styles.upgradeButton, premium && styles.upgradeButtonDone]} onPress={premium ? undefined : onPurchase} disabled={premium}>
+            <Text style={styles.upgradeButtonText}>{premium ? "Premium active ✓" : "Subscribe via Google Play →"}</Text>
           </Pressable>
+          {onRestore && !premium ? (
+            <Pressable onPress={onRestore} style={styles.restoreButton}>
+              <Text style={styles.restoreButtonText}>Restore purchases</Text>
+            </Pressable>
+          ) : null}
+          {iapState ? <Text style={styles.iapDetail}>{iapState.detail || describeIapStatus(iapState)}</Text> : null}
         </View>
       </View>
 
@@ -201,6 +212,25 @@ const styles = StyleSheet.create({
     color: "#0d0d1a",
     fontSize: 15,
     fontWeight: "700"
+  },
+  upgradeButtonDone: {
+    backgroundColor: "rgba(92,155,115,0.85)"
+  },
+  restoreButton: {
+    marginTop: 12,
+    alignItems: "center"
+  },
+  restoreButtonText: {
+    color: darkPalette.softGold,
+    fontSize: 13,
+    fontWeight: "600"
+  },
+  iapDetail: {
+    marginTop: 12,
+    fontSize: 12,
+    lineHeight: 17,
+    color: "rgba(224,219,208,0.55)",
+    textAlign: "center"
   },
   footnote: {
     fontSize: 12,

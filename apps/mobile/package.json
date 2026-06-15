@@ -47,6 +47,7 @@
     "check:reminders": "node scripts/check-reminders.mjs",
     "check:biometric": "node scripts/check-biometric.mjs",
     "check:deeplinks": "node scripts/check-deeplinks.mjs",
+    "check:iap-config": "node scripts/check-iap-config.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:screenshots": "node scripts/generate-screenshots.mjs",
     "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs && node scripts/generate-screenshots.mjs"
@@ -66,6 +67,7 @@
     "react-dom": "^19.0.0",
     "react-native": "0.79.5",
     "react-native-google-mobile-ads": "^14.11.0",
+    "react-native-purchases": "^8.12.0",
     "react-native-web": "^0.20.0"
   },
   "devDependencies": {
