@@ -59,6 +59,7 @@ import { useGovernanceReminders } from "./src/hooks/useGovernanceReminders";
 import { countUpcomingReminders } from "./src/data/reminderSource";
 import { BiometricStatusCard } from "./src/components/BiometricStatusCard";
 import { useBiometricGate } from "./src/hooks/useBiometricGate";
+import { useDeepLinks } from "./src/hooks/useDeepLinks";
 import { useSessionController } from "./src/hooks/useSessionController";
 import { useVoteController } from "./src/hooks/useVoteController";
 import { CreateProposalScreen } from "./src/screens/CreateProposalScreen";
@@ -190,6 +191,7 @@ export default function App() {
   const governanceCalendar = useMemo(() => loadGovernanceCalendar(manifest), [manifest]);
   const reminders = useGovernanceReminders(manifest, governanceCalendar);
   const biometric = useBiometricGate(manifest);
+  useDeepLinks(openView);
   const navCountRef = useRef(0);
   useEffect(() => {
     navCountRef.current += 1;
@@ -412,7 +414,7 @@ export default function App() {
           supportConfigured={supportConfigured}
           biometricCard={<BiometricStatusCard status={biometric.status} />}
           pushStatusCard={manifest.features.pushNotifications ? (
-            <PushStatusCard state={push.state} onRegister={push.register} />
+            <PushStatusCard state={push.state} onRegister={push.register} onSendTest={push.sendTest} />
           ) : undefined}
           notificationPanel={manifest.features.pushNotifications ? (
             <NotificationPanel
