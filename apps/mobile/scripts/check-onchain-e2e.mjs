@@ -32,7 +32,9 @@ const { submitProposalDraft } = require(path.join(dataDir, "proposalCreationSour
 const { castVoteTransaction } = require(path.join(dataDir, "voteSource.ts"));
 const { loadOnchainSnapshot, loadLiveProposals } = require(path.join(dataDir, "chainSource.ts"));
 const { scheduleDrill } = require(path.join(dataDir, "guardianDrillSource.ts"));
-const { GOVERNOR_ABI } = require(path.join(dataDir, "contractAbis.ts"));
+const { submitMemberInvite } = require(path.join(dataDir, "memberInviteSource.ts"));
+const { queueProposal, executeProposal } = require(path.join(dataDir, "proposalLifecycleSource.ts"));
+const { GOVERNOR_ABI, MEMBER_REGISTRY_ABI } = require(path.join(dataDir, "contractAbis.ts"));
 
 let passed = 0, failed = 0;
 function assert(label, condition, detail = "") {
@@ -140,6 +142,45 @@ async function main() {
   );
   assert("drill transport remote", drill.transport === "remote");
   assert("required signers >= 1 (read from guardian)", drill.requiredSigners >= 1, String(drill.requiredSigners));
+
+  console.log("\nE2E: FULL lifecycle through app code — invite → vote → queue → execute → member added");
+  const registry = new ethers.Contract(manifest.contracts.memberRegistry, MEMBER_REGISTRY_ABI, provider);
+  const newMember = ethers.Wallet.createRandom().address;
+  assert("new member not yet on registry", (await registry.isMember(newMember)) === false);
+
+  // 1. Create an EXECUTABLE proposal via the app's member-invite path (calls addMember).
+  const invite = await submitMemberInvite(
+    { address: newMember, role: "Delegate", displayName: "E2E Lifecycle Member" },
+    identity,
+    manifest,
+    () => {}
+  );
+  assert("invite proposed on-chain (remote)", invite.transport === "remote", invite.transport);
+  const lifecycleId = String(invite.inviteId).replace("GOV-", "");
+  assert("invite carries a numeric proposal id", /^\d+$/.test(lifecycleId), invite.inviteId);
+
+  // 2. Vote it through (1 member, 20% quorum of 1 → 0, so a single For vote succeeds).
+  await provider.send("evm_mine", []); // pass votingDelay
+  await castVoteTransaction(lifecycleId, "for", identity, manifest, () => {});
+
+  // 3. Fast-forward past the voting period (votingPeriod = 50400 blocks).
+  await provider.send("hardhat_mine", ["0xC500"]); // 50432 blocks
+  assert("proposal Succeeded after voting", Number(await governor.getProposalState(lifecycleId)) === 3, String(await governor.getProposalState(lifecycleId)));
+
+  // 4. Queue it THROUGH THE APP — moves the action into the timelock.
+  const queued = await queueProposal(lifecycleId, manifest, () => {});
+  assert("queue tx remote", queued.transport === "remote");
+  assert("proposal Queued after app queue", Number(await governor.getProposalState(lifecycleId)) === 4, String(await governor.getProposalState(lifecycleId)));
+
+  // 5. Advance past the timelock delay (2 days), then execute THROUGH THE APP.
+  await provider.send("evm_increaseTime", [2 * 24 * 60 * 60 + 1]);
+  await provider.send("evm_mine", []);
+  const executed = await executeProposal(lifecycleId, manifest, () => {});
+  assert("execute tx remote", executed.transport === "remote");
+  assert("proposal Executed after app execute", Number(await governor.getProposalState(lifecycleId)) === 6, String(await governor.getProposalState(lifecycleId)));
+
+  // 6. The governance action actually ran: the new member is now on-chain.
+  assert("new member added on-chain by executed proposal", (await registry.isMember(newMember)) === true);
 
   console.log(`\ncheck-onchain-e2e: ${passed} passed, ${failed} failed`);
   if (failed > 0) process.exit(1);

@@ -46,6 +46,7 @@ import { useMotionActionController } from "./src/hooks/useMotionActionController
 import { useNotificationController } from "./src/hooks/useNotificationController";
 import { useOnchainSnapshot } from "./src/hooks/useOnchainSnapshot";
 import { useLiveProposals } from "./src/hooks/useLiveProposals";
+import { useProposalLifecycle } from "./src/hooks/useProposalLifecycle";
 import { LiveProposalsPanel } from "./src/components/LiveProposalsPanel";
 import { useSessionController } from "./src/hooks/useSessionController";
 import { useVoteController } from "./src/hooks/useVoteController";
@@ -171,7 +172,8 @@ export default function App() {
   const memberInvite = useMemberInviteController(sessionIdentity, manifest);
   const notifications = useNotificationController(manifest);
   const { onchainSnapshot, onchainLoading } = useOnchainSnapshot(manifest);
-  const { liveProposals, liveProposalsLoading } = useLiveProposals(manifest);
+  const { liveProposals, liveProposalsLoading, refreshLiveProposals } = useLiveProposals(manifest);
+  const proposalLifecycle = useProposalLifecycle(manifest, refreshLiveProposals);
   const dataMode = getDataModeSummary(dashboardData.source);
   const drillGate = usePlanGate(manifest, "guardian-drill");
   const inviteGate = usePlanGate(manifest, "member-invite");
@@ -204,7 +206,15 @@ export default function App() {
         />
       ) : null;
       const liveProposalsPanel = (liveProposals.available || liveProposalsLoading) ? (
-        <LiveProposalsPanel result={liveProposals} loading={liveProposalsLoading} />
+        <LiveProposalsPanel
+          result={liveProposals}
+          loading={liveProposalsLoading}
+          sessionActive={sessionActive}
+          busyProposalId={proposalLifecycle.isBusy ? proposalLifecycle.actionState?.proposalId ?? null : null}
+          actionError={proposalLifecycle.actionState?.error ?? null}
+          onQueue={proposalLifecycle.queue}
+          onExecute={proposalLifecycle.execute}
+        />
       ) : null;
       return (
         <ProposalsScreen
