@@ -65,6 +65,7 @@ jobs:
       - run: npm run mobile:check-preferences
       - run: npm run mobile:check-search
       - run: npm run mobile:check-live-proposals
+      - run: npm run mobile:check-proposal-lifecycle
       - run: npm run mobile:check-chain
       - name: App config matches manifest
         run: |

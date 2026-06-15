@@ -41,6 +41,7 @@
     "check:search": "node scripts/check-search.mjs",
     "check:onchain-e2e": "node scripts/check-onchain-e2e.mjs",
     "check:live-proposals": "node scripts/check-live-proposals.mjs",
+    "check:proposal-lifecycle": "node scripts/check-proposal-lifecycle.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:screenshots": "node scripts/generate-screenshots.mjs",
     "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs && node scripts/generate-screenshots.mjs"
