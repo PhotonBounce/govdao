@@ -376,6 +376,30 @@ const SCREENS = [
     nav: "SEARCH",
     badge: "ON-DEVICE",
     bullets: ["TYPE VOTE, FUNDS, STATS, DEPLOY", "RANKED BEST-MATCH RESULTS", "JUMP STRAIGHT TO ANY SCREEN"]
+  },
+  {
+    file: "16-welcome.png",
+    headline: "WELCOME",
+    sub: "A guided tour the first time you open GOVDAO",
+    nav: "OVERVIEW",
+    badge: "GET STARTED",
+    bullets: ["FIVE-STEP INTRO CAROUSEL", "LEARN VOTING, LIFECYCLE & SAFETY", "EXPLORE IN DEMO MODE, NO WALLET"]
+  },
+  {
+    file: "17-health.png",
+    headline: "HEALTH SCORE",
+    sub: "Your DAO's vitals as a single 0 to 100 grade",
+    nav: "OVERVIEW",
+    badge: "GRADE B 78",
+    bullets: ["PARTICIPATION & PASS RATE", "QUORUM MARGIN, TREASURY, GUARDIAN", "ANIMATED METER WITH A TO D GRADE"]
+  },
+  {
+    file: "18-badges.png",
+    headline: "ACHIEVEMENTS",
+    sub: "Earn governance reputation as you take part",
+    nav: "BADGES",
+    badge: "REPUTATION",
+    bullets: ["FIRST BALLOT, ACTIVE VOTER, PROPOSER", "QUORUM HERO, GUARDIAN, TREASURER", "RISE THROUGH REPUTATION TIERS"]
   }
 ];
 

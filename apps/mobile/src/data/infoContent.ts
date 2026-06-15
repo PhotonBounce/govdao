@@ -311,6 +311,18 @@ export const infoContent: Record<string, InfoEntry> = {
     example: "\"Voting closes in 6h\" on GOV-201 means you have six hours left to cast your ballot before the window shuts.",
     onchain: "In live mode the agenda is anchored to the chain's latest block timestamp and the timelock's on-chain minimum delay, so every countdown reflects real network time rather than your device clock."
   },
+  "health-score": {
+    title: "Governance Health",
+    body: "A single 0–100 score summarizing how healthy your DAO's governance is right now. It blends voter participation, how decisively proposals pass, the average margin above quorum, treasury status, and guardian readiness into a weighted grade (A–D) so you can see the big picture at a glance.",
+    example: "A score of 78 (grade B, \"Healthy\") means strong participation and safe treasury, with some room to improve quorum margins.",
+    onchain: "Each factor is derived from on-chain signals — VoteCast events, proposal outcomes, Treasury.paused(), and the EmergencyGuardian signer set."
+  },
+  "achievements": {
+    title: "Governance Reputation",
+    body: "Earn badges for participating in governance — your first vote, ten votes, creating proposals, helping reach quorum, running guardian drills, and more. Your reputation tier rises as you earn badges, turning consistent participation into a visible track record.",
+    example: "Cast your first on-chain vote to unlock the \"First Ballot\" badge and move from Observer to Newcomer.",
+    onchain: "Badge progress is computed from your on-chain activity (votes, proposals, drills) — it's a view over public events, not a separate token."
+  },
   "preferences": {
     title: "App Preferences",
     body: "Personalize the app experience. Sound effects toggle the tap, vote and receipt cues. Reduce motion turns off the animated code-rain background and color cycling for a calmer, lower-power screen — useful for accessibility or saving battery. Haptics control vibration feedback, and compact navigation tightens the tab bar.",

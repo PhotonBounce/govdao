@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { ReactNode } from "react";
 import { MembersPanel } from "../components/MembersPanel";
 import { ModulePill } from "../components/ModulePill";
 import { SectionCard } from "../components/SectionCard";
@@ -25,6 +26,7 @@ interface OverviewScreenProps {
   launchpadActions: LaunchpadAction[];
   offchainAuthLabels: string[];
   memberInviteEnabled?: boolean;
+  healthCard?: ReactNode;
   onOpenView: (view: ActiveView) => void;
   onSelectMember: (member: MemberItem) => void;
   onInviteMember?: () => void;
@@ -41,12 +43,14 @@ export function OverviewScreen({
   launchpadActions,
   offchainAuthLabels,
   memberInviteEnabled,
+  healthCard,
   onOpenView,
   onSelectMember,
   onInviteMember
 }: OverviewScreenProps) {
   return (
     <>
+      {healthCard}
       {warnings.length > 0 ? (
         <SectionCard
           eyebrow="Readiness Warnings"
