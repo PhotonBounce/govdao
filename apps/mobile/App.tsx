@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { AnimatedShell } from "./src/components/AnimatedShell";
@@ -48,6 +49,9 @@ import { useOnchainSnapshot } from "./src/hooks/useOnchainSnapshot";
 import { useLiveProposals } from "./src/hooks/useLiveProposals";
 import { useProposalLifecycle } from "./src/hooks/useProposalLifecycle";
 import { LiveProposalsPanel } from "./src/components/LiveProposalsPanel";
+import { AdBanner } from "./src/components/AdBanner";
+import { useInterstitialAd } from "./src/hooks/useInterstitialAd";
+import { shouldShowInterstitial } from "./src/data/adsConfig";
 import { useSessionController } from "./src/hooks/useSessionController";
 import { useVoteController } from "./src/hooks/useVoteController";
 import { CreateProposalScreen } from "./src/screens/CreateProposalScreen";
@@ -174,6 +178,14 @@ export default function App() {
   const { onchainSnapshot, onchainLoading } = useOnchainSnapshot(manifest);
   const { liveProposals, liveProposalsLoading, refreshLiveProposals } = useLiveProposals(manifest);
   const proposalLifecycle = useProposalLifecycle(manifest, refreshLiveProposals);
+  const { showInterstitial } = useInterstitialAd(manifest);
+  const navCountRef = useRef(0);
+  useEffect(() => {
+    navCountRef.current += 1;
+    if (shouldShowInterstitial(navCountRef.current)) {
+      showInterstitial();
+    }
+  }, [activeView]);
   const dataMode = getDataModeSummary(dashboardData.source);
   const drillGate = usePlanGate(manifest, "guardian-drill");
   const inviteGate = usePlanGate(manifest, "member-invite");
@@ -580,6 +592,7 @@ export default function App() {
           </>
         )}
       </ParallaxScrollView>
+      <AdBanner manifest={manifest} />
     </AnimatedShell>
     </InfoModalProvider>
     </SoundProvider>
