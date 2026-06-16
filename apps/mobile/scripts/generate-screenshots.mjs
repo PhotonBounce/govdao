@@ -400,6 +400,30 @@ const SCREENS = [
     nav: "BADGES",
     badge: "REPUTATION",
     bullets: ["FIRST BALLOT, ACTIVE VOTER, PROPOSER", "QUORUM HERO, GUARDIAN, TREASURER", "RISE THROUGH REPUTATION TIERS"]
+  },
+  {
+    file: "19-delegate-map.png",
+    headline: "VOTE POWER MAP",
+    sub: "See exactly who holds the most influence",
+    nav: "DELEGATES",
+    badge: "LIVE NETWORK",
+    bullets: ["BUBBLE CHART BY VOTE WEIGHT", "WHALE · ACTIVE · DELEGATE TIERS", "DELEGATION EDGES VISUALISED"]
+  },
+  {
+    file: "20-risk-analyzer.png",
+    headline: "RISK ANALYZER",
+    sub: "Smart risk score before you cast a vote",
+    nav: "PROPOSALS",
+    badge: "AI-STYLE",
+    bullets: ["TREASURY IMPACT × URGENCY", "QUORUM GAP + PROPOSER TRUST", "CRITICAL / HIGH / MEDIUM / LOW GRADE"]
+  },
+  {
+    file: "21-sentiment.png",
+    headline: "SENTIMENT PULSE",
+    sub: "Community reaction before the formal vote",
+    nav: "PROPOSALS",
+    badge: "REAL-TIME",
+    bullets: ["🔥 👍 👀 🤔 ⚠️ EMOJI REACTIONS", "SCORE -100 TO +100 BULLISH METER", "DOMINANT MOOD PER PROPOSAL"]
   }
 ];
 

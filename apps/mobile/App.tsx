@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { AnimatedShell } from "./src/components/AnimatedShell";
 import { ParallaxScrollView } from "./src/components/ParallaxScrollView";
 import { PremiumGate } from "./src/components/PremiumGate";
@@ -66,6 +66,12 @@ import { HealthScoreCard } from "./src/components/HealthScoreCard";
 import { AchievementsScreen } from "./src/screens/AchievementsScreen";
 import { computeHealthScore, FIXTURE_HEALTH_INPUTS } from "./src/data/healthScoreSource";
 import { evaluateAchievements, FIXTURE_MEMBER_STATS } from "./src/data/achievementsSource";
+import { DelegatePowerMapCard } from "./src/components/DelegatePowerMapCard";
+import { buildPowerMap, FIXTURE_DELEGATE_NODES } from "./src/data/delegatePowerMapSource";
+import { ProposalRiskCard } from "./src/components/ProposalRiskCard";
+import { computeProposalRisk, FIXTURE_RISK_INPUTS } from "./src/data/proposalRiskSource";
+import { SentimentPulseCard } from "./src/components/SentimentPulseCard";
+import { FIXTURE_SENTIMENTS } from "./src/data/sentimentPulseSource";
 import { useSessionController } from "./src/hooks/useSessionController";
 import { useVoteController } from "./src/hooks/useVoteController";
 import { CreateProposalScreen } from "./src/screens/CreateProposalScreen";
@@ -200,6 +206,8 @@ export default function App() {
   const iap = useInAppPurchase(manifest);
   const [showOnboarding, setShowOnboarding] = useState(true);
   const healthScore = useMemo(() => computeHealthScore(FIXTURE_HEALTH_INPUTS), []);
+  const delegateMap = useMemo(() => buildPowerMap(FIXTURE_DELEGATE_NODES), []);
+  const proposalRisk = useMemo(() => computeProposalRisk(FIXTURE_RISK_INPUTS), []);
   useDeepLinks(openView);
   const navCountRef = useRef(0);
   useEffect(() => {
@@ -409,6 +417,30 @@ export default function App() {
 
     if (activeView === "achievements") {
       return <AchievementsScreen achievements={evaluateAchievements(FIXTURE_MEMBER_STATS)} />;
+    }
+
+    if (activeView === "delegate-map") {
+      return (
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
+          <DelegatePowerMapCard map={delegateMap} />
+        </ScrollView>
+      );
+    }
+
+    if (activeView === "proposal-risk") {
+      return (
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
+          <ProposalRiskCard risk={proposalRisk} />
+        </ScrollView>
+      );
+    }
+
+    if (activeView === "sentiment") {
+      return (
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 16 }}>
+          <SentimentPulseCard sentiments={FIXTURE_SENTIMENTS} />
+        </ScrollView>
+      );
     }
 
     if (activeView === "deploy-wizard") {

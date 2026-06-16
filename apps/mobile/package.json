@@ -51,6 +51,9 @@
     "check:onboarding": "node scripts/check-onboarding.mjs",
     "check:health-score": "node scripts/check-health-score.mjs",
     "check:achievements": "node scripts/check-achievements.mjs",
+    "check:delegate-power-map": "node scripts/check-delegate-power-map.mjs",
+    "check:proposal-risk": "node scripts/check-proposal-risk.mjs",
+    "check:sentiment-pulse": "node scripts/check-sentiment-pulse.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:screenshots": "node scripts/generate-screenshots.mjs",
     "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs && node scripts/generate-screenshots.mjs"
