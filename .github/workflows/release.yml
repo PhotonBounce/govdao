@@ -40,7 +40,13 @@ jobs:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
         run: |
           mkdir -p ../../secrets
-          echo "$KEYSTORE_BASE64" | base64 --decode > ../../secrets/govdao-upload.keystore
+          # Strip certutil header/footer lines and any Windows line endings before decoding
+          echo "$KEYSTORE_BASE64" \
+            | grep -v '^-----' \
+            | tr -d '\r\n ' \
+            | base64 --decode > ../../secrets/govdao-upload.keystore
+          # Verify the file was written and is non-empty
+          test -s ../../secrets/govdao-upload.keystore || { echo "Keystore decode failed — check KEYSTORE_BASE64 secret"; exit 1; }
 
       - name: Write credentials.json
         working-directory: apps/mobile
