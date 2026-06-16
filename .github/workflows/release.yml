@@ -1,0 +1,101 @@
+name: Release to Google Play
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      track:
+        description: "Play Store track"
+        required: true
+        default: "internal"
+        type: choice
+        options: [internal, alpha, beta, production]
+
+jobs:
+  build-and-submit:
+    name: Build AAB & submit to Play Store
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/mobile/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm --prefix apps/mobile ci
+
+      - name: Restore upload keystore
+        working-directory: apps/mobile
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          mkdir -p ../../secrets
+          echo "$KEYSTORE_BASE64" | base64 --decode > ../../secrets/govdao-upload.keystore
+
+      - name: Write credentials.json
+        working-directory: apps/mobile
+        run: |
+          cat > credentials.json <<EOF
+          {
+            "android": {
+              "keystore": {
+                "keystorePath": "../../secrets/govdao-upload.keystore",
+                "keystorePassword": "${{ secrets.KEYSTORE_PASSWORD }}",
+                "keyAlias": "govdao",
+                "keyPassword": "${{ secrets.KEY_PASSWORD }}"
+              }
+            }
+          }
+          EOF
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Run mobile QA gates
+        run: |
+          npm run mobile:typecheck
+          npm run mobile:check-manifest
+
+      - name: Build Android App Bundle (AAB)
+        working-directory: apps/mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: eas build --platform android --profile production --local --non-interactive --output build.aab
+
+      - name: Determine Play Store track
+        id: track
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "track=${{ github.event.inputs.track }}" >> $GITHUB_OUTPUT
+          else
+            echo "track=internal" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Submit to Google Play
+        working-directory: apps/mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+        run: |
+          echo "$GOOGLE_SERVICE_ACCOUNT_KEY" > /tmp/service-account.json
+          eas submit --platform android --path build.aab \
+            --non-interactive \
+            --android-service-account-key-path /tmp/service-account.json \
+            --track ${{ steps.track.outputs.track }}
+
+      - name: Clean up secrets
+        if: always()
+        run: |
+          rm -f apps/mobile/credentials.json
+          rm -f secrets/govdao-upload.keystore
+          rm -f /tmp/service-account.json
