@@ -17,6 +17,8 @@ jobs:
   build-and-submit:
     name: Build AAB & submit to Play Store
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - uses: actions/checkout@v4
@@ -101,6 +103,19 @@ jobs:
           path: apps/mobile/build.aab
           retention-days: 30
           if-no-files-found: error
+
+      - name: Publish AAB to GitHub Release
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Give the asset a clean, descriptive filename for the download link
+          cp apps/mobile/build.aab "govdao-build-${{ github.run_number }}.aab"
+          gh release create "build-${{ github.run_number }}" \
+            "govdao-build-${{ github.run_number }}.aab" \
+            --title "GovDAO build ${{ github.run_number }}" \
+            --notes "Signed Android App Bundle (.aab) for GovDAO. Download the file below and upload it to Google Play Console → Internal testing → Create new release." \
+            --latest
 
       - name: Determine Play Store track
         id: track
