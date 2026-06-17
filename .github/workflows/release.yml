@@ -109,11 +109,21 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
         run: |
+          if [ -z "$GOOGLE_SERVICE_ACCOUNT_KEY" ]; then
+            echo "GOOGLE_SERVICE_ACCOUNT_KEY not set — skipping Play Store submission."
+            echo "Add the secret to enable automatic submission."
+            exit 0
+          fi
           echo "$GOOGLE_SERVICE_ACCOUNT_KEY" > /tmp/service-account.json
-          eas submit --platform android --path build.aab \
-            --non-interactive \
-            --android-service-account-key-path /tmp/service-account.json \
-            --track ${{ steps.track.outputs.track }}
+          # Inject the service account path and chosen track into eas.json at submit time
+          node -e "
+            const fs = require('fs');
+            const cfg = JSON.parse(fs.readFileSync('eas.json','utf8'));
+            cfg.submit.production.android.serviceAccountKeyPath = '/tmp/service-account.json';
+            cfg.submit.production.android.track = '${{ steps.track.outputs.track }}';
+            fs.writeFileSync('eas.json', JSON.stringify(cfg, null, 2));
+          "
+          eas submit --platform android --path build.aab --non-interactive
 
       - name: Clean up secrets
         if: always()
