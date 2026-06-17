@@ -72,43 +72,15 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
-          # Fetch account name from the token
-          ACCOUNT=$(curl -sf -H "Authorization: Bearer $EXPO_TOKEN" \
-            https://api.expo.dev/v2/auth/userinfo | jq -r '.data.username')
-          echo "Expo account: $ACCOUNT"
-
-          SLUG="govdao-mobile"
-
-          # Try to fetch existing project
-          PROJECT_ID=$(curl -sf \
-            -H "Authorization: Bearer $EXPO_TOKEN" \
-            "https://api.expo.dev/v2/projects?slug=${SLUG}&ownerAccount=${ACCOUNT}" \
-            | jq -r '.data[0].id // empty')
-
-          if [ -z "$PROJECT_ID" ]; then
-            echo "Project not found — creating..."
-            PROJECT_ID=$(curl -sf -X POST \
-              -H "Authorization: Bearer $EXPO_TOKEN" \
-              -H "Content-Type: application/json" \
-              -d "{\"accountName\":\"${ACCOUNT}\",\"projectName\":\"${SLUG}\",\"privacy\":\"unlisted\"}" \
-              https://api.expo.dev/v2/projects \
-              | jq -r '.data.id')
-            echo "Created project: $PROJECT_ID"
-          else
-            echo "Found existing project: $PROJECT_ID"
-          fi
-
-          [ -z "$PROJECT_ID" ] && { echo "Failed to obtain EAS project ID"; exit 1; }
-
-          # Inject projectId into app.json at build time
+          # eas init reads slug from app.json and registers/links the project on expo.dev.
+          # With EXPO_TOKEN set and --non-interactive it works in CI without any prompts.
+          eas init --non-interactive --force
+          # Confirm app.json now has the projectId
           node -e "
-            const fs = require('fs');
-            const cfg = JSON.parse(fs.readFileSync('app.json','utf8'));
-            cfg.expo.extra = cfg.expo.extra || {};
-            cfg.expo.extra.eas = cfg.expo.extra.eas || {};
-            cfg.expo.extra.eas.projectId = '$PROJECT_ID';
-            fs.writeFileSync('app.json', JSON.stringify(cfg, null, 2));
-            console.log('Wrote projectId', '$PROJECT_ID', 'to app.json');
+            const cfg = JSON.parse(require('fs').readFileSync('app.json','utf8'));
+            const id = cfg.expo?.extra?.eas?.projectId;
+            if (!id) { console.error('projectId not written to app.json'); process.exit(1); }
+            console.log('EAS projectId:', id);
           "
 
       - name: Run mobile QA gates
