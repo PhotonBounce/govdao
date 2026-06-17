@@ -1,72 +1,49 @@
 # Google Play Data Safety Questionnaire
 
-## Does your app collect or share any of the required user data types?
+> Updated for the v0.2.0 build, which adds Google AdMob (free tier) and an optional
+> in-app subscription (RevenueCat over Google Play Billing). Declare exactly what is
+> below — Play requires the form to match the SDKs actually shipped.
 
-**No personal data collected or stored by the app.**
+## Summary
+- The app itself collects **no** name, email, contacts, location, or personal info.
+- **Free tier only:** Google AdMob may use an **advertising / device ID** to serve ads.
+- **Premium:** purchase status is processed via **Google Play Billing / RevenueCat**.
+- Wallet addresses, votes, and proposals are **public on-chain data**, read/written
+  directly via the user's RPC endpoint — not collected or stored by a GOVDAO server.
 
-### Data Collected
+## Data collected / shared
 
-| Data Type | Collected? | Notes |
-|-----------|-----------|-------|
-| Name | No | — |
-| Email address | No | — |
-| User IDs | No | — |
-| Address | No | — |
-| Phone number | No | — |
-| Race and ethnicity | No | — |
-| Political or religious beliefs | No | — |
-| Sexual orientation | No | — |
-| Other personal info | No | — |
-| Payment info | No | — |
-| Purchase history | No | — |
-| Credit score | No | — |
-| Health info | No | — |
-| Fitness info | No | — |
-| Emails or text messages | No | — |
-| Photos or videos | No | — |
-| Voice or sound recordings | No | — |
-| Music files | No | — |
-| Files and docs | No | — |
-| Calendar events | No | — |
-| Contacts | No | — |
-| SMS or MMS | No | — |
-| Web browsing history | No | — |
-| Search history | No | — |
-| Other user-generated content | No | — |
-| Crash logs | No | — |
-| Diagnostics | No | — |
-| Other app performance data | No | — |
-| Installed apps | No | — |
-| Device or other IDs | No | — |
+| Data type | Collected | Shared | Purpose | Notes |
+|-----------|-----------|--------|---------|-------|
+| Device or other IDs (advertising ID) | Yes (free tier) | Yes → Google | Advertising | AdMob only; premium users are ad-free. ATT prompt shown on iOS. |
+| Purchase history (subscription status) | Yes | Yes → Google / RevenueCat | App functionality | Premium unlock only. No card data touches the app. |
+| Name / Email / Phone / Address | No | No | — | — |
+| Contacts / Calendar / Messages / Photos | No | No | — | — |
+| Location (coarse or precise) | No | No | — | — |
+| Financial info (other than purchases) | No | No | — | No fiat, no custody, no trading in-app. |
+| Web browsing / search history | No | No | — | — |
+| Health / fitness | No | No | — | — |
+| Crash logs / diagnostics / analytics | No | No | — | No analytics or crash SDK is bundled. |
+| Personal/user-generated content | No | No | — | Proposal text is submitted on-chain, not stored by the app. |
 
-### On-Chain Data
+## Tracking
+- The app **tracks only via AdMob advertising in the free tier**, with the user's
+  consent (App Tracking Transparency on iOS; the AdMob consent flow on Android).
+- Premium users are not tracked and see no ads.
+- No other tracking, fingerprinting, or cross-app linking.
 
-The app reads and writes to public blockchain networks. Ethereum wallet addresses are used to identify members in the on-chain MemberRegistry contract. This is public blockchain data — not collected or stored by the app.
+## Security practices
+- All network traffic uses HTTPS/WSS.
+- No personal data is stored off-device beyond session state (cleared on sign-out).
+- The user can request ad-free use by subscribing to Premium.
 
-- **Wallet address**: Used to identify the connected member on-chain. Not stored by the app. Publicly visible on the blockchain.
-- **Vote choices**: Recorded on-chain by the Governor contract. Publicly visible on the blockchain. Not stored by the app.
-- **Proposal text**: Submitted on-chain by the Governor contract. Publicly visible on the blockchain. Not stored by the app.
+## Third-party SDKs that handle data
+- **Google AdMob** (`react-native-google-mobile-ads`) — ads, advertising ID.
+- **RevenueCat / Google Play Billing** (`react-native-purchases`) — subscription status.
+- **expo-notifications** — push token (device-scoped), only after the user opts in.
 
-### Third-Party Services
+## Children
+- Not directed to children under 13. No child-directed treatment.
 
-The app communicates with:
-- **Your organization's RPC endpoint**: Reads contract state. No user data is sent beyond the wallet address for contract calls.
-- **WalletConnect relay** (optional): Used for wallet pairing. Subject to WalletConnect's privacy policy.
-
-### Data Sharing
-
-No user data is shared with third parties by the app.
-
-### Data Security
-
-- All data in transit uses HTTPS/WSS
-- No personal data is stored locally beyond session state (cleared on sign-out)
-- No analytics SDKs, advertising SDKs, or tracking libraries included
-
-## Is your app directed to children under 13?
-
-No.
-
-## Does your app include ads?
-
-No.
+## Account creation
+- No account is required. Identity is the user's own wallet, used on-chain only.

@@ -38,14 +38,30 @@ Step-by-step contract deployment wizard for bootstrapping a new governance insta
 **Activity Feed**
 A chronological feed of all governance events: votes, proposals, treasury movements, guardian drills, and member changes. Filter by type or date range. Export to CSV or JSON. (Premium export)
 
+**Governance Health & Reputation**
+A single 0–100 health score grades your DAO's vitals, and you earn achievement badges and reputation tiers as you participate. A 12-week activity heatmap shows your contribution streak.
+
+**Calendar, Reminders & Templates**
+A governance calendar with chain-anchored countdowns, optional local reminders before deadlines, and ready-made proposal templates that pre-fill the form so you can move fast.
+
+**Treasury Allocation**
+See exactly how the treasury is allocated across ETH, stablecoins, and tokens, with percentage shares and total value.
+
+**Secure & Personal**
+Confirm on-chain actions with Face ID / fingerprint, deep-link straight to a proposal, and tune sound, motion, and accessibility to your taste.
+
+**Free & Premium**
+GOVDAO is free, supported by ads. Upgrade to Premium to remove ads and unlock the analytics dashboard, deploy wizard, guardian drills, and activity export — billed through Google Play.
+
 **Fixture Mode**
 Not connected to a live chain yet? GOVDAO runs in fixture mode with realistic sample data so you can explore every feature before deploying contracts.
 
-**Security First**
-- No personal data collected or stored off-chain
-- Wallet addresses only identified on-chain through your own contract
+**Privacy First**
+- The app collects no name, email, or personal data
+- Wallet addresses are used on-chain only, through your own contract
 - No backend servers — reads state directly from your RPC endpoint
 - All transactions require explicit wallet confirmation
+- Free-tier ads use an advertising ID (Google AdMob); Premium is ad-free
 
 **Requirements**
 - Android 8.0+
