@@ -19,6 +19,7 @@ interface CreateProposalScreenProps {
   onSubmit: () => void;
   onReset: () => void;
   onBack: () => void;
+  onUseTemplate?: () => void;
 }
 
 function PhaseLabel({ phase }: { phase: ProposalCreationPhase }) {
@@ -43,7 +44,8 @@ export function CreateProposalScreen({
   onSetField,
   onSubmit,
   onReset,
-  onBack
+  onBack,
+  onUseTemplate
 }: CreateProposalScreenProps) {
   if (!sessionIdentity) {
     return (
@@ -103,6 +105,11 @@ export function CreateProposalScreen({
         <Pressable style={styles.backButton} onPress={onBack}>
           <Text style={styles.backButtonText}>← Back to Feed</Text>
         </Pressable>
+        {onUseTemplate ? (
+          <Pressable style={styles.templateButton} onPress={onUseTemplate}>
+            <Text style={styles.templateButtonText}>✦ Start from a template</Text>
+          </Pressable>
+        ) : null}
       </SectionCard>
 
       <SectionCard eyebrow="Required" title="Proposal Details" subtitle="Title and summary are required before submission.">
@@ -313,5 +320,19 @@ const styles = StyleSheet.create({
     color: palette.bronze,
     fontSize: 14,
     fontWeight: "600"
+  },
+  templateButton: {
+    marginTop: 10,
+    alignSelf: "flex-start",
+    borderWidth: 1,
+    borderColor: palette.bronze,
+    borderRadius: radii.card,
+    paddingVertical: 8,
+    paddingHorizontal: 14
+  },
+  templateButtonText: {
+    color: palette.bronze,
+    fontSize: 13,
+    fontWeight: "700"
   }
 });

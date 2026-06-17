@@ -1,6 +1,8 @@
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
 import { ActivityFeedPanel } from "../components/ActivityFeedPanel";
+import { ActivityHeatmapCard } from "../components/ActivityHeatmapCard";
+import { buildHeatmap } from "../data/activityHeatmapSource";
 import { SectionCard } from "../components/SectionCard";
 import {
   ActivityEventType,
@@ -70,6 +72,7 @@ export function ActivityScreen({ manifest }: ActivityScreenProps) {
 
   return (
     <>
+      <ActivityHeatmapCard heatmap={buildHeatmap(12, 7)} />
       <SectionCard
         tone="glass"
         eyebrow="Governance Timeline"
