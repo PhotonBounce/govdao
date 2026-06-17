@@ -56,7 +56,8 @@
     "check:sentiment-pulse": "node scripts/check-sentiment-pulse.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:screenshots": "node scripts/generate-screenshots.mjs",
-    "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs && node scripts/generate-screenshots.mjs"
+    "generate:brand": "python3 scripts/generate-brand.py",
+    "generate:assets": "node scripts/generate-sounds.mjs && python3 scripts/generate-brand.py && node scripts/generate-screenshots.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.5",
