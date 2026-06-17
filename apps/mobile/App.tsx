@@ -83,7 +83,7 @@ import { SettingsScreen } from "./src/screens/SettingsScreen";
 import { TreasuryScreen } from "./src/screens/TreasuryScreen";
 import { useProposalCreationController } from "./src/hooks/useProposalCreationController";
 import { AppManifest } from "./src/types";
-import { darkPalette, radii } from "./src/theme";
+import { darkPalette, radii, fonts } from "./src/theme";
 
 const manifest = manifestJson as AppManifest;
 
@@ -708,8 +708,9 @@ const styles = StyleSheet.create({
     marginBottom: 12
   },
   title: {
+    fontFamily: fonts.serif,
     fontSize: 42,
-    lineHeight: 44,
+    lineHeight: 46,
     fontWeight: "700",
     color: darkPalette.dimWhite,
     marginBottom: 12

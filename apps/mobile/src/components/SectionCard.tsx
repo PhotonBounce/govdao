@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useInfoModal } from "../contexts/InfoModalContext";
-import { darkPalette, palette, radii } from "../theme";
+import { darkPalette, palette, radii, fonts } from "../theme";
 import { InfoButton } from "./InfoButton";
 
 interface SectionCardProps {
@@ -72,6 +72,7 @@ const styles = StyleSheet.create({
     color: darkPalette.softGold
   },
   title: {
+    fontFamily: fonts.serif,
     fontSize: 24,
     fontWeight: "700"
   },
