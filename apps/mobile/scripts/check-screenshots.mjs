@@ -13,7 +13,8 @@ const EXPECTED = [
   "05-spend.png", "06-drill.png", "07-invite.png", "08-modules.png",
   "09-activity.png", "10-calendar.png", "11-analytics.png", "12-deploy.png",
   "13-settings.png", "14-upgrade.png", "15-search.png",
-  "16-welcome.png", "17-health.png", "18-badges.png"
+  "16-welcome.png", "17-health.png", "18-badges.png",
+  "19-templates.png", "20-allocation.png", "21-heatmap.png"
 ];
 const PNG_MAGIC = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 

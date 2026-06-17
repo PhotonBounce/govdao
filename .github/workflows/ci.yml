@@ -75,6 +75,9 @@ jobs:
       - run: npm run mobile:check-onboarding
       - run: npm run mobile:check-health-score
       - run: npm run mobile:check-achievements
+      - run: npm run mobile:check-proposal-templates
+      - run: npm run mobile:check-treasury-allocation
+      - run: npm run mobile:check-activity-heatmap
       - run: npm run mobile:check-chain
       - name: App config matches manifest
         run: |

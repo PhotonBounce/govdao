@@ -400,6 +400,30 @@ const SCREENS = [
     nav: "BADGES",
     badge: "REPUTATION",
     bullets: ["FIRST BALLOT, ACTIVE VOTER, PROPOSER", "QUORUM HERO, GUARDIAN, TREASURER", "RISE THROUGH REPUTATION TIERS"]
+  },
+  {
+    file: "19-templates.png",
+    headline: "TEMPLATES",
+    sub: "Start a proposal from a ready-made template",
+    nav: "PROPOSE",
+    badge: "QUICK START",
+    bullets: ["TREASURY SPEND, PARAM CHANGE", "MEMBER ONBOARD, GUARDIAN, SIGNAL", "PRE-FILLS THE PROPOSAL FORM"]
+  },
+  {
+    file: "20-allocation.png",
+    headline: "ALLOCATION",
+    sub: "See exactly how the treasury is allocated",
+    nav: "TREASURY",
+    badge: "PORTFOLIO",
+    bullets: ["ETH, USDC, GOV, WBTC BREAKDOWN", "PERCENT SHARE WITH STACKED BAR", "TOTAL VALUE AT A GLANCE"]
+  },
+  {
+    file: "21-heatmap.png",
+    headline: "HEATMAP",
+    sub: "Your governance activity as a contribution grid",
+    nav: "ACTIVITY",
+    badge: "STREAKS",
+    bullets: ["TWELVE WEEKS OF ACTIVITY", "INTENSITY-SHADED DAILY CELLS", "TRACK YOUR CURRENT STREAK"]
   }
 ];
 

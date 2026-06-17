@@ -51,6 +51,9 @@
     "check:onboarding": "node scripts/check-onboarding.mjs",
     "check:health-score": "node scripts/check-health-score.mjs",
     "check:achievements": "node scripts/check-achievements.mjs",
+    "check:proposal-templates": "node scripts/check-proposal-templates.mjs",
+    "check:treasury-allocation": "node scripts/check-treasury-allocation.mjs",
+    "check:activity-heatmap": "node scripts/check-activity-heatmap.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:screenshots": "node scripts/generate-screenshots.mjs",
     "generate:assets": "node scripts/generate-sounds.mjs && node scripts/generate-assets.mjs && node scripts/generate-screenshots.mjs"

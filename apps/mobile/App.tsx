@@ -69,6 +69,8 @@ import { evaluateAchievements, FIXTURE_MEMBER_STATS } from "./src/data/achieveme
 import { useSessionController } from "./src/hooks/useSessionController";
 import { useVoteController } from "./src/hooks/useVoteController";
 import { CreateProposalScreen } from "./src/screens/CreateProposalScreen";
+import { ProposalTemplatesScreen } from "./src/screens/ProposalTemplatesScreen";
+import { applyTemplate } from "./src/data/proposalTemplateSource";
 import { DetailStackScreen } from "./src/screens/DetailStackScreen";
 import { ModulesScreen } from "./src/screens/ModulesScreen";
 import { OverviewScreen } from "./src/screens/OverviewScreen";
@@ -280,6 +282,21 @@ export default function App() {
           onSubmit={proposalCreation.submit}
           onReset={proposalCreation.reset}
           onBack={closeCreateProposal}
+          onUseTemplate={() => openView("templates")}
+        />
+      );
+    }
+
+    if (activeView === "templates") {
+      return (
+        <ProposalTemplatesScreen
+          onSelect={(tpl) => {
+            const pre = applyTemplate(tpl);
+            proposalCreation.setField("title", pre.title);
+            proposalCreation.setField("summary", pre.summary);
+            openView("create-proposal");
+          }}
+          onBack={() => openView("create-proposal")}
         />
       );
     }
