@@ -94,6 +94,14 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: eas build --platform android --profile production --local --non-interactive --output build.aab
 
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: govdao-release-aab
+          path: apps/mobile/build.aab
+          retention-days: 30
+          if-no-files-found: error
+
       - name: Determine Play Store track
         id: track
         run: |
