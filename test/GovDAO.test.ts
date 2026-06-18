@@ -772,17 +772,18 @@ describe("GOVDAO Core", function () {
         VOTING_PERIOD,
         QUORUM
       ) as unknown as Governor;
-      await tl3.setGovernor(await gov3.getAddress());
-
-      // Set grace period via timelock (deployer is still bootstrap admin of tl3)
+      // Set grace period via timelock BEFORE handing governor control to gov3
+      // (deployer is still the timelock governor at this point)
       const gracePeriod = 10; // blocks
       const setGraceData = gov3.interface.encodeFunctionData("setProposalGracePeriod", [gracePeriod]);
-      const actionId = await tl3.connect(deployer).queueAction.staticCall(await gov3.getAddress(), 0, setGraceData);
       await tl3.connect(deployer).queueAction(await gov3.getAddress(), 0, setGraceData);
       await ethers.provider.send("evm_increaseTime", [TIMELOCK_DELAY + 1]);
       await ethers.provider.send("evm_mine", []);
       await tl3.connect(deployer).executeAction(await gov3.getAddress(), 0, setGraceData);
       expect(await gov3.proposalGracePeriod()).to.equal(gracePeriod);
+
+      // Now wire the timelock to gov3
+      await tl3.setGovernor(await gov3.getAddress());
 
       await gov3.connect(deployer).propose(
         [await gov3.getAddress()],
