@@ -25,7 +25,7 @@
   "chain": {
     "id": 137,
     "name": "polygon",
-    "rpcUrl": "https://polygon-rpc.com",
+    "rpcUrl": "https://YOUR_POLYGON_RPC_ENDPOINT",
     "blockExplorer": "https://polygonscan.com"
   },
   "contracts": {
