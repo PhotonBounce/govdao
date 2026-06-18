@@ -9,7 +9,7 @@ import "./interfaces/ITimelock.sol";
  *         No one can bypass this delay. Delay changes require governance.
  */
 contract Timelock is ITimelock {
-    uint256 public constant MIN_DELAY = 60; // 60 seconds minimum (production should use higher)
+    uint256 public constant MIN_DELAY = 60; // 60 seconds; deploy script enforces ≥2 days on production networks
     uint256 public constant MAX_DELAY = 30 days;
 
     uint256 private _delay;

@@ -24,6 +24,18 @@ async function main() {
   const initialExecutors = parseAddressList("INITIAL_EXECUTORS");
   const initialMembers = parseAddressList("INITIAL_MEMBERS");
 
+  const isProduction = network.name !== "hardhat" && network.name !== "localhost";
+  // On production networks, warn if INITIAL_PROPOSERS is empty — the deployer key will be the
+  // sole ADMIN. That's fine if the deployer IS your MetaMask wallet, but dangerous if it's a
+  // burner/CI key that won't be used after deployment.
+  if (isProduction && initialProposers.length === 0) {
+    console.warn(
+      `WARNING: No INITIAL_PROPOSERS set. On ${network.name}, the deployer (${deployer.address}) ` +
+      "will be the only account that can propose/vote/execute. If this is a burner key, set INITIAL_PROPOSERS " +
+      "to your MetaMask address before deploying."
+    );
+  }
+
   // 1. MemberRegistry — deployer is bootstrap admin
   const MemberRegistry = await ethers.getContractFactory("MemberRegistry");
   const memberRegistry = await MemberRegistry.deploy(deployer.address);

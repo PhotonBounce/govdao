@@ -298,13 +298,18 @@ contract Governor is IGovernor {
         bootstrapAdmin = address(0);
     }
 
+    event GovernorPaused(address indexed by);
+    event GovernorUnpaused(address indexed by);
+
     function pause() external onlyGuardian {
         paused = true;
+        emit GovernorPaused(msg.sender);
     }
 
     function unpause() external {
         require(msg.sender == guardian || msg.sender == address(timelock), "Governor: not authorized");
         paused = false;
+        emit GovernorUnpaused(msg.sender);
     }
 
     function _memberCountAtSnapshot(Proposal storage proposal) internal view returns (uint256) {
