@@ -4,6 +4,7 @@ import { AppManifest } from "../types";
 const PLACEHOLDER_PATTERNS = ["YOUR_", "example.com", "localhost", "127.0.0.1"];
 
 let _provider: ethers.JsonRpcProvider | null = null;
+let _providerUrl: string | null = null;
 let _browserProvider: ethers.BrowserProvider | null = null;
 let _signer: ethers.Signer | null = null;
 let _signerAddress: string | null = null;
@@ -34,9 +35,10 @@ export function getActiveSignerAddress(): string | null {
 
 export function getProvider(manifest: AppManifest): ethers.JsonRpcProvider | null {
   if (isFixtureMode(manifest)) return null;
-  if (!_provider || (_provider as unknown as { _url?: string })._url !== manifest.chain.rpcUrl) {
+  if (!_provider || _providerUrl !== manifest.chain.rpcUrl) {
     try {
       _provider = new ethers.JsonRpcProvider(manifest.chain.rpcUrl);
+      _providerUrl = manifest.chain.rpcUrl;
     } catch {
       return null;
     }
@@ -48,6 +50,8 @@ export function clearSession(): void {
   _signer = null;
   _signerAddress = null;
   _browserProvider = null;
+  _provider = null;
+  _providerUrl = null;
 }
 
 export interface InjectedWalletResult {
@@ -98,7 +102,15 @@ export async function connectInjectedWallet(chain?: InjectedChainConfig): Promis
   }
 
   _browserProvider = new ethers.BrowserProvider(eth as ConstructorParameters<typeof ethers.BrowserProvider>[0]);
-  await _browserProvider.send("eth_requestAccounts", []);
+  try {
+    await _browserProvider.send("eth_requestAccounts", []);
+  } catch (err: unknown) {
+    const code = (err as { code?: number })?.code;
+    if (code === 4001) {
+      throw new Error("Wallet connection cancelled. Approve the MetaMask request to sign in.");
+    }
+    throw err;
+  }
 
   if (chain) {
     const network = await _browserProvider.getNetwork();
