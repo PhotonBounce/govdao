@@ -7,6 +7,14 @@ on:
         description: "Optional. If your DEPLOYER key is NOT your MetaMask account, put your MetaMask address here to seed it as a Proposer (propose + vote). Leave blank if you deploy with your own MetaMask key — that account becomes ADMIN automatically (propose + vote + execute)."
         required: false
         default: ""
+      executor_address:
+        description: "Optional. Extra address to seed as an Executor (can execute queued proposals). Leave blank if deployer is your MetaMask — deployer is already ADMIN which includes executor rights."
+        required: false
+        default: ""
+      initial_members:
+        description: "Optional. Comma-separated addresses to seed as basic Members (can vote but not propose). Leave blank to add members via governance later."
+        required: false
+        default: ""
 
 jobs:
   deploy:
@@ -36,7 +44,27 @@ jobs:
           POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
           DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
           INITIAL_PROPOSERS: ${{ github.event.inputs.proposer_address }}
+          INITIAL_EXECUTORS: ${{ github.event.inputs.executor_address }}
+          INITIAL_MEMBERS: ${{ github.event.inputs.initial_members }}
         run: npx hardhat run scripts/deploy.ts --network polygon
+
+      - name: Verify contracts on Polygonscan
+        if: ${{ secrets.POLYGONSCAN_API_KEY != '' }}
+        env:
+          POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
+          POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
+        run: |
+          dep=$(cat deployments/polygon.json)
+          mr=$(echo "$dep" | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).contracts.memberRegistry))")
+          tl=$(echo "$dep" | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).contracts.timelock))")
+          gov=$(echo "$dep" | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).contracts.governor))")
+          tr=$(echo "$dep" | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).contracts.treasury))")
+          eg=$(echo "$dep" | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).contracts.emergencyGuardian))")
+          npx hardhat verify --network polygon "$mr" || true
+          npx hardhat verify --network polygon "$tl" || true
+          npx hardhat verify --network polygon "$gov" || true
+          npx hardhat verify --network polygon "$tr" || true
+          npx hardhat verify --network polygon "$eg" || true
 
       - name: Patch app manifest with Polygon addresses
         env:

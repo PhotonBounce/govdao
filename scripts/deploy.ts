@@ -39,8 +39,11 @@ async function main() {
   console.log("Timelock:", await timelock.getAddress());
 
   // 3. Governor
-  const votingDelay = 1;     // 1 block delay before voting
-  const votingPeriod = 50400; // ~7 days at 12s blocks
+  const votingDelay = 1;      // 1 block delay before voting
+  // Polygon averages ~2s/block: 7 days = 7*24*3600/2 = 302400 blocks
+  const votingPeriod = network.name === "hardhat" || network.name === "localhost"
+    ? 50400   // fast local tests (12s block assumption keeps test timing unchanged)
+    : 302400; // ~7 days on Polygon (2s blocks)
   const quorum = 20;          // 20% quorum
   const Governor = await ethers.getContractFactory("Governor");
   const governor = await Governor.deploy(
