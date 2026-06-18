@@ -1,5 +1,4 @@
 import { ethers } from "ethers";
-import { Platform } from "react-native";
 import { AppManifest } from "../types";
 
 const PLACEHOLDER_PATTERNS = ["YOUR_", "example.com", "localhost", "127.0.0.1"];
@@ -56,38 +55,77 @@ export interface InjectedWalletResult {
   chainId: number;
 }
 
+/** Everything MetaMask needs to switch to — or add — a target network. */
+export interface InjectedChainConfig {
+  chainId: number;
+  chainName: string;
+  rpcUrl: string;
+  blockExplorer: string;
+  nativeCurrencySymbol: string;
+}
+
+interface Eip1193Provider {
+  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+}
+
+function toHexChainId(id: number): string {
+  return `0x${id.toString(16)}`;
+}
+
+/**
+ * True only in a browser runtime (Expo web / react-native-web). False on native
+ * and in Node — this avoids importing react-native into the data layer, which the
+ * Node-based QA gates load directly.
+ */
+export function isWebRuntime(): boolean {
+  return typeof document !== "undefined";
+}
+
 /**
  * Connects MetaMask (or any EIP-1193 injected wallet) in a web/browser context.
- * On React Native, this is a no-op that throws so callers can show a "use mobile
- * wallet" fallback instead. Switches the network to `requiredChainId` if provided.
+ * On React Native, this throws so callers can fall back to WalletConnect.
+ * If `chain` is supplied it switches MetaMask to that network, adding it first
+ * (wallet_addEthereumChain) when the wallet doesn't know it yet — e.g. Polygon.
  */
-export async function connectInjectedWallet(requiredChainId?: number): Promise<InjectedWalletResult> {
-  if (Platform.OS !== "web") {
+export async function connectInjectedWallet(chain?: InjectedChainConfig): Promise<InjectedWalletResult> {
+  if (!isWebRuntime()) {
     throw new Error("Injected wallet only available on web — use WalletConnect on mobile.");
   }
 
-  const win = globalThis as unknown as { ethereum?: { request: (args: { method: string; params?: unknown[] }) => Promise<unknown> } };
-  if (!win.ethereum) {
+  const eth = (globalThis as unknown as { ethereum?: Eip1193Provider }).ethereum;
+  if (!eth) {
     throw new Error("No injected wallet found. Install MetaMask at metamask.io.");
   }
 
-  _browserProvider = new ethers.BrowserProvider(win.ethereum as Parameters<typeof ethers.BrowserProvider>[0]);
-
+  _browserProvider = new ethers.BrowserProvider(eth as ConstructorParameters<typeof ethers.BrowserProvider>[0]);
   await _browserProvider.send("eth_requestAccounts", []);
 
-  if (requiredChainId !== undefined) {
+  if (chain) {
     const network = await _browserProvider.getNetwork();
-    if (Number(network.chainId) !== requiredChainId) {
+    if (Number(network.chainId) !== chain.chainId) {
+      const hexId = toHexChainId(chain.chainId);
       try {
-        await _browserProvider.send("wallet_switchEthereumChain", [
-          { chainId: `0x${requiredChainId.toString(16)}` }
-        ]);
-        _browserProvider = new ethers.BrowserProvider(win.ethereum as Parameters<typeof ethers.BrowserProvider>[0]);
-      } catch {
-        throw new Error(
-          `MetaMask is on chain ${network.chainId} — switch to chain ${requiredChainId} (Sepolia = 11155111) and try again.`
-        );
+        await _browserProvider.send("wallet_switchEthereumChain", [{ chainId: hexId }]);
+      } catch (switchError: unknown) {
+        const code = (switchError as { code?: number; data?: { originalError?: { code?: number } } })?.code;
+        const nestedCode = (switchError as { data?: { originalError?: { code?: number } } })?.data?.originalError?.code;
+        // 4902 = chain not added to the wallet yet → add it, then it becomes active.
+        if (code === 4902 || nestedCode === 4902) {
+          await _browserProvider.send("wallet_addEthereumChain", [{
+            chainId: hexId,
+            chainName: chain.chainName,
+            nativeCurrency: { name: chain.nativeCurrencySymbol, symbol: chain.nativeCurrencySymbol, decimals: 18 },
+            rpcUrls: [chain.rpcUrl],
+            blockExplorerUrls: [chain.blockExplorer]
+          }]);
+        } else {
+          throw new Error(
+            `Couldn't switch MetaMask to ${chain.chainName} (chain ${chain.chainId}). Switch manually and retry.`
+          );
+        }
       }
+      // Re-bind the provider after a network change so the signer targets the new chain.
+      _browserProvider = new ethers.BrowserProvider(eth as ConstructorParameters<typeof ethers.BrowserProvider>[0]);
     }
   }
 

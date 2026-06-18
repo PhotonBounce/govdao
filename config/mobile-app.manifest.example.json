@@ -3,7 +3,7 @@
     "name": "GOVDAO",
     "bundleId": "com.govdao.app",
     "version": "0.2.0",
-    "environment": "sepolia",
+    "environment": "polygon",
     "distribution": {
       "channel": "google-play",
       "pricingModel": "subscription",
@@ -23,10 +23,10 @@
     ]
   },
   "chain": {
-    "id": 1,
-    "name": "ethereum",
-    "rpcUrl": "https://YOUR_MAINNET_RPC_ENDPOINT",
-    "blockExplorer": "https://etherscan.io"
+    "id": 137,
+    "name": "polygon",
+    "rpcUrl": "https://polygon-rpc.com",
+    "blockExplorer": "https://polygonscan.com"
   },
   "contracts": {
     "memberRegistry": "0x0000000000000000000000000000000000000000",

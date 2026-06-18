@@ -1,6 +1,17 @@
 import { AppManifest } from "../types";
-import { isFixtureMode, getActiveSigner, buildContract } from "./walletProvider";
+import { isFixtureMode, getActiveSigner, buildContract, connectInjectedWallet, isWebRuntime } from "./walletProvider";
 import { MEMBER_REGISTRY_ABI, ROLE_LABELS } from "./contractAbis";
+
+/** Human-friendly names + native symbols for the chains we target. */
+const CHAIN_META: Record<number, { name: string; symbol: string }> = {
+  1: { name: "Ethereum Mainnet", symbol: "ETH" },
+  137: { name: "Polygon Mainnet", symbol: "POL" },
+  11155111: { name: "Sepolia", symbol: "ETH" }
+};
+
+function chainMeta(chainId: number, fallbackName: string): { name: string; symbol: string } {
+  return CHAIN_META[chainId] ?? { name: fallbackName, symbol: "ETH" };
+}
 
 export type AccessMethodKind = "wallet" | "offchain";
 export type SessionTransport = "fixture" | "remote";
@@ -87,6 +98,19 @@ function wait(durationMs: number): Promise<void> {
 
 export async function connectSession(option: AccessOption, manifest: AppManifest): Promise<SessionIdentity> {
   if (!isFixtureMode(manifest)) {
+    // On web, a wallet option must pop MetaMask first to obtain a live signer.
+    // This switches (or adds) the manifest's chain — e.g. Polygon — automatically.
+    if (option.kind === "wallet" && isWebRuntime() && !getActiveSigner()) {
+      const meta = chainMeta(manifest.chain.id, manifest.chain.name);
+      await connectInjectedWallet({
+        chainId: manifest.chain.id,
+        chainName: meta.name,
+        rpcUrl: manifest.chain.rpcUrl,
+        blockExplorer: manifest.chain.blockExplorer,
+        nativeCurrencySymbol: meta.symbol
+      });
+    }
+
     const signer = getActiveSigner();
     if (signer) {
       try {

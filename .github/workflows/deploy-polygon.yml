@@ -1,16 +1,16 @@
-name: Deploy to Sepolia
+name: Deploy to Polygon Mainnet
 
 on:
   workflow_dispatch:
     inputs:
-      initial_member:
-        description: "Ethereum address to seed as the first DAO member (your MetaMask address)"
+      proposer_address:
+        description: "Optional. If your DEPLOYER key is NOT your MetaMask account, put your MetaMask address here to seed it as a Proposer (propose + vote). Leave blank if you deploy with your own MetaMask key — that account becomes ADMIN automatically (propose + vote + execute)."
         required: false
         default: ""
 
 jobs:
   deploy:
-    name: Deploy contracts → update manifest
+    name: Deploy contracts → wire manifest → commit
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -31,30 +31,30 @@ jobs:
       - name: Compile contracts
         run: npm run compile
 
-      - name: Deploy to Sepolia
+      - name: Deploy to Polygon
         env:
-          SEPOLIA_RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+          POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
           DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-          INITIAL_MEMBERS: ${{ github.event.inputs.initial_member }}
-        run: npx hardhat run scripts/deploy.ts --network sepolia
+          INITIAL_PROPOSERS: ${{ github.event.inputs.proposer_address }}
+        run: npx hardhat run scripts/deploy.ts --network polygon
 
-      - name: Patch app manifest with Sepolia addresses
+      - name: Patch app manifest with Polygon addresses
         env:
-          RPC_URL: ${{ secrets.SEPOLIA_RPC_URL }}
+          RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
         run: |
           # Surgically update only chain + contracts so local app overrides
           # (fixture feed URLs, plan tier) are preserved and the sync gate stays green.
           node -e '
             const fs = require("fs");
-            const dep = JSON.parse(fs.readFileSync("deployments/sepolia.json", "utf8"));
+            const dep = JSON.parse(fs.readFileSync("deployments/polygon.json", "utf8"));
             const path = "apps/mobile/src/data/app.manifest.json";
             const m = JSON.parse(fs.readFileSync(path, "utf8"));
-            const rpc = process.env.RPC_URL && process.env.RPC_URL.length ? process.env.RPC_URL : m.chain.rpcUrl;
-            m.app.environment = "sepolia";
-            m.chain.id = dep.chainId || 11155111;
-            m.chain.name = "sepolia";
+            const rpc = process.env.RPC_URL && process.env.RPC_URL.length ? process.env.RPC_URL : "https://polygon-rpc.com";
+            m.app.environment = "polygon";
+            m.chain.id = dep.chainId || 137;
+            m.chain.name = "polygon";
             m.chain.rpcUrl = rpc;
-            m.chain.blockExplorer = "https://sepolia.etherscan.io";
+            m.chain.blockExplorer = "https://polygonscan.com";
             m.contracts = { ...m.contracts, ...dep.contracts };
             fs.writeFileSync(path, JSON.stringify(m, null, 2) + "\n");
             console.log("Patched chain + contracts:\n" + JSON.stringify({ chain: m.chain, contracts: m.contracts }, null, 2));
@@ -64,7 +64,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add deployments/sepolia.json apps/mobile/src/data/app.manifest.json
+          git add deployments/polygon.json apps/mobile/src/data/app.manifest.json
           git diff --staged --quiet && echo "Nothing to commit" || \
-            git commit -m "chore: wire Sepolia contract addresses into app manifest"
+            git commit -m "chore: wire Polygon mainnet contract addresses into app manifest"
           git push
