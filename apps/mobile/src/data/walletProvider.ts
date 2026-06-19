@@ -103,7 +103,12 @@ export async function connectInjectedWallet(chain?: InjectedChainConfig): Promis
 
   _browserProvider = new ethers.BrowserProvider(eth as ConstructorParameters<typeof ethers.BrowserProvider>[0]);
   try {
-    await _browserProvider.send("eth_requestAccounts", []);
+    const REQUEST_TIMEOUT_MS = 120_000; // 2 minutes — MetaMask's own timeout is ~5min
+    const requestAccounts = _browserProvider.send("eth_requestAccounts", []);
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("MetaMask request timed out. Open your wallet and approve the connection.")), REQUEST_TIMEOUT_MS)
+    );
+    await Promise.race([requestAccounts, timeout]);
   } catch (err: unknown) {
     const code = (err as { code?: number })?.code;
     if (code === 4001) {
