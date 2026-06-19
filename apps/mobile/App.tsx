@@ -553,7 +553,7 @@ export default function App() {
         {detailProposal ? <ProposalIntegrityCard manifest={manifest} proposal={detailProposal} /> : null}
         <VotePanel
           proposalId={currentDetail.refId}
-          votingEnabled={manifest.features.voting}
+          votingEnabled={manifest.features.voting && sessionIdentity?.role !== "None"}
           sessionActive={sessionActive}
           voteState={detailVoteState ?? getVoteState(currentDetail.refId)}
           explorerUrl={detailVoteState?.receipt ? buildExplorerTxUrl(manifest, detailVoteState.receipt.txHash) : null}

@@ -102,13 +102,18 @@ export async function connectSession(option: AccessOption, manifest: AppManifest
     // This switches (or adds) the manifest's chain — e.g. Polygon — automatically.
     if (option.kind === "wallet" && isWebRuntime() && !getActiveSigner()) {
       const meta = chainMeta(manifest.chain.id, manifest.chain.name);
-      await connectInjectedWallet({
+      const walletResult = await connectInjectedWallet({
         chainId: manifest.chain.id,
         chainName: meta.name,
         rpcUrl: manifest.chain.rpcUrl,
         blockExplorer: manifest.chain.blockExplorer,
         nativeCurrencySymbol: meta.symbol
       });
+      if (walletResult.chainId !== manifest.chain.id) {
+        throw new Error(
+          `Wallet is on chain ${walletResult.chainId} but the app requires ${manifest.chain.name} (chain ${manifest.chain.id}). Switch networks in MetaMask and retry.`
+        );
+      }
     }
 
     const signer = getActiveSigner();
