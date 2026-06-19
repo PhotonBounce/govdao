@@ -49,11 +49,15 @@ jobs:
         run: npx hardhat run scripts/deploy.ts --network polygon
 
       - name: Verify contracts on Polygonscan
-        if: ${{ secrets.POLYGONSCAN_API_KEY != '' }}
         env:
           POLYGON_RPC_URL: ${{ secrets.POLYGON_RPC_URL }}
           POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
         run: |
+          # Skip silently if no API key configured
+          if [ -z "$POLYGONSCAN_API_KEY" ]; then
+            echo "POLYGONSCAN_API_KEY not set — skipping verification"
+            exit 0
+          fi
           dep=$(cat deployments/polygon.json)
           mr=$(echo "$dep" | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).contracts.memberRegistry))")
           tl=$(echo "$dep" | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).contracts.timelock))")
