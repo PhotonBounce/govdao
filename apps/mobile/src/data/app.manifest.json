@@ -29,11 +29,11 @@
     "blockExplorer": "https://polygonscan.com"
   },
   "contracts": {
-    "memberRegistry": "0x0000000000000000000000000000000000000000",
-    "timelock": "0x0000000000000000000000000000000000000000",
-    "governor": "0x0000000000000000000000000000000000000000",
-    "treasury": "0x0000000000000000000000000000000000000000",
-    "emergencyGuardian": "0x0000000000000000000000000000000000000000"
+    "memberRegistry": "0x43fb0141274624AAeD88571736c25dc69c406A92",
+    "timelock": "0x0e6327b1106BCA47E31E3Ca25ebe29414721f274",
+    "governor": "0x279289Aa3b317a2B6c5C59890231DAa36efD69a8",
+    "treasury": "0xF08cC18174e543DFf8d6bAfcaFd35a278b21Bea9",
+    "emergencyGuardian": "0x84C634Bc6369E0f358d8a42d55BA63Aebce96D49"
   },
   "features": {
     "proposalFeed": true,

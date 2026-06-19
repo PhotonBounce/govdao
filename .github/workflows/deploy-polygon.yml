@@ -96,7 +96,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add deployments/polygon.json apps/mobile/src/data/app.manifest.json
+          git add -f deployments/polygon.json apps/mobile/src/data/app.manifest.json
           git diff --staged --quiet && echo "Nothing to commit" || \
             git commit -m "chore: wire Polygon mainnet contract addresses into app manifest"
           git push
