@@ -53,3 +53,7 @@ if (!configured) {
   console.error("Chain check failed: one or more contract reads returned no data.");
   process.exitCode = 1;
 }
+
+// Force a clean exit so lingering keep-alive sockets from the live RPC reads can
+// never keep the process (and therefore the CI step) alive.
+process.exit(process.exitCode ?? 0);
