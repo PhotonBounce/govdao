@@ -1,0 +1,24 @@
+name: Deploy microsite to FTP
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/bold-shannon-3gx5xo
+
+      - name: Deploy /govdao to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.photon-bounce.com
+          username: photonb
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: microsite/govdao/
+          server-dir: /govdao/
+          exclude: |
+            **/.git*
+            **/.git*/**

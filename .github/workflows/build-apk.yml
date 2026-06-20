@@ -1,0 +1,52 @@
+name: Build APK + Deploy to FTP
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/bold-shannon-3gx5xo
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install root deps
+        run: npm ci
+
+      - name: Install mobile deps
+        run: npm ci --prefix apps/mobile
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Build APK (EAS cloud)
+        working-directory: apps/mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          eas build --platform android --profile internal --non-interactive --json \
+            | tee /tmp/eas-output.json
+          APK_URL=$(cat /tmp/eas-output.json | node -e \
+            "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{ const b=JSON.parse(d); console.log(Array.isArray(b)?b[0].artifacts?.buildUrl:b.artifacts?.buildUrl); })")
+          echo "APK_URL=$APK_URL" >> $GITHUB_ENV
+          echo "Downloading APK from $APK_URL"
+          curl -L "$APK_URL" -o /tmp/GOVDAO.apk
+          cp /tmp/GOVDAO.apk ../../microsite/govdao/GOVDAO.apk
+
+      - name: Deploy microsite + APK to FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.photon-bounce.com
+          username: photonb
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: microsite/govdao/
+          server-dir: /govdao/
+          exclude: |
+            **/.git*
+            **/.git*/**
