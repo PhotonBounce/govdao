@@ -736,7 +736,7 @@ export async function loadMobileDashboardData(manifest: AppManifest): Promise<Mo
     : (failures.push("workspace"), workspaceItems);
   const members = membersPayload.status === "fulfilled"
     ? normalizeMemberCollection(membersPayload.value.payload)
-    : (failures.push("members"), memberRoster);
+    : (failures.push("members"), []);
   const proposalTransport = proposalPayload.status === "fulfilled" ? proposalPayload.value.transport : null;
   const motionTransport = motionPayload.status === "fulfilled" ? motionPayload.value.transport : null;
   const treasuryTransport = treasuryPayload.status === "fulfilled" ? treasuryPayload.value.transport : null;

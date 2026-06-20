@@ -334,5 +334,25 @@ export const infoContent: Record<string, InfoEntry> = {
     body: "A command palette for the whole app. Type any part of a screen name — or a related word like \"vote\", \"funds\", \"deadline\" or \"stats\" — and jump straight there. Results are ranked so the closest match sits on top, which keeps every screen one tap away even as the app grows.",
     example: "Typing \"spend\" surfaces both the Treasury and the Spend Request screens; \"stats\" jumps you to Analytics.",
     onchain: "Search runs entirely on-device over the app's screen index — no query ever leaves your phone."
+  },
+
+  // ── Setup / Config ───────────────────────────────────────────────────────
+  "setup-status": {
+    title: "Setup Status",
+    body: "Your smart contracts are live on Polygon and on-chain governance is fully operational. The remaining warnings refer to optional backend services (off-chain proposal indexer, notification push server) that are not required for voting, proposing, or treasury actions.\n\nYou can dismiss these warnings by either wiring up those backend services later, or by setting governance.offchain.enabled to false in the app manifest if you only need on-chain governance.",
+    example: "To vote, propose, or execute — you need contracts (done ✓) and an RPC endpoint (done ✓). The indexer and notification services are bonuses.",
+    onchain: "All on-chain operations (Governor.propose, Governor.castVote, Timelock.execute) work now, independently of any backend service."
+  },
+  "ownership-transfer": {
+    title: "Transfer DAO Ownership",
+    body: "This action transfers your ADMIN role to a new wallet address and removes it from yours. Once confirmed on-chain, you will no longer have admin privileges — the new address will be the sole admin.\n\nUse this to hand full control of the DAO to a multisig, to the DAO itself (self-governance), or to a co-founder. This action is irreversible without a new governance vote.",
+    example: "To give the community full control: transfer ADMIN to the Timelock contract address — now only passed proposals can make admin changes.",
+    onchain: "Calls MemberRegistry.transferAdminRole(newAdmin). Emits RoleChanged for both addresses. Cannot be undone without ADMIN rights."
+  },
+  "what-is-dao": {
+    title: "What is a DAO?",
+    body: "A DAO (Decentralised Autonomous Organisation) is an organisation run by smart contracts instead of a central authority. Rules are written in code on the blockchain — no single person can override them.\n\nIn GOVDAO:\n• Proposals = motions members vote on\n• Timelock = a safety delay before proposals execute\n• Treasury = funds the DAO controls\n• Guardian = an emergency pause button\n\nYour wallet is your identity and your vote.",
+    example: "Instead of emailing a boss to approve a budget, you create a proposal, members vote, and if it passes the funds move automatically.",
+    onchain: "The Governor, Timelock, Treasury, and MemberRegistry contracts on Polygon are the DAO's constitution — publicly readable by anyone."
   }
 };

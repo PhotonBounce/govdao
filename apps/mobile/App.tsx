@@ -473,6 +473,8 @@ export default function App() {
               onSave={notifications.savePreferences}
             />
           ) : undefined}
+          sessionAddress={sessionIdentity?.address ?? null}
+          sessionRole={sessionIdentity?.role ?? null}
         />
       );
     }

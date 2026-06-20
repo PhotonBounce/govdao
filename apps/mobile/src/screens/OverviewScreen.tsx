@@ -53,9 +53,10 @@ export function OverviewScreen({
       {healthCard}
       {warnings.length > 0 ? (
         <SectionCard
-          eyebrow="Readiness Warnings"
-          title="Configuration Still Needs Promotion"
-          subtitle="The app shell is valid, but these values still read like staging config and should be replaced before shipping outside internal testing."
+          eyebrow="Setup Needed"
+          title="Almost Ready"
+          subtitle="Your contracts are live on Polygon. A few backend service URLs still need to be pointed at real endpoints before Google Play submission — they don't affect on-chain governance."
+          infoKey="setup-status"
         >
           {warnings.map((warning) => (
             <Text key={warning} style={styles.warningLine}>• {warning}</Text>
@@ -66,7 +67,8 @@ export function OverviewScreen({
       <SectionCard
         eyebrow="Launchpad"
         title="Primary Routes"
-        subtitle="A production client should offer explicit entry points into governance, workspace modules, and release controls instead of forcing users to infer the next screen."
+        subtitle="Jump to any governance area. Your role determines which actions are available — tap ⓘ to learn what each section does."
+        infoKey="launchpad"
       >
         <View style={styles.launchpadGrid}>
           {launchpadActions.map((action) => (
@@ -78,7 +80,7 @@ export function OverviewScreen({
         </View>
       </SectionCard>
 
-      <SectionCard eyebrow="Primary Experience" title={governanceHeadline} subtitle={governanceSubtitle}>
+      <SectionCard eyebrow="Primary Experience" title={governanceHeadline} subtitle={governanceSubtitle} infoKey="overview">
         <View style={styles.metricRow}>
           <View style={styles.metricBlock}>
             <Text style={styles.metricValue}>{manifest.chain.name}</Text>
@@ -98,7 +100,8 @@ export function OverviewScreen({
       <SectionCard
         eyebrow="Readiness Board"
         title="Operational Status"
-        subtitle="This board separates what is already release-shaped from what still depends on live infrastructure promotion."
+        subtitle="Green = live on Polygon. Orange = optional feature not yet wired."
+        infoKey="data-status"
       >
         <SignalRow
           label={manifest.governance.mode === "off-chain" ? "Chain settlement path" : "On-chain deployment"}

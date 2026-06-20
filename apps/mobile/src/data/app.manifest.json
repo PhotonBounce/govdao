@@ -46,9 +46,9 @@
     "plan": "premium"
   },
   "services": {
-    "metadataBaseUrl": "https://example.govdao.app/metadata",
-    "indexerBaseUrl": "https://example.govdao.app/indexer",
-    "notificationBaseUrl": "https://example.govdao.app/notifications",
+    "metadataBaseUrl": "https://photon-bounce.com/govdao/api/metadata",
+    "indexerBaseUrl": "https://photon-bounce.com/govdao/api/indexer",
+    "notificationBaseUrl": "https://photon-bounce.com/govdao/api/notifications",
     "mobileFeeds": {
       "proposalsPath": "/mobile/proposals",
       "motionsPath": "/mobile/motions",

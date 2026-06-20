@@ -34,9 +34,11 @@ export const MEMBER_REGISTRY_ABI = [
   "function getRoleAt(address account, uint256 blockNumber) external view returns (uint8)",
   "function getMemberCount() external view returns (uint256)",
   "function getPastMemberCount(uint256 blockNumber) external view returns (uint256)",
+  "function transferAdminRole(address newAdmin) external",
   "event MemberAdded(address indexed account, uint8 role)",
   "event MemberRemoved(address indexed account)",
   "event RoleChanged(address indexed account, uint8 oldRole, uint8 newRole)",
+  "event AdminTransferred(address indexed previousAdmin, address indexed newAdmin)",
 ] as const;
 
 export const TREASURY_ABI = [
