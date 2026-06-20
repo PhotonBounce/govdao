@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ModulePill } from "../components/ModulePill";
 import { SectionCard } from "../components/SectionCard";
+import { TreasuryAllocationCard } from "../components/TreasuryAllocationCard";
+import { loadTreasuryAllocation } from "../data/treasuryAllocationSource";
 import { SignalRow } from "../components/SignalRow";
 import { OnchainSnapshot } from "../data/chainSource";
 import { GuardianEventItem, GuardianStatus, TreasuryMovementItem, TreasurySnapshot } from "../data/mobileDataSource";
@@ -24,6 +26,7 @@ interface TreasuryScreenProps {
 export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, onchainSnapshot, onchainLoading, spendRequestEnabled, drillSchedulingEnabled, onRequestSpend, onScheduleDrill, onSelectMovement, onSelectGuardianEvent }: TreasuryScreenProps) {
   return (
     <>
+      <TreasuryAllocationCard allocation={loadTreasuryAllocation()} />
       <SectionCard
         eyebrow="On-Chain Verification"
         title={onchainSnapshot.available ? "Live Contract Reads" : "Awaiting Chain Configuration"}
