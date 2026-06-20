@@ -61,6 +61,7 @@ export function ProposalsScreen({
         eyebrow="Search & Filter"
         title="Narrow The Feed"
         subtitle="Search by title, ID, or owner. Filter proposals by on-chain state."
+        infoKey="search"
       >
         <TextInput
           style={styles.searchInput}
@@ -91,6 +92,7 @@ export function ProposalsScreen({
         eyebrow="Proposal Feed"
         title="Live Governance Snapshot"
         subtitle="A release candidate should show both treasury-grade proposals and hybrid motions in one place."
+        infoKey="proposals-list"
       >
         {proposalCreationEnabled ? (
           <Pressable style={styles.createButton} onPress={onCreateProposal}>
@@ -122,6 +124,7 @@ export function ProposalsScreen({
           eyebrow="Off-Chain DAO"
           title="Motions And Review Queue"
           subtitle="These flows cover organizational work that benefits from faster off-chain coordination with optional anchoring back into governance records."
+          infoKey="motions-list"
         >
           {filteredMotions.length === 0 ? (
             <Text style={styles.emptyLine}>

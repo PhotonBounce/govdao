@@ -28,6 +28,7 @@ export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, 
         eyebrow="On-Chain Verification"
         title={onchainSnapshot.available ? "Live Contract Reads" : "Awaiting Chain Configuration"}
         subtitle={onchainSnapshot.detail}
+        infoKey="data-status"
       >
         <View style={styles.statusRow}>
           <ModulePill

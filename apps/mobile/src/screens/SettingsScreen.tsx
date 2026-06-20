@@ -59,6 +59,7 @@ export function SettingsScreen({ manifest, metadataConfigured, supportConfigured
         eyebrow="Environment"
         title="App Wiring"
         subtitle="These values are the highest-risk release settings because they control where members, proposals, and support traffic actually land."
+        infoKey="app-settings"
       >
         <SignalRow label="Bundle ID" value={manifest.app.bundleId} />
         <SignalRow label="Android track" value={manifest.release.android.track} />

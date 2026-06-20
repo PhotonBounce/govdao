@@ -33,7 +33,7 @@ export function SearchScreen({ onJump }: SearchScreenProps) {
         </Text>
       </SectionCard>
 
-      <SectionCard tone="glass" title="Destinations">
+      <SectionCard tone="glass" title="Destinations" infoKey="search">
         {results.length === 0 ? (
           <Text style={styles.empty}>No screens match that. Try "vote", "funds", "stats" or "deploy".</Text>
         ) : (

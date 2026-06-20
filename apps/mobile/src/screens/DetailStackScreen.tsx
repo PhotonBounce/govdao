@@ -89,25 +89,25 @@ export function DetailStackScreen({
       {votePanel}
 
       {voteBreakdownPanel ? (
-        <SectionCard eyebrow="Vote Tally" title="Member Breakdown" subtitle="How each registered member voted on this proposal." tone={tone}>
+        <SectionCard eyebrow="Vote Tally" title="Member Breakdown" subtitle="How each registered member voted on this proposal." tone={tone} infoKey="vote-tally">
           {voteBreakdownPanel}
         </SectionCard>
       ) : null}
 
       {proposalTimelinePanel ? (
-        <SectionCard eyebrow="Lifecycle" title="Proposal Timeline" subtitle="Each state transition recorded on-chain, newest entries at the bottom." tone={tone}>
+        <SectionCard eyebrow="Lifecycle" title="Proposal Timeline" subtitle="Each state transition recorded on-chain, newest entries at the bottom." tone={tone} infoKey="proposal-timeline">
           {proposalTimelinePanel}
         </SectionCard>
       ) : null}
 
       {delegatePanel ? (
-        <SectionCard eyebrow="Delegate Record" title="Voting History" subtitle="Participation rate and recent governance votes for this member." tone={tone}>
+        <SectionCard eyebrow="Delegate Record" title="Voting History" subtitle="Participation rate and recent governance votes for this member." tone={tone} infoKey="delegate-profile">
           {delegatePanel}
         </SectionCard>
       ) : null}
 
       {workspaceActionPanel ? (
-        <SectionCard eyebrow="Document Actions" title="Manage This Item" subtitle="Route the document to the next step in the workspace workflow." tone={tone}>
+        <SectionCard eyebrow="Document Actions" title="Manage This Item" subtitle="Route the document to the next step in the workspace workflow." tone={tone} infoKey="workspace">
           {workspaceActionPanel}
         </SectionCard>
       ) : null}

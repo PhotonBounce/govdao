@@ -44,7 +44,7 @@ export function SpendRequestScreen({
 }: SpendRequestScreenProps) {
   if (!sessionIdentity) {
     return (
-      <SectionCard eyebrow="Access Required" title="Sign In To Continue" subtitle="Treasury spend requests require an active member session with proposal-creation authority.">
+      <SectionCard eyebrow="Access Required" title="Sign In To Continue" subtitle="Treasury spend requests require an active member session with proposal-creation authority." infoKey="member-session">
         <Pressable style={styles.backButton} onPress={onBack}>
           <Text style={styles.backButtonText}>Back To Treasury</Text>
         </Pressable>
@@ -55,7 +55,7 @@ export function SpendRequestScreen({
   if (phase === "queued" && result) {
     return (
       <>
-        <SectionCard eyebrow="Request Submitted" title="Spend Request Queued" subtitle="The request has been queued in the treasury timelock. It will execute after the timelock window expires.">
+        <SectionCard eyebrow="Request Submitted" title="Spend Request Queued" subtitle="The request has been queued in the treasury timelock. It will execute after the timelock window expires." infoKey="spend-request">
           <View style={styles.receiptRow}>
             <ModulePill label="QUEUED" tone="pine" />
             <ModulePill label="FIXTURE TX" tone="bronze" />

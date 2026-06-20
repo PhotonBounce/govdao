@@ -117,6 +117,7 @@ export function OverviewScreen({
         eyebrow="Access Layer"
         title={manifest.wallet.required ? "Wallet Plus Managed Access" : "Managed Access"}
         subtitle="Google Play release candidates need a clear member access story. This release combines wallet capabilities with off-chain auth where the governance mode requires it."
+        infoKey="wallet-connect"
       >
         <SignalRow label="Wallet required" value={manifest.wallet.required ? "Yes" : "No"} tone={manifest.wallet.required ? "good" : "neutral"} />
         <SignalRow label="Supported wallets" value={manifest.wallet.supported.join(", ")} />
@@ -134,6 +135,7 @@ export function OverviewScreen({
           ? `Off-chain control plane: ${manifest.governance.offchain.provider}. Vote anchoring ${manifest.governance.offchain.voteAnchoringEnabled ? "enabled" : "disabled"}.`
           : "All proposal and vote state resolves on-chain."}
         tone="graphite"
+        infoKey="governance-mode"
       >
         <View style={styles.pillRow}>
           {offchainAuthLabels.map((method) => (
@@ -149,6 +151,7 @@ export function OverviewScreen({
         eyebrow="Member Registry"
         title={`${members.length} Registered Member${members.length !== 1 ? "s" : ""}`}
         subtitle="Active members loaded from the registry feed. Tap a member to view their role and on-chain address."
+        infoKey="member-registry"
       >
         <MembersPanel members={members} onSelectMember={onSelectMember} />
         {memberInviteEnabled && onInviteMember ? (
