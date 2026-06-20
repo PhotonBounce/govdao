@@ -46,6 +46,7 @@ export function SettingsScreen({ manifest, metadataConfigured, supportConfigured
         eyebrow="Release Ops"
         title="Support And Legal"
         subtitle="Store review requires these disclosures to be reachable from inside the app, not just listed in the manifest."
+        infoKey="legal-disclosures"
       >
         <DisclosureLink label="Privacy Policy" url={manifest.support.privacyPolicyUrl} />
         <DisclosureLink label="Terms Of Service" url={manifest.support.termsOfServiceUrl} />
