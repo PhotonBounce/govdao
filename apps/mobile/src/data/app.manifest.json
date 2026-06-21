@@ -43,7 +43,7 @@
     "pushNotifications": true,
     "biometricConfirm": true,
     "fiatOnramp": false,
-    "plan": "premium"
+    "plan": "free"
   },
   "services": {
     "metadataBaseUrl": "https://photon-bounce.com/govdao/api/metadata",
