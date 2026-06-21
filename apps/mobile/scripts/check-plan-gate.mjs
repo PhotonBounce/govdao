@@ -90,7 +90,8 @@ console.log("\nPlanGate: manifest JSON has plan field");
 const manifestFile = path.resolve(__dirname, "../src/data/app.manifest.json");
 const manifest = require(manifestFile);
 assert("manifest has features.plan", typeof manifest.features.plan === "string");
-assert("manifest plan is 'premium'", manifest.features.plan === "premium");
+assert("manifest plan is a known value", ["free", "premium"].includes(manifest.features.plan));
+assert("manifest plan is 'free' (paywall enabled for production)", manifest.features.plan === "free");
 
 console.log(`\ncheck-plan-gate: ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);
