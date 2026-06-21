@@ -83,6 +83,7 @@ jobs:
       - run: npm run mobile:check-proposal-risk
       - run: npm run mobile:check-sentiment-pulse
       - run: npm run mobile:check-onchain-proof
+      - run: npm run mobile:check-accessibility
       - run: npm run mobile:check-chain
       - name: App config matches manifest
         run: |

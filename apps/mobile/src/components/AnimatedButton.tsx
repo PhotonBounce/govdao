@@ -44,6 +44,7 @@ export function AnimatedButton({
       onPress={onPress}
       sound={sound}
       disabled={disabled}
+      accessibilityLabel={label}
       intensity="strong"
       style={[styles.base, variant === "primary" ? styles.primary : styles.ghost]}
     >

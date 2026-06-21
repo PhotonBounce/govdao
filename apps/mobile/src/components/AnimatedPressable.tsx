@@ -11,6 +11,10 @@ interface AnimatedPressableProps {
   intensity?: PressIntensity;
   sound?: SoundName | null;
   disabled?: boolean;
+  /** Spoken label for screen readers (TalkBack/VoiceOver). */
+  accessibilityLabel?: string;
+  /** Override the default "button" role (e.g. "link", "tab"). */
+  accessibilityRole?: "button" | "link" | "tab" | "none";
 }
 
 /**
@@ -24,6 +28,8 @@ export function AnimatedPressable({
   intensity = "normal",
   sound = "tap",
   disabled = false,
+  accessibilityLabel,
+  accessibilityRole = "button",
 }: AnimatedPressableProps) {
   const scale = useRef(new Animated.Value(1)).current;
   const glow = useRef(new Animated.Value(0)).current;
@@ -45,6 +51,9 @@ export function AnimatedPressable({
   return (
     <Pressable
       disabled={disabled}
+      accessibilityRole={accessibilityRole}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ disabled }}
       onPressIn={() => springTo(config.pressedScale, 1)}
       onPressOut={() => springTo(config.restScale, 0)}
       onPress={() => {
