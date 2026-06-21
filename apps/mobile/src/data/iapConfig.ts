@@ -9,6 +9,8 @@ export const PREMIUM_PRODUCT_IDS = {
   annual: "govdao_premium_annual",
 } as const;
 
+export type BillingPeriod = keyof typeof PREMIUM_PRODUCT_IDS;
+
 export type IapStatus = "unconfigured" | "ready" | "purchased" | "unsupported" | "error";
 
 export interface IapState {

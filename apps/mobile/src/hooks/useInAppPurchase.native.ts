@@ -7,12 +7,14 @@ import {
   IapState,
   UNSUPPORTED_IAP_STATE,
   PREMIUM_OFFERING_ID,
+  PREMIUM_PRODUCT_IDS,
+  BillingPeriod,
   isPremiumEntitled,
 } from "../data/iapConfig";
 
 export interface IapController {
   state: IapState;
-  purchase: () => void;
+  purchase: (period?: BillingPeriod) => void;
   restore: () => void;
 }
 
@@ -55,11 +57,21 @@ export function useInAppPurchase(_manifest: AppManifest): IapController {
     };
   }, []);
 
-  const purchase = useCallback(async () => {
+  const purchase = useCallback(async (period: BillingPeriod = "monthly") => {
     if (Platform.OS === "web" || !apiKey()) return;
     try {
       const offerings = await Purchases.getOfferings();
-      const pkg = offerings.current?.availablePackages?.[0];
+      const available = offerings.current?.availablePackages ?? [];
+      // Pick the package that matches the requested billing period. Match first on
+      // the configured product identifier, then on RevenueCat's packageType, and
+      // finally fall back to the first available package so a single-plan offering
+      // still works.
+      const wantedId = PREMIUM_PRODUCT_IDS[period];
+      const wantedType = period === "annual" ? "ANNUAL" : "MONTHLY";
+      const pkg =
+        available.find((p) => p.product?.identifier === wantedId) ??
+        available.find((p) => p.packageType === wantedType) ??
+        available[0];
       if (!pkg) {
         setState((s) => ({ ...s, detail: `No packages in the "${PREMIUM_OFFERING_ID}" offering.` }));
         return;

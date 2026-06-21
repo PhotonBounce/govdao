@@ -25,6 +25,8 @@ function assert(label, cond, detail = "") {
 console.log("\nIAP: identifiers");
 assert("premium entitlement id", iap.PREMIUM_ENTITLEMENT_ID === "premium");
 assert("monthly + annual product ids present", iap.PREMIUM_PRODUCT_IDS.monthly.length > 0 && iap.PREMIUM_PRODUCT_IDS.annual.length > 0);
+assert("product ids cover exactly monthly + annual", JSON.stringify(Object.keys(iap.PREMIUM_PRODUCT_IDS).sort()) === JSON.stringify(["annual", "monthly"]));
+assert("product ids are distinct", iap.PREMIUM_PRODUCT_IDS.monthly !== iap.PREMIUM_PRODUCT_IDS.annual);
 
 console.log("\nIAP: free-tier offer gating");
 assert("offered to free plan", iap.iapOffered({ features: { plan: "free" } }) === true);

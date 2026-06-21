@@ -1,9 +1,9 @@
 import { AppManifest } from "../types";
-import { IapState, UNSUPPORTED_IAP_STATE } from "../data/iapConfig";
+import { IapState, UNSUPPORTED_IAP_STATE, BillingPeriod } from "../data/iapConfig";
 
 export interface IapController {
   state: IapState;
-  purchase: () => void;
+  purchase: (period?: BillingPeriod) => void;
   restore: () => void;
 }
 
