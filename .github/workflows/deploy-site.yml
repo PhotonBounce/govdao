@@ -1,6 +1,12 @@
 name: Deploy microsite to FTP
 
 on:
+  push:
+    branches: [main, claude/bold-shannon-3gx5xo]
+    paths:
+      - 'microsite/**'
+      - 'apps/mobile/**'
+      - '.github/workflows/deploy-site.yml'
   workflow_dispatch:
 
 jobs:

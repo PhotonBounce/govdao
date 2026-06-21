@@ -1,0 +1,50 @@
+name: Deploy Web App to GitHub Pages
+
+on:
+  push:
+    branches: [main, claude/bold-shannon-3gx5xo]
+    paths:
+      - 'apps/mobile/**'
+      - '.github/workflows/deploy-web.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/mobile/package-lock.json
+
+      - name: Install dependencies
+        working-directory: apps/mobile
+        run: npm ci
+
+      - name: Export Expo web build
+        working-directory: apps/mobile
+        run: npx expo export --platform web --output-dir web-build
+        env:
+          NODE_ENV: production
+
+      - name: Copy web build to microsite
+        run: |
+          mkdir -p microsite/govdao/app
+          cp -r apps/mobile/web-build/. microsite/govdao/app/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: microsite/govdao
+          destination_dir: .
+          keep_files: false
+          commit_message: 'deploy: update GOVDAO web app [skip ci]'
