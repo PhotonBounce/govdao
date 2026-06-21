@@ -3,7 +3,8 @@
   "compilerOptions": {
     "strict": true,
     "resolveJsonModule": true,
-    "baseUrl": "."
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0"
   },
   "include": [
     "App.tsx",
