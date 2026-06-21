@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { EmptyState } from "../components/EmptyState";
 import { ModulePill } from "../components/ModulePill";
 import { SectionCard } from "../components/SectionCard";
 import { TreasuryAllocationCard } from "../components/TreasuryAllocationCard";
@@ -87,7 +88,13 @@ export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, 
         subtitle="Every movement settles through the timelock path, so the queue below mirrors what members can verify on-chain."
         infoKey="treasury-movements"
       >
-        {movements.length === 0 ? <Text style={styles.emptyLine}>No treasury movements are available from the active feed yet.</Text> : null}
+        {movements.length === 0 ? (
+          <EmptyState
+            glyph="◇"
+            title="No movements yet"
+            message="Treasury inflows and outflows will appear here once funds move through the timelock."
+          />
+        ) : null}
         {movements.map((movement) => (
           <Pressable key={movement.id} style={styles.feedItem} onPress={() => onSelectMovement(movement)}>
             <View style={styles.feedTopRow}>
@@ -119,7 +126,14 @@ export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, 
             <Text style={styles.drillButtonText}>Schedule Drill →</Text>
           </Pressable>
         ) : null}
-        {guardianEvents.length === 0 ? <Text style={styles.darkEmptyLine}>No guardian events are available from the active feed yet.</Text> : null}
+        {guardianEvents.length === 0 ? (
+          <EmptyState
+            tone="dark"
+            glyph="🛡"
+            title="No guardian events"
+            message="Emergency pauses and drills are logged here. A quiet log is a healthy one."
+          />
+        ) : null}
         {guardianEvents.map((event) => (
           <Pressable key={event.id} style={styles.darkFeedItem} onPress={() => onSelectGuardianEvent(event)}>
             <View style={styles.feedTopRow}>

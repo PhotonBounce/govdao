@@ -1,5 +1,6 @@
 import { ReactNode, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { EmptyState } from "../components/EmptyState";
 import { ModulePill } from "../components/ModulePill";
 import { SectionCard } from "../components/SectionCard";
 import { MotionItem, ProposalItem } from "../data/mobileDataSource";
@@ -100,11 +101,25 @@ export function ProposalsScreen({
           </Pressable>
         ) : null}
         {filteredProposals.length === 0 ? (
-          <Text style={styles.emptyLine}>
-            {searchQuery || stateFilter !== "All"
-              ? "No proposals match the current search or filter."
-              : "No proposals are available from the active feed yet."}
-          </Text>
+          searchQuery || stateFilter !== "All" ? (
+            <EmptyState
+              glyph="🔍"
+              title="No matches"
+              message="No proposals match the current search or filter. Try clearing the filter or a different term."
+            />
+          ) : (
+            <EmptyState
+              glyph="📋"
+              title="No proposals yet"
+              message={
+                proposalCreationEnabled
+                  ? "Your DAO is live and waiting for its first motion. Kick things off with a proposal members can vote on."
+                  : "No proposals are available from the active feed yet."
+              }
+              ctaLabel={proposalCreationEnabled ? "Create the first proposal →" : undefined}
+              onCta={proposalCreationEnabled ? onCreateProposal : undefined}
+            />
+          )
         ) : null}
         {filteredProposals.map((proposal) => (
           <Pressable key={proposal.id} style={styles.feedItem} onPress={() => onSelectProposal(proposal)}>
@@ -127,11 +142,15 @@ export function ProposalsScreen({
           infoKey="motions-list"
         >
           {filteredMotions.length === 0 ? (
-            <Text style={styles.emptyLine}>
-              {searchQuery
-                ? "No motions match the current search."
-                : "No off-chain motions are available from the active provider."}
-            </Text>
+            <EmptyState
+              glyph="🗂"
+              title={searchQuery ? "No matches" : "No motions yet"}
+              message={
+                searchQuery
+                  ? "No motions match the current search."
+                  : "Off-chain motions appear here once your team raises one for review."
+              }
+            />
           ) : null}
           {filteredMotions.map((motion) => (
             <Pressable key={motion.id} style={styles.feedItem} onPress={() => onSelectMotion(motion)}>
