@@ -4,6 +4,7 @@
 
 import { createRequire } from "node:module";
 import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -75,6 +76,15 @@ for (const feature of FEATURES) {
   const gate = simulateGate(noManifest, feature);
   assert(`no-plan blocks ${feature}`, !gate.allowed);
 }
+
+console.log("\nPlanGate: every feature has benefit copy");
+const hookSrc = readFileSync(hookFile, "utf8");
+for (const feature of FEATURES) {
+  // Each feature key must appear in both the labels and benefits maps.
+  const inBenefits = new RegExp(`"${feature}"\\s*:`).test(hookSrc.split("FEATURE_BENEFITS")[1] ?? "");
+  assert(`${feature} has benefit copy`, inBenefits);
+}
+assert("PlanGateResult exposes benefit", /benefit:\s*string/.test(hookSrc) && /benefit:\s*FEATURE_BENEFITS/.test(hookSrc));
 
 console.log("\nPlanGate: manifest JSON has plan field");
 const manifestFile = path.resolve(__dirname, "../src/data/app.manifest.json");
