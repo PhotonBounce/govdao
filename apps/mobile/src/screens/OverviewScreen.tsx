@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ReactNode } from "react";
 import { MembersPanel } from "../components/MembersPanel";
 import { ModulePill } from "../components/ModulePill";
+import { OnchainProofCard } from "../components/OnchainProofCard";
 import { SectionCard } from "../components/SectionCard";
 import { SignalRow } from "../components/SignalRow";
 import { MemberItem } from "../data/mobileDataSource";
@@ -51,6 +52,7 @@ export function OverviewScreen({
   return (
     <>
       {healthCard}
+      <OnchainProofCard manifest={manifest} />
       {warnings.length > 0 ? (
         <SectionCard
           eyebrow="Setup Needed"

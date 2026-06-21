@@ -58,6 +58,7 @@
     "check:delegate-power-map": "node scripts/check-delegate-power-map.mjs",
     "check:proposal-risk": "node scripts/check-proposal-risk.mjs",
     "check:sentiment-pulse": "node scripts/check-sentiment-pulse.mjs",
+    "check:onchain-proof": "node scripts/check-onchain-proof.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:screenshots": "python3 scripts/generate-store-screenshots.py",
     "generate:brand": "python3 scripts/generate-brand.py",
