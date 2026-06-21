@@ -651,6 +651,7 @@ export default function App() {
       >
         <View style={styles.navRow}>
           <NavTab active={activeView === "overview"} label="Overview" onPress={() => openView("overview")} />
+          <NavTab accent active={activeView === "upgrade"} label="✦ Premium" onPress={() => openView("upgrade")} />
           <NavTab active={activeView === "search"} label="Search" onPress={() => openView("search")} />
           {hasProposalView ? <NavTab active={activeView === "proposals"} label="Proposals" onPress={() => openView("proposals")} /> : null}
           {hasProposalCreation ? <NavTab active={activeView === "create-proposal"} label="Propose" onPress={() => openView("create-proposal")} /> : null}
