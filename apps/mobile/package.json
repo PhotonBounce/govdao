@@ -61,6 +61,7 @@
     "check:onchain-proof": "node scripts/check-onchain-proof.mjs",
     "check:accessibility": "node scripts/check-accessibility.mjs",
     "check:monetization": "node scripts/check-monetization.mjs",
+    "check:app-config": "node scripts/check-app-config.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:screenshots": "python3 scripts/generate-store-screenshots.py",
     "generate:brand": "python3 scripts/generate-brand.py",

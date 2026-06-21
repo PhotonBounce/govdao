@@ -85,6 +85,7 @@ jobs:
       - run: npm run mobile:check-onchain-proof
       - run: npm run mobile:check-accessibility
       - run: npm run mobile:check-monetization
+      - run: npm run mobile:check-app-config
       - run: npm run mobile:check-chain
       - name: App config matches manifest
         run: |
