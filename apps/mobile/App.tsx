@@ -86,6 +86,7 @@ import { TreasuryScreen } from "./src/screens/TreasuryScreen";
 import { useProposalCreationController } from "./src/hooks/useProposalCreationController";
 import { AppManifest } from "./src/types";
 import { darkPalette, radii, fonts } from "./src/theme";
+import { SkeletonCard } from "./src/components/SkeletonCard";
 
 const manifest = manifestJson as AppManifest;
 
@@ -241,6 +242,15 @@ export default function App() {
   }
 
   function renderActiveView() {
+    if (dashboardLoading && activeView === "overview") {
+      return (
+        <>
+          <SkeletonCard hasEyebrow lines={2} />
+          <SkeletonCard hasEyebrow lines={4} />
+          <SkeletonCard hasEyebrow={false} lines={3} />
+        </>
+      );
+    }
     if (activeView === "proposals") {
       const quorumPanel = proposals.length > 0 ? (
         <QuorumStatusCard
