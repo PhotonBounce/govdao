@@ -12,10 +12,19 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Skip silently if the FTP secret has not been configured yet
+    if: ${{ vars.FTP_CONFIGURED == 'true' || github.event_name == 'workflow_dispatch' }}
     steps:
       - uses: actions/checkout@v4
         with:
           ref: claude/bold-shannon-3gx5xo
+
+      - name: Check FTP secret is available
+        run: |
+          if [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
+            echo "::error::FTP_PASSWORD secret is not set. Add it under Settings > Secrets > Actions."
+            exit 1
+          fi
 
       - name: Deploy /govdao to FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
