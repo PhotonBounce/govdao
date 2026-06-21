@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { EmptyState } from "../components/EmptyState";
 import { ModulePill } from "../components/ModulePill";
 import { SectionCard } from "../components/SectionCard";
+import { Spinner } from "../components/Spinner";
 import { TreasuryAllocationCard } from "../components/TreasuryAllocationCard";
 import { loadTreasuryAllocation } from "../data/treasuryAllocationSource";
 import { SignalRow } from "../components/SignalRow";
@@ -40,7 +41,9 @@ export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, 
             tone={onchainSnapshot.available ? "pine" : "bronze"}
           />
         </View>
-        {onchainSnapshot.available ? (
+        {onchainLoading && !onchainSnapshot.available ? (
+          <Spinner tone="light" label="Reading live state from Polygon…" />
+        ) : onchainSnapshot.available ? (
           <>
             <SignalRow label="Block" value={onchainSnapshot.blockNumber ?? "Unavailable"} tone="neutral" />
             <SignalRow label="Treasury balance" value={onchainSnapshot.treasuryBalance ?? "Unavailable"} tone={onchainSnapshot.treasuryBalance ? "good" : "warning"} />
