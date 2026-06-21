@@ -17,6 +17,15 @@ const PRICING: Record<BillingPeriod, { price: string; cadence: string; perMonth:
   annual: { price: "$96", cadence: "per year", perMonth: "$8/mo billed annually", savings: "SAVE 33%" },
 };
 
+// The objections that stop a governance-app purchase, answered up front. Lowering
+// perceived risk at the point of decision is the highest-leverage copy on the page.
+const FAQ: { q: string; a: string }[] = [
+  { q: "Can I cancel anytime?", a: "Yes. Manage or cancel in Google Play in two taps — you keep Premium until the period you already paid for ends." },
+  { q: "Do you need my wallet or seed phrase?", a: "Never. Premium is tied to your Google account, not your wallet. On-chain actions are always signed by your own wallet on your device." },
+  { q: "What data do you collect?", a: "No name, email, or personal data. The app reads governance state straight from your RPC endpoint — there's no backend account to create." },
+  { q: "Can I try it before deploying contracts?", a: "Yes. Demo mode runs every feature on realistic sample data, so you can explore Premium fully before going live on-chain." },
+];
+
 const FREE_FEATURES = [
   "View proposals and motions",
   "Cast votes on active proposals",
@@ -120,6 +129,16 @@ export function UpgradeScreen({ onBack, iapState, onPurchase, onRestore }: Upgra
           ) : null}
           {iapState ? <Text style={styles.iapDetail}>{iapState.detail || describeIapStatus(iapState)}</Text> : null}
         </View>
+      </View>
+
+      <View style={styles.faq}>
+        <Text style={styles.faqTitle}>Before you decide</Text>
+        {FAQ.map((item) => (
+          <View key={item.q} style={styles.faqItem}>
+            <Text style={styles.faqQ}>{item.q}</Text>
+            <Text style={styles.faqA}>{item.a}</Text>
+          </View>
+        ))}
       </View>
 
       <Text style={styles.footnote}>
@@ -330,6 +349,31 @@ const styles = StyleSheet.create({
     lineHeight: 17,
     color: "rgba(224,219,208,0.55)",
     textAlign: "center"
+  },
+  faq: {
+    marginBottom: 24,
+    gap: 14
+  },
+  faqTitle: {
+    color: darkPalette.softGold,
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+    marginBottom: 2
+  },
+  faqItem: {
+    gap: 4
+  },
+  faqQ: {
+    color: darkPalette.dimWhite,
+    fontSize: 15,
+    fontWeight: "700"
+  },
+  faqA: {
+    color: "rgba(224,219,208,0.62)",
+    fontSize: 13,
+    lineHeight: 20
   },
   footnote: {
     fontSize: 12,
