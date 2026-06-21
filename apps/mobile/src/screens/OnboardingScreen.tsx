@@ -53,7 +53,7 @@ export function OnboardingScreen({ onDone }: OnboardingScreenProps) {
           ) : null}
           <View style={styles.buttonFlex}>
             <AnimatedButton
-              label={last ? "Get started" : "Next"}
+              label={last ? "Connect & start →" : "Next"}
               variant="primary"
               pulse={last}
               onPress={() => (last ? onDone() : setIndex(nextStep(index)))}

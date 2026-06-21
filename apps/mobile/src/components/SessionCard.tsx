@@ -22,6 +22,14 @@ function formatTimestamp(value: string): string {
   return Number.isNaN(date.getTime()) ? value : date.toLocaleString();
 }
 
+// Concrete payoffs of connecting — shown on the disconnected card so the value
+// of signing in is obvious at the activation moment, not buried behind a tap.
+const CONNECT_BENEFITS = [
+  "Cast binding votes on-chain",
+  "Create, queue, and execute proposals",
+  "Move treasury funds through governance",
+];
+
 export function SessionCard({ status, identity, options, required, error, pendingMethodId, onSignIn, onSignOut }: SessionCardProps) {
   if (status === "signed-in" && identity) {
     return (
@@ -58,9 +66,19 @@ export function SessionCard({ status, identity, options, required, error, pendin
       infoKey="wallet-connect"
     >
       {error ? <Text style={styles.errorLine}>{error}</Text> : null}
-      {options.length === 0 ? (
+      {options.length > 0 ? (
+        <View style={styles.benefitsBox}>
+          <Text style={styles.benefitsHeading}>Connect to unlock</Text>
+          {CONNECT_BENEFITS.map((benefit) => (
+            <View key={benefit} style={styles.benefitRow}>
+              <Text style={styles.benefitCheck}>✓</Text>
+              <Text style={styles.benefitText}>{benefit}</Text>
+            </View>
+          ))}
+        </View>
+      ) : (
         <Text style={styles.emptyLine}>No access methods are enabled in the active manifest.</Text>
-      ) : null}
+      )}
       {options.map((option) => {
         const pending = status === "connecting" && pendingMethodId === option.id;
         const disabled = status === "connecting";
@@ -128,6 +146,41 @@ const styles = StyleSheet.create({
     color: palette.paper,
     fontSize: 14,
     fontWeight: "700"
+  },
+  benefitsBox: {
+    marginTop: 4,
+    marginBottom: 4,
+    padding: 14,
+    borderRadius: radii.card,
+    backgroundColor: "rgba(217, 205, 184, 0.22)",
+    borderWidth: 1,
+    borderColor: "rgba(142, 92, 50, 0.14)"
+  },
+  benefitsHeading: {
+    color: palette.graphite,
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    marginBottom: 8
+  },
+  benefitRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 5
+  },
+  benefitCheck: {
+    color: palette.pine,
+    fontSize: 14,
+    fontWeight: "800",
+    marginRight: 8,
+    marginTop: 1
+  },
+  benefitText: {
+    color: palette.inkSoft,
+    fontSize: 14,
+    lineHeight: 20,
+    flex: 1
   },
   errorLine: {
     color: palette.rose,
