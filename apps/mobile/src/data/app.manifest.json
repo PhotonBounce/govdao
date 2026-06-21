@@ -25,15 +25,15 @@
   "chain": {
     "id": 137,
     "name": "polygon",
-    "rpcUrl": "https://polygon-rpc.com",
+    "rpcUrl": "https://polygon-mainnet.g.alchemy.com/v2/nTxCkb9NGgPk3FUXMlDsC",
     "blockExplorer": "https://polygonscan.com"
   },
   "contracts": {
-    "memberRegistry": "0x43fb0141274624AAeD88571736c25dc69c406A92",
-    "timelock": "0x0e6327b1106BCA47E31E3Ca25ebe29414721f274",
-    "governor": "0x279289Aa3b317a2B6c5C59890231DAa36efD69a8",
-    "treasury": "0xF08cC18174e543DFf8d6bAfcaFd35a278b21Bea9",
-    "emergencyGuardian": "0x84C634Bc6369E0f358d8a42d55BA63Aebce96D49"
+    "memberRegistry": "0xaFBAB7016b1c17A2099De448aC2f74bA563b2Aaa",
+    "timelock": "0x72B35C420259a2330adE3293E1fEFd79cf0244E5",
+    "governor": "0x85A460c2992f1928612D027d1D860543B00f921f",
+    "treasury": "0x707567E47F1a858ca152AB966A6dAE3975143Ee5",
+    "emergencyGuardian": "0xe4E518e58fEa19B0C8398833607CD82c3feb342d"
   },
   "features": {
     "proposalFeed": true,
