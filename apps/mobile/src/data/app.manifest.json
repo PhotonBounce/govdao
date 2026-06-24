@@ -70,7 +70,7 @@
     "offchain": {
       "enabled": true,
       "provider": "govdao-control-plane",
-      "apiBaseUrl": "fixture://govdao",
+      "apiBaseUrl": "https://photon-bounce.com/govdao/api/offchain",
       "auth": [
         "passkey",
         "wallet-signature"
@@ -89,8 +89,8 @@
         "kind": "dao",
         "enabled": true,
         "entryRoute": "/governance",
-        "apiBaseUrl": "fixture://govdao",
-        "webUrl": "https://app.govdao.app/governance",
+        "apiBaseUrl": "https://photon-bounce.com/govdao/api/governance",
+        "webUrl": "https://photon-bounce.com/govdao/app",
         "requiresAuth": true
       },
       {
@@ -99,8 +99,8 @@
         "kind": "documents",
         "enabled": true,
         "entryRoute": "/workspace",
-        "apiBaseUrl": "fixture://govdao",
-        "webUrl": "https://app.govdao.app/workspace",
+        "apiBaseUrl": "https://photon-bounce.com/govdao/api/workspace",
+        "webUrl": "https://photon-bounce.com/govdao/app",
         "requiresAuth": true
       }
     ]
