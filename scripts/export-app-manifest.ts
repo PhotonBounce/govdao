@@ -257,7 +257,7 @@ export function buildManifest(): AppManifest {
     release: {
       android: {
         applicationId: getEnv("ANDROID_APPLICATION_ID", getEnv("APP_BUNDLE_ID", "com.govdao.app")),
-        versionCode: getOptionalNumber("ANDROID_VERSION_CODE", 2),
+        versionCode: getOptionalNumber("ANDROID_VERSION_CODE", 3),
         track: getEnv("ANDROID_RELEASE_TRACK", "internal") as ReleaseTrack
       },
       listing: {
