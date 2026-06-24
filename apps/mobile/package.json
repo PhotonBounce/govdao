@@ -62,6 +62,7 @@
     "check:accessibility": "node scripts/check-accessibility.mjs",
     "check:monetization": "node scripts/check-monetization.mjs",
     "check:app-config": "node scripts/check-app-config.mjs",
+    "check:data-safety": "node scripts/check-data-safety.mjs",
     "generate:sounds": "node scripts/generate-sounds.mjs",
     "generate:screenshots": "python3 scripts/generate-store-screenshots.py",
     "generate:brand": "python3 scripts/generate-brand.py",
