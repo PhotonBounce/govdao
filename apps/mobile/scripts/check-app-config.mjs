@@ -10,6 +10,7 @@ import { fileURLToPath } from "url";
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const appJson = require(path.resolve(__dirname, "../app.json"));
+const manifest = require(path.resolve(__dirname, "../src/data/app.manifest.json"));
 const expo = appJson.expo;
 const android = expo.android ?? {};
 const ios = expo.ios ?? {};
@@ -62,6 +63,40 @@ assert("expo-notifications plugin present", hasNotifications);
 const admobPlugin = plugins.find(p => (Array.isArray(p) ? p[0] : p) === "react-native-google-mobile-ads");
 const admobConfig = Array.isArray(admobPlugin) ? admobPlugin[1] : {};
 assert("AdMob androidAppId is not empty", typeof admobConfig.androidAppId === "string" && admobConfig.androidAppId.startsWith("ca-app-pub-"));
+
+const hasBuildProps = plugins.some(p => (Array.isArray(p) ? p[0] : p) === "expo-build-properties");
+assert("expo-build-properties plugin present (required for Billing Library 7+)", hasBuildProps);
+
+const buildPropsPlugin = plugins.find(p => (Array.isArray(p) ? p[0] : p) === "expo-build-properties");
+const buildPropsConfig = Array.isArray(buildPropsPlugin) ? (buildPropsPlugin[1] ?? {}) : {};
+const androidBuildDeps = buildPropsConfig.android?.dependencies ?? [];
+const billingDep = androidBuildDeps.find(d => d.startsWith("com.android.billingclient:billing:"));
+const billingVersion = billingDep ? billingDep.split(":")[2] : null;
+const billingMajor = billingVersion ? parseInt(billingVersion.split(".")[0], 10) : 0;
+assert(
+  "Play Billing Library 7.0.0+ declared (Google Play policy — enforced Aug 2025)",
+  billingMajor >= 7,
+  billingVersion ? `got ${billingVersion}` : "dependency not found"
+);
+
+console.log("\napp.json: Google Play policy");
+const privacyUrl = manifest.support?.privacyPolicyUrl ?? "";
+const termsUrl = manifest.support?.termsOfServiceUrl ?? "";
+assert(
+  "privacyPolicyUrl points to live domain (not placeholder)",
+  privacyUrl.startsWith("https://") && !privacyUrl.includes("example") && !privacyUrl.includes("placeholder"),
+  privacyUrl || "missing"
+);
+assert(
+  "termsOfServiceUrl points to live domain (not placeholder)",
+  termsUrl.startsWith("https://") && !termsUrl.includes("example") && !termsUrl.includes("placeholder"),
+  termsUrl || "missing"
+);
+assert(
+  "versionCode in app.json matches manifest",
+  android.versionCode === manifest.release?.android?.versionCode,
+  `app.json=${android.versionCode} manifest=${manifest.release?.android?.versionCode}`
+);
 
 console.log(`\ncheck-app-config: ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

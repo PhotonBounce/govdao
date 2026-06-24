@@ -27,7 +27,7 @@
     },
     "android": {
       "package": "com.govdao.app",
-      "versionCode": 2,
+      "versionCode": 3,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#f3efe3"
@@ -41,6 +41,21 @@
       "revenueCatApiKey": ""
     },
     "plugins": [
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "minSdkVersion": 24,
+            "extraMavenRepos": [],
+            "extraGradlePlugins": [],
+            "dependencies": [
+              "com.android.billingclient:billing:7.1.1"
+            ]
+          }
+        }
+      ],
       [
         "react-native-google-mobile-ads",
         {

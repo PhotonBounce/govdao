@@ -108,7 +108,7 @@
   "release": {
     "android": {
       "applicationId": "com.govdao.app",
-      "versionCode": 2,
+      "versionCode": 3,
       "track": "internal"
     },
     "listing": {
