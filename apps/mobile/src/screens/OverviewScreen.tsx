@@ -202,6 +202,7 @@ const styles = StyleSheet.create({
   },
   metricBlock: {
     flex: 1,
+    minWidth: 0,
     backgroundColor: "rgba(217, 205, 184, 0.28)",
     borderRadius: 16,
     padding: 14

@@ -664,7 +664,7 @@ export default function App() {
         heroContent={heroContent}
         heroContainerStyle={styles.heroContainer}
       >
-        <View style={styles.navRow}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.navRow} contentContainerStyle={styles.navRowContent}>
           <NavTab active={activeView === "overview"} label="Overview" onPress={() => openView("overview")} />
           <NavTab accent active={activeView === "upgrade"} label="✦ Premium" onPress={() => openView("upgrade")} />
           <NavTab active={activeView === "search"} label="Search" onPress={() => openView("search")} />
@@ -681,7 +681,7 @@ export default function App() {
           <NavTab active={activeView === "analytics"} label="Analytics" onPress={() => openView("analytics")} />
           <NavTab active={activeView === "deploy-wizard"} label="Deploy" onPress={() => openView("deploy-wizard")} />
           <NavTab active={activeView === "settings"} label="Settings" onPress={() => openView("settings")} />
-        </View>
+        </ScrollView>
 
         {currentDetail ? renderDetailView() : (
           <View key={activeView}>
@@ -763,9 +763,13 @@ const styles = StyleSheet.create({
     flexWrap: "wrap"
   },
   navRow: {
+    marginBottom: 12,
+  },
+  navRowContent: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    marginBottom: 12
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
   },
   viewHeaderRow: {
     flexDirection: "row",
