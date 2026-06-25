@@ -66,7 +66,7 @@ export function OnboardingScreen({ onDone }: OnboardingScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 28, paddingTop: 72, paddingBottom: 40, justifyContent: "space-between" },
+  container: { flex: 1, paddingHorizontal: 28, paddingTop: 72, paddingBottom: 40, justifyContent: "space-between", backgroundColor: "#080810" },
   skip: { alignSelf: "flex-end", paddingVertical: 6, paddingHorizontal: 10, minHeight: 28 },
   skipText: { color: darkPalette.softGold, fontSize: 14, fontWeight: "700" },
   body: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16 },
