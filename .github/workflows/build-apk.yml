@@ -1,10 +1,16 @@
-name: Build APK + Deploy to FTP
+name: Build APK and deploy to site
 
 on:
   workflow_dispatch:
+  push:
+    branches: [claude/bold-shannon-3gx5xo, main]
+    paths:
+      - 'apps/mobile/**'
+      - '.github/workflows/build-apk.yml'
 
 jobs:
-  build-and-deploy:
+  build:
+    name: Build debug APK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -13,33 +19,47 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
-          cache: "npm"
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/mobile/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
 
       - name: Install root deps
         run: npm ci
 
       - name: Install mobile deps
-        run: npm ci --prefix apps/mobile
+        run: npm --prefix apps/mobile ci
 
-      - name: Install EAS CLI
-        run: npm install -g eas-cli
-
-      - name: Build APK (EAS cloud)
+      - name: Expo prebuild (generate Android project)
         working-directory: apps/mobile
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: |
-          eas build --platform android --profile internal --non-interactive --json \
-            | tee /tmp/eas-output.json
-          APK_URL=$(cat /tmp/eas-output.json | node -e \
-            "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{ const b=JSON.parse(d); console.log(Array.isArray(b)?b[0].artifacts?.buildUrl:b.artifacts?.buildUrl); })")
-          echo "APK_URL=$APK_URL" >> $GITHUB_ENV
-          echo "Downloading APK from $APK_URL"
-          curl -L "$APK_URL" -o /tmp/GOVDAO.apk
-          cp /tmp/GOVDAO.apk ../../microsite/govdao/GOVDAO.apk
+        run: npx expo prebuild --platform android --clean --no-install
 
-      - name: Deploy microsite + APK to FTP
+      - name: Build debug APK
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleDebug --no-daemon
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_HOME }}
+
+      - name: Copy APK to microsite folder
+        run: |
+          cp apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk microsite/govdao/GOVDAO.apk
+          ls -lh microsite/govdao/GOVDAO.apk
+
+      - name: Upload APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GOVDAO-debug
+          path: microsite/govdao/GOVDAO.apk
+          retention-days: 30
+
+      - name: Deploy APK to FTP
+        if: ${{ vars.FTP_CONFIGURED == 'true' || github.event_name == 'workflow_dispatch' }}
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ftp.photon-bounce.com
@@ -50,3 +70,4 @@ jobs:
           exclude: |
             **/.git*
             **/.git*/**
+            **/node_modules/**
