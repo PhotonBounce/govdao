@@ -1,0 +1,16 @@
+# Allow APK downloads
+AddType application/vnd.android.package-archive .apk
+
+# Allow direct file access (bypass any rewrite rules)
+<Files "*.apk">
+    ForceType application/vnd.android.package-archive
+    Header set Content-Disposition "attachment"
+</Files>
+
+# Enable headers module output
+<IfModule mod_headers.c>
+    <FilesMatch "\.apk$">
+        Header set Content-Type "application/vnd.android.package-archive"
+        Header set X-Content-Type-Options "nosniff"
+    </FilesMatch>
+</IfModule>
