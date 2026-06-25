@@ -231,15 +231,19 @@ export default function App() {
   function renderViewHeader() {
     return (
       <SectionCard eyebrow={routeDescriptor.eyebrow} title={routeDescriptor.title} subtitle={routeDescriptor.subtitle} tone="glass" infoKey={activeView === "overview" ? "overview" : activeView === "proposals" ? "proposals-list" : activeView === "create-proposal" ? "create-proposal" : activeView === "treasury" ? "treasury" : activeView === "modules" ? "modules" : activeView === "activity" ? "activity-feed" : activeView === "calendar" ? "governance-calendar" : activeView === "search" ? "search" : activeView === "achievements" ? "achievements" : activeView === "settings" ? "app-settings" : undefined}>
-        <View style={styles.viewHeaderRow}>
-          <Text style={styles.viewHeaderMeta}>Active route: {activeView}</Text>
-          <Text style={styles.viewHeaderMeta}>Stack depth: {detailStack.length}</Text>
-        </View>
-        <View style={styles.viewModeRow}>
-          <ModulePill label={dataMode.label} tone={dataMode.tone} />
-          <Text style={styles.viewModeMeta}>{dataMode.detail}</Text>
-        </View>
-        <RouteSummaryStrip signals={routeSignals} />
+        {__DEV__ && (
+          <>
+            <View style={styles.viewHeaderRow}>
+              <Text style={styles.viewHeaderMeta}>Active route: {activeView}</Text>
+              <Text style={styles.viewHeaderMeta}>Stack depth: {detailStack.length}</Text>
+            </View>
+            <View style={styles.viewModeRow}>
+              <ModulePill label={dataMode.label} tone={dataMode.tone} />
+              <Text style={styles.viewModeMeta}>{dataMode.detail}</Text>
+            </View>
+            <RouteSummaryStrip signals={routeSignals} />
+          </>
+        )}
       </SectionCard>
     );
   }
@@ -630,7 +634,7 @@ export default function App() {
       <View style={styles.pillRow}>
         <ModulePill label={manifest.governance.mode.toUpperCase()} tone="pine" />
         <ModulePill label={manifest.app.distribution.pricingModel.toUpperCase()} tone="bronze" />
-        <ModulePill label={dataMode.label} tone={dataMode.tone} />
+        {__DEV__ && <ModulePill label={dataMode.label} tone={dataMode.tone} />}
       </View>
     </View>
   );
