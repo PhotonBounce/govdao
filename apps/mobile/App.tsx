@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { AnimatedShell } from "./src/components/AnimatedShell";
-import { ParallaxScrollView } from "./src/components/ParallaxScrollView";
+import { ParallaxScrollView, ParallaxScrollViewHandle } from "./src/components/ParallaxScrollView";
 import { PremiumGate } from "./src/components/PremiumGate";
 import { InfoModalProvider } from "./src/contexts/InfoModalContext";
 import { SoundProvider } from "./src/contexts/SoundContext";
@@ -213,11 +213,14 @@ export default function App() {
   const proposalRisk = useMemo(() => computeProposalRisk(FIXTURE_RISK_INPUTS), []);
   useDeepLinks(openView);
   const navCountRef = useRef(0);
+  const scrollViewRef = useRef<ParallaxScrollViewHandle>(null);
   useEffect(() => {
     navCountRef.current += 1;
     if (shouldShowInterstitial(navCountRef.current)) {
       showInterstitial();
     }
+    // Scroll to just below hero so tab content is visible
+    scrollViewRef.current?.scrollTo(320);
   }, [activeView]);
   const dataMode = getDataModeSummary(dashboardData.source);
   const drillGate = usePlanGate(manifest, "guardian-drill");
@@ -622,16 +625,13 @@ export default function App() {
 
   const heroContent = (
     <View style={styles.hero}>
-      <Text style={styles.kicker}>Google Play Release Candidate</Text>
       <Text style={styles.title}>{manifest.app.name}</Text>
-      <Text style={styles.description}>{manifest.release.listing.fullDescription}</Text>
+      <Text style={styles.description}>{manifest.release.listing.shortDescription}</Text>
       <View style={styles.pillRow}>
         <ModulePill label={manifest.governance.mode.toUpperCase()} tone="pine" />
         <ModulePill label={manifest.app.distribution.pricingModel.toUpperCase()} tone="bronze" />
-        <ModulePill label={`TRACK ${manifest.release.android.track.toUpperCase()}`} tone="rose" />
         <ModulePill label={dataMode.label} tone={dataMode.tone} />
       </View>
-      <Text style={styles.modeLine}>Current data mode: {dataMode.detail}</Text>
     </View>
   );
 
@@ -655,6 +655,7 @@ export default function App() {
     <AnimatedShell>
       <StatusBar style="light" />
       <ParallaxScrollView
+        ref={scrollViewRef}
         contentContainerStyle={styles.content}
         heroContent={heroContent}
         heroContainerStyle={styles.heroContainer}
