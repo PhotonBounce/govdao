@@ -678,29 +678,31 @@ export default function App() {
           <NavTab active={activeView === "settings"} label="Settings" onPress={() => openView("settings")} />
         </View>
 
-        <DataStatusCard
-          loading={dashboardLoading}
-          source={dashboardData.source}
-          syncMessage={dashboardData.syncMessage}
-          lastUpdatedAt={dashboardData.lastUpdatedAt}
-          endpoints={dashboardData.endpoints}
-          onRefresh={refreshDashboard}
-        />
-
-        <SessionCard
-          status={sessionStatus}
-          identity={sessionIdentity}
-          options={accessOptions}
-          required={sessionRequired}
-          error={sessionError}
-          pendingMethodId={pendingMethodId}
-          onSignIn={signIn}
-          onSignOut={signOut}
-        />
-
         {currentDetail ? renderDetailView() : (
           <View key={activeView}>
             {renderViewHeader()}
+            {activeView === "overview" && (
+              <>
+                <DataStatusCard
+                  loading={dashboardLoading}
+                  source={dashboardData.source}
+                  syncMessage={dashboardData.syncMessage}
+                  lastUpdatedAt={dashboardData.lastUpdatedAt}
+                  endpoints={dashboardData.endpoints}
+                  onRefresh={refreshDashboard}
+                />
+                <SessionCard
+                  status={sessionStatus}
+                  identity={sessionIdentity}
+                  options={accessOptions}
+                  required={sessionRequired}
+                  error={sessionError}
+                  pendingMethodId={pendingMethodId}
+                  onSignIn={signIn}
+                  onSignOut={signOut}
+                />
+              </>
+            )}
             {renderActiveView()}
           </View>
         )}
