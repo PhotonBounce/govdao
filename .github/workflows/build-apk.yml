@@ -40,9 +40,20 @@ jobs:
         working-directory: apps/mobile
         run: npx expo prebuild --platform android --clean --no-install
 
-      - name: Build APK (JS bundled via bundleInDebug, signed with debug keystore)
+      - name: Bundle JavaScript into APK assets
+        working-directory: apps/mobile
+        run: |
+          mkdir -p android/app/src/main/assets
+          npx react-native bundle \
+            --platform android \
+            --dev false \
+            --entry-file node_modules/expo/AppEntry.js \
+            --bundle-output android/app/src/main/assets/index.android.bundle \
+            --assets-dest android/app/src/main/res
+
+      - name: Build debug APK (JS bundled, signed with debug keystore)
         working-directory: apps/mobile/android
-        run: ./gradlew assembleDebug -PbundleInDebug=true --no-daemon
+        run: ./gradlew assembleDebug --no-daemon
         env:
           ANDROID_HOME: ${{ env.ANDROID_HOME }}
 
