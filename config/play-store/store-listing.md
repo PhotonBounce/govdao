@@ -93,13 +93,13 @@ Finance
 Everyone
 
 ## Contact Email
-contact@photon-bounce.com
+lindapots2000@gmail.com
 
 ## Website
-https://photon-bounce.com
+https://photon-bounce.com/govdao
 
 ## Privacy Policy URL
-https://photon-bounce.com/privacy-policy.html
+https://photon-bounce.com/govdao/privacy.html
 
 ---
 
