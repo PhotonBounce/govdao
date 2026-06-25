@@ -699,10 +699,10 @@ export default function App() {
         />
 
         {currentDetail ? renderDetailView() : (
-          <>
+          <View key={activeView}>
             {renderViewHeader()}
             {renderActiveView()}
-          </>
+          </View>
         )}
       </ParallaxScrollView>
       <AdBanner manifest={manifest} />
