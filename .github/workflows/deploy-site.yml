@@ -33,7 +33,7 @@ jobs:
           username: photonb
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: microsite/govdao/
-          server-dir: /govdao/
+          server-dir: public_html/govdao/
           exclude: |
             **/.git*
             **/.git*/**
