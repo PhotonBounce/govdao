@@ -1,7 +1,8 @@
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
 import { SectionCard } from "../components/SectionCard";
 import { ModulePill } from "../components/ModulePill";
+import { isFixtureMode } from "../data/walletProvider";
 import { buildManifestFragment, deployStep, DeployStepResult, DEPLOY_STEPS, DeployStep, DeployPhase } from "../data/deploySource";
 import { AppManifest } from "../types";
 import { darkPalette, radii } from "../theme";
@@ -18,7 +19,9 @@ export function DeployWizardScreen({ manifest, sessionActive, onBack }: DeployWi
   const [errors, setErrors] = useState<Record<number, string>>({});
   const [currentStep, setCurrentStep] = useState<number>(-1);
   const [finished, setFinished] = useState(false);
+  const [showWebPortal, setShowWebPortal] = useState(false);
 
+  const fixture = isFixtureMode(manifest);
   const isDeploying = Object.values(phases).some((p) => p === "deploying");
   const nextStep = results.length < DEPLOY_STEPS.length ? results.length : -1;
 
@@ -51,6 +54,101 @@ export function DeployWizardScreen({ manifest, sessionActive, onBack }: DeployWi
       "Manifest Fragment",
       JSON.stringify(fragment.contracts, null, 2),
       [{ text: "Copy & Close" }]
+    );
+  }
+
+  function handleOpenWebVersion() {
+    Linking.openURL("https://photon-bounce.com/govdao/#try").catch(() => {
+      Alert.alert("Web Version", "Please visit https://photon-bounce.com/govdao/ to access the web SaaS console.");
+    });
+  }
+
+  if (fixture) {
+    if (showWebPortal) {
+      return (
+        <ScrollView contentContainerStyle={styles.scroll}>
+          <SectionCard
+            tone="glass"
+            eyebrow="GOVDAO SaaS Web Console"
+            title="Deploy Audited Contracts"
+            subtitle="Configure and deploy your DAO smart contracts directly onto the blockchain."
+            infoKey="deploy-wizard"
+          >
+            <View style={styles.webConsoleCard}>
+              <Text style={styles.consoleTitle}>Simulated Web Deployment Portal</Text>
+              <Text style={styles.consoleText}>
+                The emulator operates in a secure sandbox preview mode. To proceed with a live on-chain deployment using MetaMask or WalletConnect, please use the desktop web version of the GOVDAO software.
+              </Text>
+              
+              <View style={styles.consoleStatusBox}>
+                <Text style={styles.statusLabel}>Sandbox Status: <Text style={styles.statusVal}>Online (Preview)</Text></Text>
+                <Text style={styles.statusLabel}>Selected Tier: <Text style={styles.statusVal}>Enterprise Pro ($49/mo)</Text></Text>
+              </View>
+
+              <Pressable style={styles.ctaBtnMain} onPress={handleOpenWebVersion}>
+                <Text style={styles.ctaBtnMainText}>Deploy Live via Web Portal →</Text>
+              </Pressable>
+
+              <Pressable style={styles.backBtn} onPress={() => setShowWebPortal(false)}>
+                <Text style={styles.backBtnText}>← View SaaS Plans</Text>
+              </Pressable>
+            </View>
+          </SectionCard>
+        </ScrollView>
+      );
+    }
+
+    return (
+      <ScrollView contentContainerStyle={styles.scroll}>
+        <SectionCard
+          tone="glass"
+          eyebrow="DAO Setup Options"
+          title="Deploy Your Governance Stack"
+          subtitle="Choose between our flexible free deployment model or unlock premium SaaS operations."
+          infoKey="deploy-wizard"
+        >
+          <View style={styles.pricingContainer}>
+            <View style={styles.priceCard}>
+              <Text style={styles.priceTierName}>Free Tier</Text>
+              <Text style={styles.priceAmt}>$0</Text>
+              <Text style={styles.priceSubText}>network gas fees only</Text>
+              
+              <View style={styles.bulletList}>
+                <Text style={styles.bulletItem}>✓ Deploy Governor contract</Text>
+                <Text style={styles.bulletItem}>✓ Up to 10 active member slots</Text>
+                <Text style={styles.bulletItem}>✓ Standard 7-day voting delays</Text>
+                <Text style={styles.bulletItem}>✓ Basic mobile app access</Text>
+              </View>
+            </View>
+
+            <View style={[styles.priceCard, styles.priceCardPaid]}>
+              <View style={styles.paidBadge}>
+                <Text style={styles.paidBadgeText}>RECOMMENDED</Text>
+              </View>
+              <Text style={[styles.priceTierName, styles.priceTierNamePaid]}>Enterprise Pro</Text>
+              <Text style={[styles.priceAmt, styles.priceAmtPaid]}>$49<Text style={styles.priceMo}>/mo</Text></Text>
+              <Text style={[styles.priceSubText, styles.priceSubTextPaid]}>billed monthly</Text>
+
+              <View style={styles.bulletList}>
+                <Text style={[styles.bulletItem, styles.bulletItemPaid]}>✦ Deploy full kernel (5 contracts)</Text>
+                <Text style={[styles.bulletItem, styles.bulletItemPaid]}>✦ Unlimited voter invitations</Text>
+                <Text style={[styles.bulletItem, styles.bulletItemPaid]}>✦ Timelocked Treasury vaults</Text>
+                <Text style={[styles.bulletItem, styles.bulletItemPaid]}>✦ Emergency Guardian circuit breaker</Text>
+                <Text style={[styles.bulletItem, styles.bulletItemPaid]}>✦ Delegate power maps & charts</Text>
+                <Text style={[styles.bulletItem, styles.bulletItemPaid]}>✦ Advanced analytics dashboard</Text>
+              </View>
+            </View>
+          </View>
+
+          <Pressable style={styles.ctaBtnMain} onPress={() => setShowWebPortal(true)}>
+            <Text style={styles.ctaBtnMainText}>Create Real Smart Contract Now Using our Web version</Text>
+          </Pressable>
+
+          <Pressable style={styles.backBtn} onPress={onBack}>
+            <Text style={styles.backBtnText}>← Back to Settings</Text>
+          </Pressable>
+        </SectionCard>
+      </ScrollView>
     );
   }
 
@@ -268,10 +366,133 @@ const styles = StyleSheet.create({
   },
   backBtn: {
     paddingVertical: 10,
-    alignItems: "center"
+    alignItems: "center",
+    marginTop: 10
   },
   backBtnText: {
     color: "rgba(224,219,208,0.5)",
     fontSize: 13
+  },
+  pricingContainer: {
+    gap: 16,
+    marginBottom: 20
+  },
+  priceCard: {
+    backgroundColor: darkPalette.glassCard,
+    borderRadius: radii.card,
+    borderWidth: 1,
+    borderColor: darkPalette.mutedLine,
+    padding: 16
+  },
+  priceCardPaid: {
+    borderColor: darkPalette.glowBronze,
+    backgroundColor: "rgba(201,131,64,0.06)"
+  },
+  paidBadge: {
+    backgroundColor: darkPalette.glowBronze,
+    borderRadius: radii.pill,
+    alignSelf: "flex-start",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    marginBottom: 10
+  },
+  paidBadgeText: {
+    color: "#0d0d1a",
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 0.6
+  },
+  priceTierName: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "rgba(224,219,208,0.60)",
+    marginBottom: 4
+  },
+  priceTierNamePaid: {
+    color: darkPalette.softGold
+  },
+  priceAmt: {
+    fontSize: 32,
+    fontWeight: "700",
+    color: "rgba(224,219,208,0.75)"
+  },
+  priceAmtPaid: {
+    color: darkPalette.dimWhite
+  },
+  priceMo: {
+    fontSize: 16,
+    color: "rgba(224,219,208,0.50)"
+  },
+  priceSubText: {
+    fontSize: 12,
+    color: "rgba(224,219,208,0.40)",
+    marginBottom: 12
+  },
+  priceSubTextPaid: {
+    color: "rgba(224,219,208,0.60)"
+  },
+  bulletList: {
+    gap: 6
+  },
+  bulletItem: {
+    fontSize: 13,
+    color: "rgba(224,219,208,0.55)"
+  },
+  bulletItemPaid: {
+    color: "rgba(224,219,208,0.85)"
+  },
+  ctaBtnMain: {
+    backgroundColor: darkPalette.glowBronze,
+    borderRadius: radii.card,
+    paddingVertical: 16,
+    alignItems: "center",
+    marginTop: 10,
+    marginBottom: 6,
+    shadowColor: darkPalette.glowBronze,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 4
+  },
+  ctaBtnMainText: {
+    color: "#0d0d1a",
+    fontSize: 15,
+    fontWeight: "700",
+    textAlign: "center",
+    paddingHorizontal: 12
+  },
+  webConsoleCard: {
+    backgroundColor: darkPalette.glassCard,
+    borderRadius: radii.card,
+    borderWidth: 1,
+    borderColor: darkPalette.glassBorder,
+    padding: 20,
+    gap: 12
+  },
+  consoleTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: darkPalette.softGold
+  },
+  consoleText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: "rgba(224,219,208,0.72)"
+  },
+  consoleStatusBox: {
+    backgroundColor: "rgba(255,255,255,0.02)",
+    borderWidth: 1,
+    borderColor: darkPalette.mutedLine,
+    borderRadius: radii.card,
+    padding: 12,
+    gap: 6
+  },
+  statusLabel: {
+    fontSize: 13,
+    color: "rgba(224,219,208,0.55)"
+  },
+  statusVal: {
+    fontWeight: "700",
+    color: darkPalette.dimWhite
   }
 });

@@ -34,8 +34,9 @@ async function main() {
   assert("Defeated → null", nextLifecycleAction("Defeated") === null);
 
   console.log("\nLifecycle: fixture queue");
+  const placeholderManifest = { chain: { rpcUrl: "https://YOUR_RPC_ENDPOINT" }, contracts: { governor: "" } };
   const qPhases = [];
-  const q = await queueProposal("5", manifest, (p) => qPhases.push(p));
+  const q = await queueProposal("5", placeholderManifest, (p) => qPhases.push(p));
   assert("queue action label", q.action === "queue");
   assert("queue transport fixture", q.transport === "fixture");
   assert("queue tx hash valid", TX_RE.test(q.txHash), q.txHash);
@@ -43,7 +44,7 @@ async function main() {
 
   console.log("\nLifecycle: fixture execute");
   const ePhases = [];
-  const e = await executeProposal("5", manifest, (p) => ePhases.push(p));
+  const e = await executeProposal("5", placeholderManifest, (p) => ePhases.push(p));
   assert("execute action label", e.action === "execute");
   assert("execute transport fixture", e.transport === "fixture");
   assert("execute tx hash valid", TX_RE.test(e.txHash), e.txHash);

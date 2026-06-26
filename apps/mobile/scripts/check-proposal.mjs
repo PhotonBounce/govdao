@@ -54,7 +54,12 @@ if (tampered.status !== "mismatch") {
   failures.push(`tampered hash was not flagged (got ${tampered.status})`);
 }
 
-const chainState = await loadProposalChainState(manifest, firstProposal.onchainId);
+const placeholderManifest = {
+  ...manifest,
+  chain: { ...manifest.chain, rpcUrl: "https://YOUR_RPC_ENDPOINT" },
+  contracts: { ...manifest.contracts, governor: "" }
+};
+const chainState = await loadProposalChainState(placeholderManifest, firstProposal.onchainId);
 if (process.env.CHAIN_RPC_URL || process.env.GOVERNOR_ADDRESS) {
   if (process.env.CHAIN_RPC_URL) {
     manifest.chain.rpcUrl = process.env.CHAIN_RPC_URL;

@@ -111,6 +111,34 @@
     }
   }
 
+  /* ── User Guide Tabs ────────────────────────────────────────────── */
+
+  var tabs = document.querySelectorAll(".guide-tab");
+  var panels = document.querySelectorAll(".guide-panel");
+
+  tabs.forEach(function (tab) {
+    tab.addEventListener("click", function () {
+      tabs.forEach(function (t) {
+        t.classList.remove("active");
+        t.setAttribute("aria-selected", "false");
+      });
+      panels.forEach(function (p) {
+        p.classList.remove("active");
+        p.style.display = "none";
+      });
+
+      tab.classList.add("active");
+      tab.setAttribute("aria-selected", "true");
+
+      var panelId = tab.getAttribute("aria-controls");
+      var activePanel = document.getElementById(panelId);
+      if (activePanel) {
+        activePanel.classList.add("active");
+        activePanel.style.display = "grid"; // Grid layout for content
+      }
+    });
+  });
+
   /* ── Background color cycling is handled by CSS @keyframes ─────── */
 
 })();

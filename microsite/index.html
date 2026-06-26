@@ -45,7 +45,7 @@
           View on Google Play
         </a>
         <a
-          href="./demo/index.html"
+          href="./saas/index.html"
           class="btn-secondary"
           aria-label="Try the GOVDAO web demo"
         >
@@ -123,7 +123,7 @@
           an interface designed for mobile-first users. The demo below is the real app,
           running in your browser.
         </p>
-        <a href="./demo/index.html" class="btn-primary">Open Full Demo</a>
+        <a href="./saas/index.html" class="btn-primary">Open Full Demo</a>
       </div>
 
       <div class="phone-wrapper" id="phone-wrapper" aria-label="GOVDAO app phone mockup">
@@ -131,7 +131,7 @@
           <div class="phone-notch" aria-hidden="true"></div>
           <div class="phone-screen">
             <iframe
-              src="./demo/index.html"
+              src="./saas/index.html"
               title="GOVDAO live demo"
               loading="lazy"
               sandbox="allow-scripts allow-same-origin"
@@ -251,6 +251,183 @@
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 4.5 — USER GUIDE & TUTORIAL
+  ════════════════════════════════════════════════════════════════ -->
+
+  <section class="section guide-section" id="guide" aria-label="User Guide & Tutorial">
+    <div class="section-inner">
+      <p class="section-label fade-in">Quick Start Tutorial</p>
+      <h2 class="section-heading slide-up">How to use GOVDAO</h2>
+      <p class="section-sub slide-up delay-1">
+        A visual guide on setting up your wallet, casting votes, submitting proposals, and monitoring treasury operations.
+      </p>
+
+      <div class="guide-tabs-container">
+        <!-- Interactive Tabs for Guide Steps -->
+        <div class="guide-tabs" role="tablist">
+          <button class="guide-tab active" role="tab" aria-selected="true" aria-controls="step-setup-panel" id="tab-setup">
+            1. Setup &amp; Wallet
+          </button>
+          <button class="guide-tab" role="tab" aria-selected="false" aria-controls="step-voting-panel" id="tab-voting">
+            2. Voting &amp; Roles
+          </button>
+          <button class="guide-tab" role="tab" aria-selected="false" aria-controls="step-proposals-panel" id="tab-proposals">
+            3. Creating Proposals
+          </button>
+          <button class="guide-tab" role="tab" aria-selected="false" aria-controls="step-treasury-panel" id="tab-treasury">
+            4. Treasury &amp; Safeguards
+          </button>
+        </div>
+
+        <!-- Tab Panels -->
+        <div class="guide-panels">
+          
+          <!-- Panel 1: Setup & Wallet -->
+          <div class="guide-panel active" id="step-setup-panel" role="tabpanel" aria-labelledby="tab-setup">
+            <div class="guide-content-grid">
+              <div class="guide-text">
+                <h3>Connect Your Web3 Wallet</h3>
+                <p>
+                  To interact with the on-chain GOVDAO platform, you need an EVM-compatible wallet like MetaMask.
+                </p>
+                <div class="guide-step-bullets">
+                  <div class="guide-bullet">
+                    <span class="bullet-num">A</span>
+                    <div>
+                      <strong>Add Localhost Network:</strong> Configure your wallet to connect to <code>http://127.0.0.1:8545</code> with Chain ID <code>31337</code> for testing.
+                    </div>
+                  </div>
+                  <div class="guide-bullet">
+                    <span class="bullet-num">B</span>
+                    <div>
+                      <strong>Import Test Account:</strong> Use the private key <code>0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80</code> to import a seeded account with mock ETH.
+                    </div>
+                  </div>
+                  <div class="guide-bullet">
+                    <span class="bullet-num">C</span>
+                    <div>
+                      <strong>Connect Wallet:</strong> Click "Injected Wallet" in the app header, and approve the connection in MetaMask.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="guide-image-container">
+                <img class="guide-screenshot" src="assets/screenshot-welcome.png" alt="GOVDAO Welcome Screen" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel 2: Voting & Roles -->
+          <div class="guide-panel" id="step-voting-panel" role="tabpanel" aria-labelledby="tab-voting" style="display: none;">
+            <div class="guide-content-grid">
+              <div class="guide-text">
+                <h3>Cast Votes &amp; On-Chain Roles</h3>
+                <p>
+                  Your voting power is determined on-chain by the MemberRegistry. Connect your wallet to resolve your role automatically.
+                </p>
+                <div class="guide-step-bullets">
+                  <div class="guide-bullet">
+                    <span class="bullet-num">A</span>
+                    <div>
+                      <strong>On-chain Roles:</strong> Access levels span Observer, Member (can vote), Proposer (can create proposals), Admin (manage roles), and Guardian.
+                    </div>
+                  </div>
+                  <div class="guide-bullet">
+                    <span class="bullet-num">B</span>
+                    <div>
+                      <strong>Active Proposals:</strong> Select any proposal from the list view to inspect proposal text and vote distributions.
+                    </div>
+                  </div>
+                  <div class="guide-bullet">
+                    <span class="bullet-num">C</span>
+                    <div>
+                      <strong>Cast Vote:</strong> Choose For, Against, or Abstain, click "Cast Vote", and confirm the transaction signature.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="guide-image-container">
+                <img class="guide-screenshot" src="assets/screenshot-proposals.png" alt="GOVDAO Proposals Screen" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel 3: Creating Proposals -->
+          <div class="guide-panel" id="step-proposals-panel" role="tabpanel" aria-labelledby="tab-proposals" style="display: none;">
+            <div class="guide-content-grid">
+              <div class="guide-text">
+                <h3>Creating Proposals</h3>
+                <p>
+                  Proposers and Admins can draft and publish new proposals directly to the Governor smart contract.
+                </p>
+                <div class="guide-step-bullets">
+                  <div class="guide-bullet">
+                    <span class="bullet-num">A</span>
+                    <div>
+                      <strong>Use Templates:</strong> Prefill formatting using categories like Treasury Spends, Member Invites, or Code Upgrades.
+                    </div>
+                  </div>
+                  <div class="guide-bullet">
+                    <span class="bullet-num">B</span>
+                    <div>
+                      <strong>Submit Draft:</strong> Enter title, description, and target action data, then execute the proposal creation transaction.
+                    </div>
+                  </div>
+                  <div class="guide-bullet">
+                    <span class="bullet-num">C</span>
+                    <div>
+                      <strong>Voting &amp; Timelock:</strong> Once submitted, proposals move to "Proposed" (warmup), then become "Active" for voting. Success triggers a 24-hour Timelock delay.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="guide-image-container">
+                <img class="guide-screenshot" src="assets/screenshot-activity.png" alt="GOVDAO Proposal Activity Screen" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Panel 4: Treasury & Safeguards -->
+          <div class="guide-panel" id="step-treasury-panel" role="tabpanel" aria-labelledby="tab-treasury" style="display: none;">
+            <div class="guide-content-grid">
+              <div class="guide-text">
+                <h3>Treasury &amp; Emergency Safeguards</h3>
+                <p>
+                  Govern the organization's funds securely and test fallback multi-sig emergency controls.
+                </p>
+                <div class="guide-step-bullets">
+                  <div class="guide-bullet">
+                    <span class="bullet-num">A</span>
+                    <div>
+                      <strong>Treasury Allocations:</strong> View asset holdings, transaction limits, and pending funding requests in real-time.
+                    </div>
+                  </div>
+                  <div class="guide-bullet">
+                    <span class="bullet-num">B</span>
+                    <div>
+                      <strong>Emergency Pause:</strong> If a vulnerability is found, the Guardian role can pause proposal lifecycle functions for up to 72 hours.
+                    </div>
+                  </div>
+                  <div class="guide-bullet">
+                    <span class="bullet-num">C</span>
+                    <div>
+                      <strong>Guardian Drills:</strong> Admins can schedule simulated pause rehearsals to verify guardian reaction times.
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="guide-image-container">
+                <img class="guide-screenshot" src="assets/screenshot-settings.png" alt="GOVDAO Settings Screen" />
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
        SECTION 5 — PRIVACY & LEGAL
   ════════════════════════════════════════════════════════════════ -->
 
@@ -306,7 +483,7 @@
       <nav class="footer-links" aria-label="Footer links">
         <a href="./privacy-policy.html">Privacy</a>
         <a href="./terms.html">Terms</a>
-        <a href="./demo/index.html">Demo</a>
+        <a href="./saas/index.html">Demo</a>
       </nav>
     </div>
   </footer>
