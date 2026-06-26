@@ -24,13 +24,19 @@ function assert(label, condition, detail = "") {
   }
 }
 
-// Compile and load infoContent via ts-node inline eval
-const tsFile = path.resolve(__dirname, "../src/data/infoContent.ts");
-const js = execSync(
-  `npx --yes ts-node --compiler-options '{"module":"CommonJS"}' --eval "const m = require('${tsFile}'); console.log(JSON.stringify(m.infoContent))"`,
-  { cwd: path.resolve(__dirname, ".."), encoding: "utf8" }
-);
-const infoContent = JSON.parse(js.trim());
+// Compile and load infoContent via ts-node register
+require("ts-node").register({
+  transpileOnly: true,
+  skipProject: true,
+  compilerOptions: {
+    module: "commonjs",
+    moduleResolution: "node",
+    target: "es2020",
+    esModuleInterop: true
+  }
+});
+const m = require("../src/data/infoContent.ts");
+const infoContent = m.infoContent;
 
 const EXPECTED_KEYS = [
   "overview",

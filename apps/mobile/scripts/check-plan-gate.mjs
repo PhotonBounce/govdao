@@ -23,12 +23,19 @@ function assert(label, condition, detail = "") {
   }
 }
 
-const hookFile = path.resolve(__dirname, "../src/hooks/usePlanGate.ts");
-const js = execSync(
-  `npx --yes ts-node --compiler-options '{"module":"CommonJS"}' --eval "const m = require('${hookFile}'); console.log(JSON.stringify({usePlanGate: !!m.usePlanGate, features: Object.keys(m)}))"`,
-  { cwd: path.resolve(__dirname, ".."), encoding: "utf8" }
-);
-const meta = JSON.parse(js.trim());
+// Compile and load usePlanGate via ts-node register
+require("ts-node").register({
+  transpileOnly: true,
+  skipProject: true,
+  compilerOptions: {
+    module: "commonjs",
+    moduleResolution: "node",
+    target: "es2020",
+    esModuleInterop: true
+  }
+});
+const m = require("../src/hooks/usePlanGate.ts");
+const meta = { usePlanGate: !!m.usePlanGate, features: Object.keys(m) };
 
 console.log("\nPlanGate: module exports");
 assert("usePlanGate exported", meta.usePlanGate);

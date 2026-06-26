@@ -76,10 +76,11 @@
     "expo-status-bar": "~2.2.3",
     "react": "19.0.0",
     "react-dom": "^19.0.0",
-    "react-native": "0.79.5",
+    "react-native": "0.79.6",
     "react-native-google-mobile-ads": "^14.11.0",
     "react-native-purchases": "^8.12.0",
-    "react-native-web": "^0.20.0"
+    "react-native-web": "^0.20.0",
+    "typescript": "~5.8.3"
   },
   "devDependencies": {
     "@types/react": "~19.0.10",
