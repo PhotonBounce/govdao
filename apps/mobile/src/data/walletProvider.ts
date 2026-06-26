@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 import { AppManifest } from "../types";
 
-const PLACEHOLDER_PATTERNS = ["YOUR_", "example.com", "localhost", "127.0.0.1"];
+const PLACEHOLDER_PATTERNS = ["YOUR_", "example.com"];
 
 let _provider: ethers.JsonRpcProvider | null = null;
 let _signer: ethers.Signer | null = null;

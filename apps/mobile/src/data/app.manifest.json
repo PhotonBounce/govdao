@@ -23,17 +23,17 @@
     ]
   },
   "chain": {
-    "id": 1,
-    "name": "ethereum",
-    "rpcUrl": "https://YOUR_MAINNET_RPC_ENDPOINT",
+    "id": 31337,
+    "name": "localhost",
+    "rpcUrl": "http://127.0.0.1:8545",
     "blockExplorer": "https://etherscan.io"
   },
   "contracts": {
-    "memberRegistry": "0x0000000000000000000000000000000000000000",
-    "timelock": "0x0000000000000000000000000000000000000000",
-    "governor": "0x0000000000000000000000000000000000000000",
-    "treasury": "0x0000000000000000000000000000000000000000",
-    "emergencyGuardian": "0x0000000000000000000000000000000000000000"
+    "memberRegistry": "0x0B306BF915C4d645ff596e518fAf3F9669b97016",
+    "timelock": "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
+    "governor": "0x9A9f2CCfdE556A7E9Ff0848998Aa4a0CFD8863AE",
+    "treasury": "0x68B1D87F95878fE05B998F19b66F4baba5De1aed",
+    "emergencyGuardian": "0x3Aa5ebB10DC797CAC828524e59A333d0A371443c"
   },
   "features": {
     "proposalFeed": true,
@@ -42,8 +42,7 @@
     "treasuryView": true,
     "pushNotifications": true,
     "biometricConfirm": true,
-    "fiatOnramp": false,
-    "plan": "premium"
+    "fiatOnramp": false
   },
   "services": {
     "metadataBaseUrl": "https://example.govdao.app/metadata",
@@ -70,7 +69,7 @@
     "offchain": {
       "enabled": true,
       "provider": "govdao-control-plane",
-      "apiBaseUrl": "fixture://govdao",
+      "apiBaseUrl": "https://example.govdao.app/offchain",
       "auth": [
         "passkey",
         "wallet-signature"
@@ -89,7 +88,7 @@
         "kind": "dao",
         "enabled": true,
         "entryRoute": "/governance",
-        "apiBaseUrl": "fixture://govdao",
+        "apiBaseUrl": "https://api.govdao.app/governance",
         "webUrl": "https://app.govdao.app/governance",
         "requiresAuth": true
       },
@@ -99,7 +98,7 @@
         "kind": "documents",
         "enabled": true,
         "entryRoute": "/workspace",
-        "apiBaseUrl": "fixture://govdao",
+        "apiBaseUrl": "https://api.govdao.app/workspace",
         "webUrl": "https://app.govdao.app/workspace",
         "requiresAuth": true
       }
