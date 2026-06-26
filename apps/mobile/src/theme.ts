@@ -1,3 +1,20 @@
+import { Platform } from "react-native";
+
+// Brand typography — an elegant serif for headings (matches the G-coin logo
+// wordmark) and a monospace face for on-chain data (addresses, hashes).
+export const fonts = {
+  serif: Platform.select({ ios: "Georgia", android: "serif", default: "serif" }) as string,
+  mono: Platform.select({ ios: "Menlo", android: "monospace", default: "monospace" }) as string
+};
+
+// Brand accent introduced by the G-coin logo — teal pairs with the gold.
+export const brand = {
+  teal: "#2ec4c6",
+  tealDeep: "#18969a",
+  gold: "#ce922e",
+  goldHi: "#eeb856"
+};
+
 export const palette = {
   sand: "#f3efe3",
   paper: "#fbf8ef",

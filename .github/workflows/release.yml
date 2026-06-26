@@ -1,0 +1,156 @@
+name: Release to Google Play
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      track:
+        description: "Play Store track"
+        required: true
+        default: "internal"
+        type: choice
+        options: [internal, alpha, beta, production]
+
+jobs:
+  build-and-submit:
+    name: Build AAB & submit to Play Store
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/mobile/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm --prefix apps/mobile ci
+
+      - name: Restore upload keystore
+        working-directory: apps/mobile
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          mkdir -p ../../secrets
+          # Strip certutil header/footer lines and any Windows line endings before decoding
+          echo "$KEYSTORE_BASE64" \
+            | grep -v '^-----' \
+            | tr -d '\r\n ' \
+            | base64 --decode > ../../secrets/govdao-upload.keystore
+          # Verify the file was written and is non-empty
+          test -s ../../secrets/govdao-upload.keystore || { echo "Keystore decode failed — check KEYSTORE_BASE64 secret"; exit 1; }
+
+      - name: Write credentials.json
+        working-directory: apps/mobile
+        run: |
+          cat > credentials.json <<EOF
+          {
+            "android": {
+              "keystore": {
+                "keystorePath": "../../secrets/govdao-upload.keystore",
+                "keystorePassword": "${{ secrets.KEYSTORE_PASSWORD }}",
+                "keyAlias": "govdao",
+                "keyPassword": "${{ secrets.KEY_PASSWORD }}"
+              }
+            }
+          }
+          EOF
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Register or resolve EAS project
+        working-directory: apps/mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          # eas init reads slug from app.json and registers/links the project on expo.dev.
+          # With EXPO_TOKEN set and --non-interactive it works in CI without any prompts.
+          eas init --non-interactive --force
+          # Confirm app.json now has the projectId
+          node -e "
+            const cfg = JSON.parse(require('fs').readFileSync('app.json','utf8'));
+            const id = cfg.expo?.extra?.eas?.projectId;
+            if (!id) { console.error('projectId not written to app.json'); process.exit(1); }
+            console.log('EAS projectId:', id);
+          "
+
+      - name: Run mobile QA gates
+        run: |
+          npm run mobile:typecheck
+          npm run mobile:check-manifest
+
+      - name: Build Android App Bundle (AAB)
+        working-directory: apps/mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: eas build --platform android --profile production --local --non-interactive --output build.aab
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: govdao-release-aab
+          path: apps/mobile/build.aab
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Publish AAB to GitHub Release
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Give the asset a clean, descriptive filename for the download link
+          cp apps/mobile/build.aab "govdao-build-${{ github.run_number }}.aab"
+          gh release create "build-${{ github.run_number }}" \
+            "govdao-build-${{ github.run_number }}.aab" \
+            --title "GovDAO build ${{ github.run_number }}" \
+            --notes "Signed Android App Bundle (.aab) for GovDAO. Download the file below and upload it to Google Play Console → Internal testing → Create new release." \
+            --latest
+
+      - name: Determine Play Store track
+        id: track
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "track=${{ github.event.inputs.track }}" >> $GITHUB_OUTPUT
+          else
+            echo "track=internal" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Submit to Google Play
+        working-directory: apps/mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+        run: |
+          if [ -z "$GOOGLE_SERVICE_ACCOUNT_KEY" ]; then
+            echo "GOOGLE_SERVICE_ACCOUNT_KEY not set — skipping Play Store submission."
+            echo "Add the secret to enable automatic submission."
+            exit 0
+          fi
+          echo "$GOOGLE_SERVICE_ACCOUNT_KEY" > /tmp/service-account.json
+          # Inject the service account path and chosen track into eas.json at submit time
+          node -e "
+            const fs = require('fs');
+            const cfg = JSON.parse(fs.readFileSync('eas.json','utf8'));
+            cfg.submit.production.android.serviceAccountKeyPath = '/tmp/service-account.json';
+            cfg.submit.production.android.track = '${{ steps.track.outputs.track }}';
+            fs.writeFileSync('eas.json', JSON.stringify(cfg, null, 2));
+          "
+          eas submit --platform android --path build.aab --non-interactive
+
+      - name: Clean up secrets
+        if: always()
+        run: |
+          rm -f apps/mobile/credentials.json
+          rm -f secrets/govdao-upload.keystore
+          rm -f /tmp/service-account.json

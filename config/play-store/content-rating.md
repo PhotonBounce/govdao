@@ -23,11 +23,18 @@
 - Does your app contain user-generated content? **No** (proposal text is submitted to the blockchain, not hosted by the app)
 
 ### Digital Purchases
-- Does your app contain in-app purchases? **No** (Premium is managed externally)
+- Does your app contain in-app purchases? **Yes** — an optional Premium auto-renewing
+  subscription via Google Play Billing (RevenueCat). It unlocks app features and removes
+  ads; it carries no on-chain value and is not gambling.
+
+### Advertising
+- Does your app contain ads? **Yes** — Google AdMob banner + interstitial ads in the
+  **free tier only**. Premium is ad-free. No ads are targeted to children.
 
 ## Expected Rating
 
-**Everyone (E)** — No objectionable content. Finance/productivity app for blockchain governance.
+**Everyone (E)** with the "Contains ads" and "In-app purchases" labels — no objectionable
+content; a finance/productivity app for blockchain governance.
 
 ## Age Rating by Territory
 

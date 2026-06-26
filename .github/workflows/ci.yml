@@ -75,15 +75,27 @@ jobs:
       - run: npm run mobile:check-onboarding
       - run: npm run mobile:check-health-score
       - run: npm run mobile:check-achievements
+      - run: npm run mobile:check-proposal-templates
+      - run: npm run mobile:check-treasury-allocation
+      - run: npm run mobile:check-activity-heatmap
       - run: npm run mobile:check-chain
       - name: App config matches manifest
         run: |
           npm run export:manifest -- --output /tmp/play-manifest.json
           npm run validate:app-config -- --manifest /tmp/play-manifest.json
-      - name: Generated assets are current
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Pillow for brand/asset generation
+        run: pip install --quiet pillow
+      - name: Generators run + deterministic assets are current
         run: |
+          # Run every generator (sounds + PIL brand + PIL screenshots) so a broken
+          # generator fails the build. Only diff-gate the byte-deterministic node
+          # sound assets — the PIL brand/screenshot PNGs depend on system fonts and
+          # the Pillow version, so they are reviewed visually rather than byte-pinned.
           npm --prefix apps/mobile run generate:assets
-          git diff --exit-code apps/mobile/assets
+          git diff --exit-code apps/mobile/assets/sounds
       - name: Web bundle export
         working-directory: apps/mobile
         env:
