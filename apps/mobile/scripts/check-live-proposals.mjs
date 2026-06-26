@@ -25,14 +25,15 @@ function assert(label, cond, detail = "") {
 
 async function main() {
   console.log("\nLiveProposals: fixture-mode degradation");
-  const result = await loadLiveProposals(manifest);
+  const placeholderManifest = { chain: { rpcUrl: "https://YOUR_RPC_ENDPOINT" }, contracts: { governor: "" } };
+  const result = await loadLiveProposals(placeholderManifest);
   assert("returns an object with the expected shape", result && typeof result === "object" && "available" in result && "proposals" in result);
   assert("unavailable in fixture mode", result.available === false, String(result.available));
   assert("empty proposals array in fixture mode", Array.isArray(result.proposals) && result.proposals.length === 0);
   assert("detail explains the placeholder state", typeof result.detail === "string" && result.detail.length > 10, result.detail);
 
   console.log("\nLiveProposals: respects custom limit without throwing");
-  const limited = await loadLiveProposals(manifest, 3);
+  const limited = await loadLiveProposals(placeholderManifest, 3);
   assert("limited call still returns clean unavailable result", limited.available === false && limited.proposals.length === 0);
 
   console.log(`\ncheck-live-proposals: ${passed} passed, ${failed} failed`);

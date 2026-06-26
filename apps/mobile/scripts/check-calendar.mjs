@@ -28,7 +28,8 @@ const HOUR = 3600 * 1000;
 const DAY = 24 * HOUR;
 
 console.log("\nCalendar: load + shape");
-const calendar = cal.loadGovernanceCalendar(manifest, ANCHOR);
+const placeholderManifest = { chain: { rpcUrl: "https://YOUR_RPC_ENDPOINT" }, contracts: { governor: "" } };
+const calendar = cal.loadGovernanceCalendar(placeholderManifest, ANCHOR);
 assert("transport is fixture for placeholder manifest", calendar.transport === "fixture", calendar.transport);
 assert("anchorMs echoes input", calendar.anchorMs === ANCHOR);
 assert("has at least 8 events", calendar.events.length >= 8, `got ${calendar.events.length}`);

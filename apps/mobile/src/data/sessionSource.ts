@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import { AppManifest } from "../types";
 import { isFixtureMode, getActiveSigner, buildContract } from "./walletProvider";
 import { MEMBER_REGISTRY_ABI, ROLE_LABELS } from "./contractAbis";
@@ -87,6 +88,39 @@ function wait(durationMs: number): Promise<void> {
 
 export async function connectSession(option: AccessOption, manifest: AppManifest): Promise<SessionIdentity> {
   if (!isFixtureMode(manifest)) {
+    if (typeof window !== "undefined" && (window as any).ethereum && option.id === "injected") {
+      try {
+        const provider = new ethers.BrowserProvider((window as any).ethereum);
+        await (window as any).ethereum.request({ method: "eth_requestAccounts" });
+        const signer = await provider.getSigner();
+        const address = await signer.getAddress();
+        
+        const { setActiveSigner } = require("./walletProvider");
+        setActiveSigner(signer, address);
+        
+        let role = "Member";
+        try {
+          const registry = buildContract(manifest.contracts.memberRegistry, MEMBER_REGISTRY_ABI, signer);
+          const roleEnum = Number(await registry.getRole(address));
+          role = ROLE_LABELS[roleEnum] ?? "Member";
+        } catch (err) {
+          // registry query failure is non-fatal; default to "Member"
+        }
+        return {
+          methodId: option.id,
+          methodLabel: option.label,
+          kind: option.kind,
+          memberLabel: address.slice(0, 6) + "…" + address.slice(-4),
+          address,
+          role,
+          transport: "remote",
+          connectedAt: getTimestamp()
+        };
+      } catch (err) {
+        console.error("Browser injected wallet handshake failed", err);
+      }
+    }
+
     const signer = getActiveSigner();
     if (signer) {
       try {
