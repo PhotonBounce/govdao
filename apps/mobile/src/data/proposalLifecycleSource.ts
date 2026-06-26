@@ -50,6 +50,20 @@ async function runLifecycle(
         const receipt = await tx.wait();
         return { proposalId, action, txHash: receipt?.hash ?? tx.hash, transport: "remote", submittedAt };
       } catch (err) {
+        const raw = err instanceof Error ? err.message : String(err);
+        if (raw.includes("delay not met")) {
+          throw new Error("Timelock delay hasn't elapsed yet — wait and retry.");
+        } else if (raw.includes("action expired")) {
+          throw new Error("Execution window expired (14 days after delay). Re-queue the proposal.");
+        } else if (raw.includes("not succeeded")) {
+          throw new Error("Proposal hasn't passed yet — voting may still be open.");
+        } else if (raw.includes("not queued")) {
+          throw new Error("Proposal isn't queued. Queue it first, then wait for the timelock.");
+        } else if (raw.includes("already queued")) {
+          throw new Error("Proposal is already queued in the timelock.");
+        } else if (raw.includes("user rejected") || raw.includes("User denied")) {
+          throw new Error("Transaction rejected in wallet.");
+        }
         throw err instanceof Error ? err : new Error(`On-chain ${action} transaction failed.`);
       }
     }

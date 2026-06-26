@@ -15,6 +15,11 @@ const config: HardhatUserConfig = {
       url: process.env.SEPOLIA_RPC_URL || "",
       accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
     },
+    polygon: {
+      chainId: 137,
+      url: process.env.POLYGON_RPC_URL || process.env.RPC_URL || "https://polygon-rpc.com",
+      accounts: process.env.DEPLOYER_PRIVATE_KEY ? [process.env.DEPLOYER_PRIVATE_KEY] : [],
+    },
     mainnet: {
       chainId: 1,
       url: process.env.MAINNET_RPC_URL || process.env.RPC_URL || "",
@@ -23,6 +28,12 @@ const config: HardhatUserConfig = {
   },
   gasReporter: {
     enabled: !!process.env.REPORT_GAS,
+  },
+  etherscan: {
+    apiKey: {
+      polygon: process.env.POLYGONSCAN_API_KEY || "",
+      sepolia: process.env.ETHERSCAN_API_KEY || "",
+    },
   },
 };
 

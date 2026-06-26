@@ -52,6 +52,7 @@ export function ScheduleDrillScreen({
         eyebrow="Access Required"
         title="Sign In To Continue"
         subtitle="Scheduling a guardian drill requires an active member session with guardian authority."
+        infoKey="member-session"
       >
         <Pressable style={styles.backButton} onPress={onBack}>
           <Text style={styles.backButtonText}>Back To Treasury</Text>
@@ -67,6 +68,7 @@ export function ScheduleDrillScreen({
           eyebrow="Drill Scheduled"
           title="Guardian Drill Queued"
           subtitle="The drill has been queued. All required signers will be notified via the guardian alert channel."
+          infoKey="guardian-drill"
         >
           <View style={styles.receiptRow}>
             <ModulePill label="SCHEDULED" tone="pine" />

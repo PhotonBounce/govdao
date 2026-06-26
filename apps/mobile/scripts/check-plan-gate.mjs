@@ -4,6 +4,7 @@
 
 import { createRequire } from "node:module";
 import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -76,11 +77,21 @@ for (const feature of FEATURES) {
   assert(`no-plan blocks ${feature}`, !gate.allowed);
 }
 
+console.log("\nPlanGate: every feature has benefit copy");
+const hookSrc = readFileSync(hookFile, "utf8");
+for (const feature of FEATURES) {
+  // Each feature key must appear in both the labels and benefits maps.
+  const inBenefits = new RegExp(`"${feature}"\\s*:`).test(hookSrc.split("FEATURE_BENEFITS")[1] ?? "");
+  assert(`${feature} has benefit copy`, inBenefits);
+}
+assert("PlanGateResult exposes benefit", /benefit:\s*string/.test(hookSrc) && /benefit:\s*FEATURE_BENEFITS/.test(hookSrc));
+
 console.log("\nPlanGate: manifest JSON has plan field");
 const manifestFile = path.resolve(__dirname, "../src/data/app.manifest.json");
 const manifest = require(manifestFile);
 assert("manifest has features.plan", typeof manifest.features.plan === "string");
-assert("manifest plan is 'premium'", manifest.features.plan === "premium");
+assert("manifest plan is a known value", ["free", "premium"].includes(manifest.features.plan));
+assert("manifest plan is 'free' (paywall enabled for production)", manifest.features.plan === "free");
 
 console.log(`\ncheck-plan-gate: ${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

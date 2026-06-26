@@ -18,9 +18,8 @@ export function PremiumGate({ gate, children, onUpgrade }: PremiumGateProps) {
     <View style={styles.wrapper}>
       <Text style={styles.lock}>🔒</Text>
       <Text style={styles.title}>{gate.label}</Text>
-      <Text style={styles.subtitle}>
-        {gate.label} is a Premium feature. Upgrade to unlock guardian drills, member invites, delegate analytics, and more.
-      </Text>
+      <Text style={styles.subtitle}>{gate.benefit}</Text>
+      <Text style={styles.alsoLine}>Premium also unlocks analytics, member invites, drills, the deploy wizard, and ad-free use.</Text>
       <View style={styles.pillRow}>
         <View style={styles.pill}>
           <Text style={styles.pillLabel}>FREE</Text>
@@ -30,9 +29,12 @@ export function PremiumGate({ gate, children, onUpgrade }: PremiumGateProps) {
         </View>
       </View>
       {onUpgrade ? (
-        <Pressable style={styles.upgradeButton} onPress={onUpgrade}>
-          <Text style={styles.upgradeButtonText}>Upgrade to GOVDAO Premium</Text>
-        </Pressable>
+        <>
+          <Pressable style={styles.upgradeButton} onPress={onUpgrade}>
+            <Text style={styles.upgradeButtonText}>Unlock {gate.label}</Text>
+          </Pressable>
+          <Text style={styles.priceAnchor}>From $8/mo billed annually · Cancel anytime</Text>
+        </>
       ) : null}
     </View>
   );
@@ -64,7 +66,20 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: "rgba(224,219,208,0.72)",
     textAlign: "center",
+    marginBottom: 12
+  },
+  alsoLine: {
+    fontSize: 12,
+    lineHeight: 18,
+    color: "rgba(224,219,208,0.45)",
+    textAlign: "center",
     marginBottom: 16
+  },
+  priceAnchor: {
+    fontSize: 12,
+    color: "rgba(224,219,208,0.55)",
+    textAlign: "center",
+    marginTop: 10
   },
   pillRow: {
     flexDirection: "row",

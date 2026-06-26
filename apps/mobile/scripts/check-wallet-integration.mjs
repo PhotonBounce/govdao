@@ -64,6 +64,8 @@ assert("getActiveSigner exported", provider.keys.includes("getActiveSigner"));
 assert("getProvider exported", provider.keys.includes("getProvider"));
 assert("clearSession exported", provider.keys.includes("clearSession"));
 assert("buildContract exported", provider.keys.includes("buildContract"));
+assert("connectInjectedWallet exported", provider.keys.includes("connectInjectedWallet"));
+assert("getBrowserProvider exported", provider.keys.includes("getBrowserProvider"));
 
 console.log("\nWalletProvider: isFixtureMode detection");
 const fixtureJs = execSync(

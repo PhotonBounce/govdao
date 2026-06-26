@@ -20,6 +20,8 @@ export const GOVERNOR_ABI = [
   "function proposalCount() external view returns (uint256)",
   "event ProposalCreated(uint256 indexed proposalId, address indexed proposer, string metadataURI)",
   "event VoteCast(uint256 indexed proposalId, address indexed voter, uint8 voteType, uint256 weight)",
+  "event GovernorPaused(address indexed by)",
+  "event GovernorUnpaused(address indexed by)",
 ] as const;
 
 export const MEMBER_REGISTRY_ABI = [
@@ -32,9 +34,11 @@ export const MEMBER_REGISTRY_ABI = [
   "function getRoleAt(address account, uint256 blockNumber) external view returns (uint8)",
   "function getMemberCount() external view returns (uint256)",
   "function getPastMemberCount(uint256 blockNumber) external view returns (uint256)",
+  "function transferAdminRole(address newAdmin) external",
   "event MemberAdded(address indexed account, uint8 role)",
   "event MemberRemoved(address indexed account)",
   "event RoleChanged(address indexed account, uint8 oldRole, uint8 newRole)",
+  "event AdminTransferred(address indexed previousAdmin, address indexed newAdmin)",
 ] as const;
 
 export const TREASURY_ABI = [
@@ -46,6 +50,9 @@ export const TREASURY_ABI = [
   "function pause() external",
   "function unpause() external",
   "event FundsTransferred(address indexed to, uint256 amount)",
+  "event FundsReceived(address indexed from, uint256 amount)",
+  "event ERC20Transferred(address indexed token, address indexed to, uint256 amount)",
+  "event SpendingCapUpdated(uint256 perTransaction, uint256 perPeriod)",
   "event TreasuryPaused(address indexed by)",
   "event TreasuryUnpaused(address indexed by)",
 ] as const;
@@ -70,7 +77,9 @@ export const EMERGENCY_GUARDIAN_ABI = [
   "function confirmCancelProposal(bytes32 actionHash) external",
   "function getSigners() external view returns (address[])",
   "function isPaused() external view returns (bool)",
-  "event PauseProposed(bytes32 indexed actionHash, address indexed proposer)",
+  "event GuardianActionProposed(bytes32 indexed actionHash, uint8 indexed kind, uint256 proposalId, address indexed proposer)",
+  "event GuardianActionConfirmed(bytes32 indexed actionHash, address indexed signer, uint256 confirmationsRequired)",
+  "event GuardianActionExecuted(bytes32 indexed actionHash, uint8 indexed kind, uint256 proposalId)",
 ] as const;
 
 // VoteType enum from IGovernor: Against=0, For=1, Abstain=2

@@ -1,0 +1,12 @@
+{
+  "network": "polygon",
+  "chainId": 137,
+  "deployedAt": "2026-06-21T06:48:17.493Z",
+  "contracts": {
+    "memberRegistry": "0xaFBAB7016b1c17A2099De448aC2f74bA563b2Aaa",
+    "timelock": "0x72B35C420259a2330adE3293E1fEFd79cf0244E5",
+    "governor": "0x85A460c2992f1928612D027d1D860543B00f921f",
+    "treasury": "0x707567E47F1a858ca152AB966A6dAE3975143Ee5",
+    "emergencyGuardian": "0xe4E518e58fEa19B0C8398833607CD82c3feb342d"
+  }
+}

@@ -3,6 +3,7 @@ import { Linking, Pressable, StyleSheet, Text } from "react-native";
 import { SectionCard } from "../components/SectionCard";
 import { SignalRow } from "../components/SignalRow";
 import { PreferencesPanel } from "../components/PreferencesPanel";
+import { OwnershipTransferPanel } from "../components/OwnershipTransferPanel";
 import { AppManifest } from "../types";
 import { palette, radii } from "../theme";
 
@@ -13,6 +14,8 @@ interface SettingsScreenProps {
   notificationPanel?: ReactNode;
   pushStatusCard?: ReactNode;
   biometricCard?: ReactNode;
+  sessionAddress?: string | null;
+  sessionRole?: string | null;
 }
 
 function openExternalUrl(url: string) {
@@ -30,7 +33,7 @@ function DisclosureLink({ label, url, target }: { label: string; url: string; ta
   );
 }
 
-export function SettingsScreen({ manifest, metadataConfigured, supportConfigured, notificationPanel, pushStatusCard, biometricCard }: SettingsScreenProps) {
+export function SettingsScreen({ manifest, metadataConfigured, supportConfigured, notificationPanel, pushStatusCard, biometricCard, sessionAddress, sessionRole }: SettingsScreenProps) {
   return (
     <>
       <PreferencesPanel />
@@ -43,6 +46,7 @@ export function SettingsScreen({ manifest, metadataConfigured, supportConfigured
         eyebrow="Release Ops"
         title="Support And Legal"
         subtitle="Store review requires these disclosures to be reachable from inside the app, not just listed in the manifest."
+        infoKey="legal-disclosures"
       >
         <DisclosureLink label="Privacy Policy" url={manifest.support.privacyPolicyUrl} />
         <DisclosureLink label="Terms Of Service" url={manifest.support.termsOfServiceUrl} />
@@ -56,6 +60,7 @@ export function SettingsScreen({ manifest, metadataConfigured, supportConfigured
         eyebrow="Environment"
         title="App Wiring"
         subtitle="These values are the highest-risk release settings because they control where members, proposals, and support traffic actually land."
+        infoKey="app-settings"
       >
         <SignalRow label="Bundle ID" value={manifest.app.bundleId} />
         <SignalRow label="Android track" value={manifest.release.android.track} />
@@ -63,18 +68,9 @@ export function SettingsScreen({ manifest, metadataConfigured, supportConfigured
         <SignalRow label="Support URLs" value={supportConfigured ? "Configured" : "Placeholder"} tone={supportConfigured ? "good" : "warning"} />
       </SectionCard>
 
-      <SectionCard
-        eyebrow="Actions"
-        title="Operator Next Steps"
-        subtitle="These are the minimum promotion moves before the internal-track build becomes a real review candidate."
-      >
-        <Pressable style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>Promote Manifest To Production Values</Text>
-        </Pressable>
-        <Pressable style={[styles.actionButton, styles.actionButtonAlt]}>
-          <Text style={[styles.actionButtonText, styles.actionButtonAltText]}>Run Internal Device Pilot</Text>
-        </Pressable>
-      </SectionCard>
+      {sessionRole === "Admin" || sessionRole === "ADMIN" ? (
+        <OwnershipTransferPanel manifest={manifest} currentAddress={sessionAddress ?? null} />
+      ) : null}
     </>
   );
 }

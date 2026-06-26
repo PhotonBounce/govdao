@@ -14,8 +14,20 @@ require("ts-node").register({
 });
 
 const dataDir = path.resolve(process.cwd(), "src", "data");
-const manifest = require(path.join(dataDir, "app.manifest.json"));
+const liveManifest = require(path.join(dataDir, "app.manifest.json"));
 const { loadLiveProposals } = require(path.join(dataDir, "chainSource.ts"));
+
+// This gate validates fixture-mode degradation ONLY; the live read path is proven
+// against a real chain by check-onchain-e2e. Build an explicit fixture manifest so
+// the test stays deterministic after the checked-in manifest is pointed at a live
+// deployment. Otherwise loadLiveProposals would spin up a real JsonRpcProvider and
+// hang the process on network detection (and the "unavailable" assertions would no
+// longer hold).
+const manifest = {
+  ...liveManifest,
+  chain: { ...liveManifest.chain, rpcUrl: "https://rpc.example.com" },
+  contracts: { ...liveManifest.contracts, governor: "0x0000000000000000000000000000000000000000" },
+};
 
 let passed = 0, failed = 0;
 function assert(label, cond, detail = "") {
@@ -36,7 +48,9 @@ async function main() {
   assert("limited call still returns clean unavailable result", limited.available === false && limited.proposals.length === 0);
 
   console.log(`\ncheck-live-proposals: ${passed} passed, ${failed} failed`);
-  if (failed > 0) process.exit(1);
+  // Force a clean exit: even with the fixture manifest above, any stray network
+  // handle must never keep the process (and therefore the CI step) alive.
+  process.exit(failed > 0 ? 1 : 0);
 }
 
 main().catch((err) => { console.error(err); process.exit(1); });

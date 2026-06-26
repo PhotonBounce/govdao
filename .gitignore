@@ -24,3 +24,5 @@ secrets/
 deployments/
 config/mobile-app.manifest.production.json
 config/mobile-app.manifest.generated.json
+apps/mobile/dist2/
+config/mobile-app.manifest.google-play.generated.json

@@ -60,6 +60,7 @@ jobs:
       - run: npm run mobile:check-analytics
       - run: npm run mobile:check-deploy-wizard
       - run: npm run mobile:check-screenshots
+      - run: npm run mobile:check-brand
       - run: npm run mobile:check-eye-candy
       - run: npm run mobile:check-calendar
       - run: npm run mobile:check-preferences
@@ -78,6 +79,14 @@ jobs:
       - run: npm run mobile:check-proposal-templates
       - run: npm run mobile:check-treasury-allocation
       - run: npm run mobile:check-activity-heatmap
+      - run: npm run mobile:check-delegate-power-map
+      - run: npm run mobile:check-proposal-risk
+      - run: npm run mobile:check-sentiment-pulse
+      - run: npm run mobile:check-onchain-proof
+      - run: npm run mobile:check-accessibility
+      - run: npm run mobile:check-monetization
+      - run: npm run mobile:check-app-config
+      - run: npm run mobile:check-data-safety
       - run: npm run mobile:check-chain
       - name: App config matches manifest
         run: |

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { AnimatedShell } from "./src/components/AnimatedShell";
-import { ParallaxScrollView } from "./src/components/ParallaxScrollView";
+import { ParallaxScrollView, ParallaxScrollViewHandle } from "./src/components/ParallaxScrollView";
 import { PremiumGate } from "./src/components/PremiumGate";
 import { InfoModalProvider } from "./src/contexts/InfoModalContext";
 import { SoundProvider } from "./src/contexts/SoundContext";
@@ -86,6 +86,7 @@ import { TreasuryScreen } from "./src/screens/TreasuryScreen";
 import { useProposalCreationController } from "./src/hooks/useProposalCreationController";
 import { AppManifest } from "./src/types";
 import { darkPalette, radii, fonts } from "./src/theme";
+import { SkeletonCard } from "./src/components/SkeletonCard";
 
 const manifest = manifestJson as AppManifest;
 
@@ -212,11 +213,14 @@ export default function App() {
   const proposalRisk = useMemo(() => computeProposalRisk(FIXTURE_RISK_INPUTS), []);
   useDeepLinks(openView);
   const navCountRef = useRef(0);
+  const scrollViewRef = useRef<ParallaxScrollViewHandle>(null);
   useEffect(() => {
     navCountRef.current += 1;
     if (shouldShowInterstitial(navCountRef.current)) {
       showInterstitial();
     }
+    // Scroll to just below hero so tab content is visible
+    scrollViewRef.current?.scrollTo(320);
   }, [activeView]);
   const dataMode = getDataModeSummary(dashboardData.source);
   const drillGate = usePlanGate(manifest, "guardian-drill");
@@ -227,20 +231,33 @@ export default function App() {
   function renderViewHeader() {
     return (
       <SectionCard eyebrow={routeDescriptor.eyebrow} title={routeDescriptor.title} subtitle={routeDescriptor.subtitle} tone="glass" infoKey={activeView === "overview" ? "overview" : activeView === "proposals" ? "proposals-list" : activeView === "create-proposal" ? "create-proposal" : activeView === "treasury" ? "treasury" : activeView === "modules" ? "modules" : activeView === "activity" ? "activity-feed" : activeView === "calendar" ? "governance-calendar" : activeView === "search" ? "search" : activeView === "achievements" ? "achievements" : activeView === "settings" ? "app-settings" : undefined}>
-        <View style={styles.viewHeaderRow}>
-          <Text style={styles.viewHeaderMeta}>Active route: {activeView}</Text>
-          <Text style={styles.viewHeaderMeta}>Stack depth: {detailStack.length}</Text>
-        </View>
-        <View style={styles.viewModeRow}>
-          <ModulePill label={dataMode.label} tone={dataMode.tone} />
-          <Text style={styles.viewModeMeta}>{dataMode.detail}</Text>
-        </View>
-        <RouteSummaryStrip signals={routeSignals} />
+        {__DEV__ && (
+          <>
+            <View style={styles.viewHeaderRow}>
+              <Text style={styles.viewHeaderMeta}>Active route: {activeView}</Text>
+              <Text style={styles.viewHeaderMeta}>Stack depth: {detailStack.length}</Text>
+            </View>
+            <View style={styles.viewModeRow}>
+              <ModulePill label={dataMode.label} tone={dataMode.tone} />
+              <Text style={styles.viewModeMeta}>{dataMode.detail}</Text>
+            </View>
+            <RouteSummaryStrip signals={routeSignals} />
+          </>
+        )}
       </SectionCard>
     );
   }
 
   function renderActiveView() {
+    if (dashboardLoading && activeView === "overview") {
+      return (
+        <>
+          <SkeletonCard hasEyebrow lines={2} />
+          <SkeletonCard hasEyebrow lines={4} />
+          <SkeletonCard hasEyebrow={false} lines={3} />
+        </>
+      );
+    }
     if (activeView === "proposals") {
       const quorumPanel = proposals.length > 0 ? (
         <QuorumStatusCard
@@ -490,6 +507,8 @@ export default function App() {
               onSave={notifications.savePreferences}
             />
           ) : undefined}
+          sessionAddress={sessionIdentity?.address ?? null}
+          sessionRole={sessionIdentity?.role ?? null}
         />
       );
     }
@@ -570,7 +589,7 @@ export default function App() {
         {detailProposal ? <ProposalIntegrityCard manifest={manifest} proposal={detailProposal} /> : null}
         <VotePanel
           proposalId={currentDetail.refId}
-          votingEnabled={manifest.features.voting}
+          votingEnabled={manifest.features.voting && sessionIdentity?.role !== "None"}
           sessionActive={sessionActive}
           voteState={detailVoteState ?? getVoteState(currentDetail.refId)}
           explorerUrl={detailVoteState?.receipt ? buildExplorerTxUrl(manifest, detailVoteState.receipt.txHash) : null}
@@ -610,16 +629,13 @@ export default function App() {
 
   const heroContent = (
     <View style={styles.hero}>
-      <Text style={styles.kicker}>Google Play Release Candidate</Text>
       <Text style={styles.title}>{manifest.app.name}</Text>
-      <Text style={styles.description}>{manifest.release.listing.fullDescription}</Text>
+      <Text style={styles.description}>{manifest.release.listing.shortDescription}</Text>
       <View style={styles.pillRow}>
         <ModulePill label={manifest.governance.mode.toUpperCase()} tone="pine" />
         <ModulePill label={manifest.app.distribution.pricingModel.toUpperCase()} tone="bronze" />
-        <ModulePill label={`TRACK ${manifest.release.android.track.toUpperCase()}`} tone="rose" />
-        <ModulePill label={dataMode.label} tone={dataMode.tone} />
+        {__DEV__ && <ModulePill label={dataMode.label} tone={dataMode.tone} />}
       </View>
-      <Text style={styles.modeLine}>Current data mode: {dataMode.detail}</Text>
     </View>
   );
 
@@ -643,12 +659,14 @@ export default function App() {
     <AnimatedShell>
       <StatusBar style="light" />
       <ParallaxScrollView
+        ref={scrollViewRef}
         contentContainerStyle={styles.content}
         heroContent={heroContent}
         heroContainerStyle={styles.heroContainer}
       >
-        <View style={styles.navRow}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.navRow} contentContainerStyle={styles.navRowContent}>
           <NavTab active={activeView === "overview"} label="Overview" onPress={() => openView("overview")} />
+          <NavTab accent active={activeView === "upgrade"} label="✦ Premium" onPress={() => openView("upgrade")} />
           <NavTab active={activeView === "search"} label="Search" onPress={() => openView("search")} />
           {hasProposalView ? <NavTab active={activeView === "proposals"} label="Proposals" onPress={() => openView("proposals")} /> : null}
           {hasProposalCreation ? <NavTab active={activeView === "create-proposal"} label="Propose" onPress={() => openView("create-proposal")} /> : null}
@@ -663,33 +681,35 @@ export default function App() {
           <NavTab active={activeView === "analytics"} label="Analytics" onPress={() => openView("analytics")} />
           <NavTab active={activeView === "deploy-wizard"} label="Deploy" onPress={() => openView("deploy-wizard")} />
           <NavTab active={activeView === "settings"} label="Settings" onPress={() => openView("settings")} />
-        </View>
-
-        <DataStatusCard
-          loading={dashboardLoading}
-          source={dashboardData.source}
-          syncMessage={dashboardData.syncMessage}
-          lastUpdatedAt={dashboardData.lastUpdatedAt}
-          endpoints={dashboardData.endpoints}
-          onRefresh={refreshDashboard}
-        />
-
-        <SessionCard
-          status={sessionStatus}
-          identity={sessionIdentity}
-          options={accessOptions}
-          required={sessionRequired}
-          error={sessionError}
-          pendingMethodId={pendingMethodId}
-          onSignIn={signIn}
-          onSignOut={signOut}
-        />
+        </ScrollView>
 
         {currentDetail ? renderDetailView() : (
-          <>
+          <View key={activeView}>
             {renderViewHeader()}
+            {activeView === "overview" && (
+              <>
+                <DataStatusCard
+                  loading={dashboardLoading}
+                  source={dashboardData.source}
+                  syncMessage={dashboardData.syncMessage}
+                  lastUpdatedAt={dashboardData.lastUpdatedAt}
+                  endpoints={dashboardData.endpoints}
+                  onRefresh={refreshDashboard}
+                />
+                <SessionCard
+                  status={sessionStatus}
+                  identity={sessionIdentity}
+                  options={accessOptions}
+                  required={sessionRequired}
+                  error={sessionError}
+                  pendingMethodId={pendingMethodId}
+                  onSignIn={signIn}
+                  onSignOut={signOut}
+                />
+              </>
+            )}
             {renderActiveView()}
-          </>
+          </View>
         )}
       </ParallaxScrollView>
       <AdBanner manifest={manifest} />
@@ -743,9 +763,13 @@ const styles = StyleSheet.create({
     flexWrap: "wrap"
   },
   navRow: {
+    marginBottom: 12,
+  },
+  navRowContent: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    marginBottom: 12
+    gap: 6,
+    paddingHorizontal: 16,
+    paddingVertical: 4,
   },
   viewHeaderRow: {
     flexDirection: "row",

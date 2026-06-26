@@ -168,9 +168,16 @@ console.log("\nSave: phases through validating→saving and reports enabled coun
 console.log("\nSave: placeholder notification service yields null endpoint");
 {
   try {
-    const prefs = getDefaultPreferences(localManifest);
-    const result = await saveNotificationPreferences(localManifest, prefs, () => {});
-    assert.equal(result.endpoint, null, "example.govdao.app should be treated as placeholder");
+    // Synthesize a placeholder manifest rather than relying on the live config:
+    // once real service URLs are wired in, the local manifest is no longer a
+    // placeholder, but the placeholder-detection logic itself must still hold.
+    const placeholderManifest = {
+      ...localManifest,
+      services: { ...localManifest.services, notificationBaseUrl: "https://notify.example.govdao.app/" }
+    };
+    const prefs = getDefaultPreferences(placeholderManifest);
+    const result = await saveNotificationPreferences(placeholderManifest, prefs, () => {});
+    assert.equal(result.endpoint, null, "example.* host should be treated as placeholder");
     pass("placeholder service yields null endpoint");
   } catch (err) {
     fail("placeholder endpoint", err);

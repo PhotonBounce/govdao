@@ -46,6 +46,7 @@ export function MemberInviteScreen({
         eyebrow="Access Required"
         title="Sign In To Continue"
         subtitle="Member invitations require an active member session with registry write authority."
+        infoKey="member-session"
       >
         <Pressable style={styles.backButton} onPress={onBack}>
           <Text style={styles.backButtonText}>Back To Overview</Text>
@@ -61,6 +62,7 @@ export function MemberInviteScreen({
           eyebrow="Invite Submitted"
           title="Member Invite Pending"
           subtitle="The invitation has been submitted to the member registry. It will become active after the 24-hour timelock."
+          infoKey="member-registry"
         >
           <View style={styles.receiptRow}>
             <ModulePill label="PENDING" tone="pine" />

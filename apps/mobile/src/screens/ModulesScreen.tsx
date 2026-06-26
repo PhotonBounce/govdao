@@ -28,6 +28,7 @@ export function ModulesScreen({ modules, sessionActive, workspaceModuleTitle, wo
               eyebrow={module.kind}
               title={module.title}
               subtitle={`Entry route ${module.entryRoute}. ${module.requiresAuth ? "Authentication required." : "Guest access supported."}`}
+              infoKey="modules"
             >
               {locked ? (
                 <View style={styles.lockRow}>
@@ -48,6 +49,7 @@ export function ModulesScreen({ modules, sessionActive, workspaceModuleTitle, wo
           eyebrow="Workspace Preview"
           title={`${workspaceModuleTitle} Queue`}
           subtitle="Companion modules should feel operational, not decorative. This queue previews the non-DAO workstream inside the same app shell."
+          infoKey="workspace"
         >
           {workspaceItems.length === 0 ? <Text style={styles.emptyLine}>No workspace items are available for the active module yet.</Text> : null}
           {workspaceItems.map((item) => (

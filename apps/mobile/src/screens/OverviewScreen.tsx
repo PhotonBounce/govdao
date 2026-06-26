@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { ReactNode } from "react";
 import { MembersPanel } from "../components/MembersPanel";
 import { ModulePill } from "../components/ModulePill";
+import { OnchainProofCard } from "../components/OnchainProofCard";
 import { SectionCard } from "../components/SectionCard";
 import { SignalRow } from "../components/SignalRow";
 import { MemberItem } from "../data/mobileDataSource";
@@ -51,11 +52,13 @@ export function OverviewScreen({
   return (
     <>
       {healthCard}
+      <OnchainProofCard manifest={manifest} />
       {warnings.length > 0 ? (
         <SectionCard
-          eyebrow="Readiness Warnings"
-          title="Configuration Still Needs Promotion"
-          subtitle="The app shell is valid, but these values still read like staging config and should be replaced before shipping outside internal testing."
+          eyebrow="Setup Needed"
+          title="Almost Ready"
+          subtitle="Your contracts are live on Polygon. A few backend service URLs still need to be pointed at real endpoints before Google Play submission — they don't affect on-chain governance."
+          infoKey="setup-status"
         >
           {warnings.map((warning) => (
             <Text key={warning} style={styles.warningLine}>• {warning}</Text>
@@ -66,7 +69,8 @@ export function OverviewScreen({
       <SectionCard
         eyebrow="Launchpad"
         title="Primary Routes"
-        subtitle="A production client should offer explicit entry points into governance, workspace modules, and release controls instead of forcing users to infer the next screen."
+        subtitle="Jump to any governance area. Your role determines which actions are available — tap ⓘ to learn what each section does."
+        infoKey="launchpad"
       >
         <View style={styles.launchpadGrid}>
           {launchpadActions.map((action) => (
@@ -78,7 +82,7 @@ export function OverviewScreen({
         </View>
       </SectionCard>
 
-      <SectionCard eyebrow="Primary Experience" title={governanceHeadline} subtitle={governanceSubtitle}>
+      <SectionCard eyebrow="Primary Experience" title={governanceHeadline} subtitle={governanceSubtitle} infoKey="overview">
         <View style={styles.metricRow}>
           <View style={styles.metricBlock}>
             <Text style={styles.metricValue}>{manifest.chain.name}</Text>
@@ -98,7 +102,8 @@ export function OverviewScreen({
       <SectionCard
         eyebrow="Readiness Board"
         title="Operational Status"
-        subtitle="This board separates what is already release-shaped from what still depends on live infrastructure promotion."
+        subtitle="Green = live on Polygon. Orange = optional feature not yet wired."
+        infoKey="data-status"
       >
         <SignalRow
           label={manifest.governance.mode === "off-chain" ? "Chain settlement path" : "On-chain deployment"}
@@ -114,6 +119,7 @@ export function OverviewScreen({
         eyebrow="Access Layer"
         title={manifest.wallet.required ? "Wallet Plus Managed Access" : "Managed Access"}
         subtitle="Google Play release candidates need a clear member access story. This release combines wallet capabilities with off-chain auth where the governance mode requires it."
+        infoKey="wallet-connect"
       >
         <SignalRow label="Wallet required" value={manifest.wallet.required ? "Yes" : "No"} tone={manifest.wallet.required ? "good" : "neutral"} />
         <SignalRow label="Supported wallets" value={manifest.wallet.supported.join(", ")} />
@@ -131,6 +137,7 @@ export function OverviewScreen({
           ? `Off-chain control plane: ${manifest.governance.offchain.provider}. Vote anchoring ${manifest.governance.offchain.voteAnchoringEnabled ? "enabled" : "disabled"}.`
           : "All proposal and vote state resolves on-chain."}
         tone="graphite"
+        infoKey="governance-mode"
       >
         <View style={styles.pillRow}>
           {offchainAuthLabels.map((method) => (
@@ -146,6 +153,7 @@ export function OverviewScreen({
         eyebrow="Member Registry"
         title={`${members.length} Registered Member${members.length !== 1 ? "s" : ""}`}
         subtitle="Active members loaded from the registry feed. Tap a member to view their role and on-chain address."
+        infoKey="member-registry"
       >
         <MembersPanel members={members} onSelectMember={onSelectMember} />
         {memberInviteEnabled && onInviteMember ? (
@@ -194,6 +202,7 @@ const styles = StyleSheet.create({
   },
   metricBlock: {
     flex: 1,
+    minWidth: 0,
     backgroundColor: "rgba(217, 205, 184, 0.28)",
     borderRadius: 16,
     padding: 14

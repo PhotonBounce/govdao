@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AppManifest } from "../types";
 import { SessionIdentity } from "../data/sessionSource";
 import { castVoteTransaction, VoteChoice, VoteReceipt } from "../data/voteSource";
@@ -30,6 +30,13 @@ function getErrorMessage(error: unknown): string {
 export function useVoteController(identity: SessionIdentity | null, manifest: AppManifest) {
   const requestIdsRef = useRef<Record<string, number>>({});
   const [voteStates, setVoteStates] = useState<Record<string, VoteState>>({});
+
+  // Clear all vote state when the active identity changes (sign-out / sign-in as different user).
+  const identityKey = identity?.address ?? null;
+  useEffect(() => {
+    requestIdsRef.current = {};
+    setVoteStates({});
+  }, [identityKey]);
 
   function getVoteState(proposalId: string): VoteState {
     return voteStates[proposalId] ?? idleVoteState;

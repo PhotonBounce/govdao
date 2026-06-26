@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { EmptyState } from "../components/EmptyState";
 import { ModulePill } from "../components/ModulePill";
 import { SectionCard } from "../components/SectionCard";
+import { Spinner } from "../components/Spinner";
 import { TreasuryAllocationCard } from "../components/TreasuryAllocationCard";
 import { loadTreasuryAllocation } from "../data/treasuryAllocationSource";
 import { SignalRow } from "../components/SignalRow";
@@ -31,6 +33,7 @@ export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, 
         eyebrow="On-Chain Verification"
         title={onchainSnapshot.available ? "Live Contract Reads" : "Awaiting Chain Configuration"}
         subtitle={onchainSnapshot.detail}
+        infoKey="data-status"
       >
         <View style={styles.statusRow}>
           <ModulePill
@@ -38,7 +41,9 @@ export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, 
             tone={onchainSnapshot.available ? "pine" : "bronze"}
           />
         </View>
-        {onchainSnapshot.available ? (
+        {onchainLoading && !onchainSnapshot.available ? (
+          <Spinner tone="light" label="Reading live state from Polygon…" />
+        ) : onchainSnapshot.available ? (
           <>
             <SignalRow label="Block" value={onchainSnapshot.blockNumber ?? "Unavailable"} tone="neutral" />
             <SignalRow label="Treasury balance" value={onchainSnapshot.treasuryBalance ?? "Unavailable"} tone={onchainSnapshot.treasuryBalance ? "good" : "warning"} />
@@ -86,7 +91,13 @@ export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, 
         subtitle="Every movement settles through the timelock path, so the queue below mirrors what members can verify on-chain."
         infoKey="treasury-movements"
       >
-        {movements.length === 0 ? <Text style={styles.emptyLine}>No treasury movements are available from the active feed yet.</Text> : null}
+        {movements.length === 0 ? (
+          <EmptyState
+            glyph="◇"
+            title="No movements yet"
+            message="Treasury inflows and outflows will appear here once funds move through the timelock."
+          />
+        ) : null}
         {movements.map((movement) => (
           <Pressable key={movement.id} style={styles.feedItem} onPress={() => onSelectMovement(movement)}>
             <View style={styles.feedTopRow}>
@@ -118,7 +129,14 @@ export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, 
             <Text style={styles.drillButtonText}>Schedule Drill →</Text>
           </Pressable>
         ) : null}
-        {guardianEvents.length === 0 ? <Text style={styles.darkEmptyLine}>No guardian events are available from the active feed yet.</Text> : null}
+        {guardianEvents.length === 0 ? (
+          <EmptyState
+            tone="dark"
+            glyph="🛡"
+            title="No guardian events"
+            message="Emergency pauses and drills are logged here. A quiet log is a healthy one."
+          />
+        ) : null}
         {guardianEvents.map((event) => (
           <Pressable key={event.id} style={styles.darkFeedItem} onPress={() => onSelectGuardianEvent(event)}>
             <View style={styles.feedTopRow}>

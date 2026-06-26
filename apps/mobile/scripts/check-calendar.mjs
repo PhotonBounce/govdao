@@ -14,6 +14,8 @@ require("ts-node").register({
 
 const root = path.resolve(process.cwd(), "src", "data");
 const manifest = require(path.join(root, "app.manifest.json"));
+// Use the example (placeholder) manifest to verify fixture-mode detection.
+const exampleManifest = require(path.resolve(process.cwd(), "..", "..", "config", "mobile-app.manifest.example.json"));
 const cal = require(path.join(root, "governanceCalendarSource.ts"));
 
 let passed = 0, failed = 0;
@@ -29,7 +31,8 @@ const DAY = 24 * HOUR;
 
 console.log("\nCalendar: load + shape");
 const calendar = cal.loadGovernanceCalendar(manifest, ANCHOR);
-assert("transport is fixture for placeholder manifest", calendar.transport === "fixture", calendar.transport);
+const fixtureCalendar = cal.loadGovernanceCalendar(exampleManifest, ANCHOR);
+assert("transport is fixture for placeholder manifest", fixtureCalendar.transport === "fixture", fixtureCalendar.transport);
 assert("anchorMs echoes input", calendar.anchorMs === ANCHOR);
 assert("has at least 8 events", calendar.events.length >= 8, `got ${calendar.events.length}`);
 const KINDS = new Set(["voting-opens", "voting-closes", "timelock-ready", "drill-window", "grace-expiry"]);

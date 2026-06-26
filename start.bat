@@ -79,7 +79,16 @@ goto :menu
 
 :web
 echo.
-echo [run] Starting Expo web preview. A browser tab will open.
+echo [run] Starting Expo web preview. A browser tab will open in Chrome.
+echo.
+echo   To test ON-CHAIN with MetaMask (Polygon mainnet):
+echo     1. Make sure the "Deploy to Polygon Mainnet" GitHub Action has run,
+echo        then "git pull" so app.manifest.json has the real addresses.
+echo     2. In the app, open the Session card and pick a wallet (Injected/MetaMask).
+echo     3. MetaMask pops up and offers to switch/add Polygon - approve it.
+echo     4. You are signed in with your real address and can propose + vote.
+echo   If addresses are still all-zero, the app runs in safe DEMO mode instead.
+echo.
 echo       Press Ctrl+C in this window to stop the server.
 echo.
 call npm --prefix apps/mobile run web

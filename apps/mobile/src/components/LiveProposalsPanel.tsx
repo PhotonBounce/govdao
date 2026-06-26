@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { SectionCard } from "./SectionCard";
 import { ModulePill } from "./ModulePill";
 import { AnimatedPressable } from "./AnimatedPressable";
+import { Spinner } from "./Spinner";
 import { LiveProposalsResult } from "../data/chainSource";
 import { nextLifecycleAction } from "../data/proposalLifecycleSource";
 import { darkPalette, radii } from "../theme";
@@ -45,7 +46,11 @@ export function LiveProposalsPanel({
 
   return (
     <SectionCard tone="glass" eyebrow="Live On-Chain" title="Governor Proposals" infoKey="proposals-list">
-      <Text style={styles.detail}>{loading ? "Reading proposals from the Governor…" : result.detail}</Text>
+      {loading ? (
+        <Spinner label="Reading proposals from the Governor…" />
+      ) : (
+        <Text style={styles.detail}>{result.detail}</Text>
+      )}
       {result.proposals.map((p) => {
         const action = nextLifecycleAction(p.stateLabel);
         const busy = busyProposalId === p.id;

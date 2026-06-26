@@ -6,17 +6,23 @@ interface NavTabProps {
   active: boolean;
   label: string;
   onPress: () => void;
+  /** Gold-tinted idle styling for a standout CTA (e.g. the Premium upsell tab). */
+  accent?: boolean;
 }
 
-export function NavTab({ active, label, onPress }: NavTabProps) {
+export function NavTab({ active, label, onPress, accent = false }: NavTabProps) {
+  const idleStyle = accent ? styles.tabAccent : styles.tabIdle;
+  const idleLabel = accent ? styles.labelAccent : styles.labelIdle;
   return (
     <AnimatedPressable
       onPress={onPress}
       sound="tap"
       intensity="subtle"
-      style={[styles.tab, active ? styles.tabActive : styles.tabIdle]}
+      accessibilityRole="tab"
+      accessibilityLabel={`${label}${active ? ", selected" : ""}`}
+      style={[styles.tab, active ? styles.tabActive : idleStyle]}
     >
-      <Text style={[styles.label, active ? styles.labelActive : styles.labelIdle]}>{label}</Text>
+      <Text style={[styles.label, active ? styles.labelActive : idleLabel]}>{label}</Text>
     </AnimatedPressable>
   );
 }
@@ -38,6 +44,10 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.06)",
     borderColor: darkPalette.mutedLine
   },
+  tabAccent: {
+    backgroundColor: "rgba(201,131,64,0.12)",
+    borderColor: darkPalette.glowBronze
+  },
   label: {
     fontSize: 13,
     fontWeight: "700",
@@ -48,5 +58,8 @@ const styles = StyleSheet.create({
   },
   labelIdle: {
     color: "rgba(224,219,208,0.60)"
+  },
+  labelAccent: {
+    color: darkPalette.softGold
   }
 });

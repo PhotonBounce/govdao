@@ -24,6 +24,18 @@ async function main() {
   const initialExecutors = parseAddressList("INITIAL_EXECUTORS");
   const initialMembers = parseAddressList("INITIAL_MEMBERS");
 
+  const isProduction = network.name !== "hardhat" && network.name !== "localhost";
+  // On production networks, warn if INITIAL_PROPOSERS is empty — the deployer key will be the
+  // sole ADMIN. That's fine if the deployer IS your MetaMask wallet, but dangerous if it's a
+  // burner/CI key that won't be used after deployment.
+  if (isProduction && initialProposers.length === 0) {
+    console.warn(
+      `WARNING: No INITIAL_PROPOSERS set. On ${network.name}, the deployer (${deployer.address}) ` +
+      "will be the only account that can propose/vote/execute. If this is a burner key, set INITIAL_PROPOSERS " +
+      "to your MetaMask address before deploying."
+    );
+  }
+
   // 1. MemberRegistry — deployer is bootstrap admin
   const MemberRegistry = await ethers.getContractFactory("MemberRegistry");
   const memberRegistry = await MemberRegistry.deploy(deployer.address);
@@ -39,8 +51,11 @@ async function main() {
   console.log("Timelock:", await timelock.getAddress());
 
   // 3. Governor
-  const votingDelay = 1;     // 1 block delay before voting
-  const votingPeriod = 50400; // ~7 days at 12s blocks
+  const votingDelay = 1;      // 1 block delay before voting
+  // Polygon averages ~2s/block: 7 days = 7*24*3600/2 = 302400 blocks
+  const votingPeriod = network.name === "hardhat" || network.name === "localhost"
+    ? 50400   // fast local tests (12s block assumption keeps test timing unchanged)
+    : 302400; // ~7 days on Polygon (2s blocks)
   const quorum = 20;          // 20% quorum
   const Governor = await ethers.getContractFactory("Governor");
   const governor = await Governor.deploy(

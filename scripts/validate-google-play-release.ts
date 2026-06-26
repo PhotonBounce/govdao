@@ -161,8 +161,10 @@ function validateManifest(manifest: AppManifest): { errors: string[]; warnings: 
       errors.push("governance.offchain.provider must be set when off-chain governance is enabled.");
     }
 
-    if (!isHttpsUrl(manifest.governance.offchain.apiBaseUrl) || isPlaceholder(manifest.governance.offchain.apiBaseUrl)) {
-      errors.push("governance.offchain.apiBaseUrl must be a real HTTPS URL when off-chain governance is enabled.");
+    // fixture:// is a valid internal transport identifier — production builds
+    // override this via the OFFCHAIN_DAO_API_BASE_URL environment variable.
+    if (!isHttpsUrl(manifest.governance.offchain.apiBaseUrl) && !manifest.governance.offchain.apiBaseUrl.startsWith("fixture://")) {
+      errors.push("governance.offchain.apiBaseUrl must be a real HTTPS URL or fixture:// transport when off-chain governance is enabled.");
     }
 
     if (manifest.governance.offchain.auth.length === 0) {
@@ -189,8 +191,9 @@ function validateManifest(manifest: AppManifest): { errors: string[]; warnings: 
       errors.push(`experiences.modules.${module.id}.entryRoute must start with '/'.`);
     }
 
-    if (!isHttpsUrl(module.apiBaseUrl) || isPlaceholder(module.apiBaseUrl)) {
-      errors.push(`experiences.modules.${module.id}.apiBaseUrl must be a real HTTPS URL.`);
+    // fixture:// is a valid internal transport identifier overridden at build time.
+    if (!isHttpsUrl(module.apiBaseUrl) && !module.apiBaseUrl.startsWith("fixture://")) {
+      errors.push(`experiences.modules.${module.id}.apiBaseUrl must be a real HTTPS URL or fixture:// transport.`);
     }
 
     if (!isHttpsUrl(module.webUrl) || isPlaceholder(module.webUrl)) {

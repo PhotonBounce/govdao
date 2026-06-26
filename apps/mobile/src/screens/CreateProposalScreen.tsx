@@ -54,6 +54,7 @@ export function CreateProposalScreen({
         title="Sign In Required"
         subtitle="Proposal creation requires an active member session. Sign in using the access panel above."
         tone="graphite"
+        infoKey="member-session"
       >
         <Pressable style={styles.backButton} onPress={onBack}>
           <Text style={styles.backButtonText}>← Back to Feed</Text>
@@ -69,6 +70,7 @@ export function CreateProposalScreen({
         title={result.proposalId}
         subtitle="Your draft has been submitted to the governance queue. The proposal will appear in the feed once the chain has processed the transaction."
         tone="graphite"
+        infoKey="create-proposal"
       >
         <View style={styles.receiptRow}>
           <ModulePill label="FIXTURE TX" tone="rose" />
@@ -101,6 +103,7 @@ export function CreateProposalScreen({
         eyebrow="New Proposal"
         title="Draft Governance Proposal"
         subtitle={`Submitting as ${sessionIdentity.memberLabel} (${sessionIdentity.address.slice(0, 6)}…${sessionIdentity.address.slice(-4)}). Fill in the required fields, then submit.`}
+        infoKey="create-proposal"
       >
         <Pressable style={styles.backButton} onPress={onBack}>
           <Text style={styles.backButtonText}>← Back to Feed</Text>
@@ -112,7 +115,7 @@ export function CreateProposalScreen({
         ) : null}
       </SectionCard>
 
-      <SectionCard eyebrow="Required" title="Proposal Details" subtitle="Title and summary are required before submission.">
+      <SectionCard eyebrow="Required" title="Proposal Details" subtitle="Title and summary are required before submission." infoKey="create-proposal">
         <Text style={styles.fieldLabel}>Title</Text>
         <TextInput
           style={styles.textInput}
@@ -142,6 +145,7 @@ export function CreateProposalScreen({
         eyebrow="Optional"
         title="Document Reference"
         subtitle="Link an off-chain document and anchor its keccak-256 hash for on-chain integrity verification."
+        infoKey="proposal-doc"
       >
         <Text style={styles.fieldLabel}>Document URI</Text>
         <TextInput
@@ -177,7 +181,7 @@ export function CreateProposalScreen({
         </SectionCard>
       ) : null}
 
-      <SectionCard eyebrow="Submit" title="Send To Governor" subtitle="Settlement is fixture-backed until Governor.propose is wired.">
+      <SectionCard eyebrow="Submit" title="Send To Governor" subtitle="Settlement is fixture-backed until Governor.propose is wired." infoKey="create-proposal">
         <PhaseLabel phase={phase} />
         <Pressable
           style={[styles.submitButton, !canSubmit && styles.submitButtonDisabled]}

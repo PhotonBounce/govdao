@@ -3,7 +3,7 @@
     "name": "GOVDAO",
     "bundleId": "com.govdao.app",
     "version": "0.2.0",
-    "environment": "sepolia",
+    "environment": "polygon",
     "distribution": {
       "channel": "google-play",
       "pricingModel": "subscription",
@@ -23,17 +23,17 @@
     ]
   },
   "chain": {
-    "id": 1,
-    "name": "ethereum",
-    "rpcUrl": "https://YOUR_MAINNET_RPC_ENDPOINT",
-    "blockExplorer": "https://etherscan.io"
+    "id": 137,
+    "name": "polygon",
+    "rpcUrl": "https://polygon-mainnet.g.alchemy.com/v2/nTxCkb9NGgPk3FUXMlDsC",
+    "blockExplorer": "https://polygonscan.com"
   },
   "contracts": {
-    "memberRegistry": "0x0000000000000000000000000000000000000000",
-    "timelock": "0x0000000000000000000000000000000000000000",
-    "governor": "0x0000000000000000000000000000000000000000",
-    "treasury": "0x0000000000000000000000000000000000000000",
-    "emergencyGuardian": "0x0000000000000000000000000000000000000000"
+    "memberRegistry": "0xaFBAB7016b1c17A2099De448aC2f74bA563b2Aaa",
+    "timelock": "0x72B35C420259a2330adE3293E1fEFd79cf0244E5",
+    "governor": "0x85A460c2992f1928612D027d1D860543B00f921f",
+    "treasury": "0x707567E47F1a858ca152AB966A6dAE3975143Ee5",
+    "emergencyGuardian": "0xe4E518e58fEa19B0C8398833607CD82c3feb342d"
   },
   "features": {
     "proposalFeed": true,
@@ -43,12 +43,12 @@
     "pushNotifications": true,
     "biometricConfirm": true,
     "fiatOnramp": false,
-    "plan": "premium"
+    "plan": "free"
   },
   "services": {
-    "metadataBaseUrl": "https://example.govdao.app/metadata",
-    "indexerBaseUrl": "https://example.govdao.app/indexer",
-    "notificationBaseUrl": "https://example.govdao.app/notifications",
+    "metadataBaseUrl": "https://photon-bounce.com/govdao/api/metadata",
+    "indexerBaseUrl": "https://photon-bounce.com/govdao/api/indexer",
+    "notificationBaseUrl": "https://photon-bounce.com/govdao/api/notifications",
     "mobileFeeds": {
       "proposalsPath": "/mobile/proposals",
       "motionsPath": "/mobile/motions",
@@ -59,11 +59,11 @@
     }
   },
   "support": {
-    "website": "https://govdao.app",
-    "email": "support@govdao.app",
-    "legalName": "GOVDAO Labs",
-    "privacyPolicyUrl": "https://govdao.app/privacy",
-    "termsOfServiceUrl": "https://govdao.app/terms"
+    "website": "https://photon-bounce.com/govdao",
+    "email": "lindapots2000@gmail.com",
+    "legalName": "PhotonBounce",
+    "privacyPolicyUrl": "https://photon-bounce.com/govdao/privacy.html",
+    "termsOfServiceUrl": "https://photon-bounce.com/govdao/terms.html"
   },
   "governance": {
     "mode": "hybrid",
@@ -90,7 +90,7 @@
         "enabled": true,
         "entryRoute": "/governance",
         "apiBaseUrl": "fixture://govdao",
-        "webUrl": "https://app.govdao.app/governance",
+        "webUrl": "https://photon-bounce.com/govdao/app",
         "requiresAuth": true
       },
       {
@@ -100,7 +100,7 @@
         "enabled": true,
         "entryRoute": "/workspace",
         "apiBaseUrl": "fixture://govdao",
-        "webUrl": "https://app.govdao.app/workspace",
+        "webUrl": "https://photon-bounce.com/govdao/app",
         "requiresAuth": true
       }
     ]
@@ -108,12 +108,12 @@
   "release": {
     "android": {
       "applicationId": "com.govdao.app",
-      "versionCode": 2,
+      "versionCode": 3,
       "track": "internal"
     },
     "listing": {
-      "shortDescription": "Transparent governance for member-led organizations.",
-      "fullDescription": "GOVDAO gives members a secure mobile interface for proposals, voting, treasury transparency, and emergency governance status.",
+      "shortDescription": "On-chain governance for DAOs — propose, vote, execute on Polygon.",
+      "fullDescription": "GOVDAO is a mobile-first governance platform for member-led organizations. Every proposal, vote, and treasury action is secured by five smart contracts deployed on Polygon mainnet — no backend, no middleman, just transparent on-chain governance in your pocket.\n\n🏛 GOVERNANCE MADE SIMPLE\nCreate and vote on proposals directly from your phone. GOVDAO supports both on-chain votes (finalized on Polygon) and off-chain deliberation, giving your organization the flexibility to deliberate before committing gas.\n\n💰 TREASURY TRANSPARENCY\nMonitor your DAO's treasury balance and movement history in real time. Every outgoing transfer is queued through a timelock — giving members time to react before funds move.\n\n🔔 STAY INFORMED\nGovernance reminders keep you ahead of quorum deadlines and voting windows. Push notifications fire when proposals enter their voting phase or approach execution.\n\n🛡 EMERGENCY GUARDIAN\nSchedule and run guardian drills so your emergency multisig is always battle-ready. When governance needs a circuit breaker, the guardian is there.\n\n📊 ANALYTICS & INSIGHTS (Premium)\nDelegate power maps, proposal risk scoring, sentiment pulse, and participation heatmaps — the full analytics suite for serious governance operators.\n\n🚀 DEPLOY WIZARD (Premium)\nDeploy the full five-contract governance kernel directly from the app. Configure your DAO's voting delay, quorum, timelock period, and member registry in a guided step-by-step wizard.\n\n🔐 SECURE BY DESIGN\n• Your wallet never leaves your device — GOVDAO connects via WalletConnect or Coinbase Wallet\n• Biometric confirmation for sensitive actions\n• No personal data collected or stored\n• Privacy policy: https://photon-bounce.com/govdao/privacy.html\n\n📱 FREE & PREMIUM\nCore governance (proposals, voting, treasury, activity) is free. Upgrade to Premium to unlock analytics, guardian drills, member invite with timelock, delegate maps, risk analysis, and the deploy wizard.\n\nBuilt on Polygon · Open source on GitHub · Coming to Google Play",
       "category": "business"
     }
   }

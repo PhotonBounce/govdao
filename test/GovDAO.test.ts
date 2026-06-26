@@ -741,5 +741,66 @@ describe("GOVDAO Core", function () {
       await governor.connect(bob).execute(2);
       expect(await governor.proposalGracePeriod()).to.equal(25);
     });
+
+    it("tied vote (forVotes == againstVotes) is Defeated", async function () {
+      await gov2.connect(deployer).propose(
+        [await gov2.getAddress()],
+        [0],
+        [gov2.interface.encodeFunctionData("setQuorum", [30])],
+        "ipfs://QmTie",
+        ethers.keccak256(ethers.toUtf8Bytes("tie vote"))
+      );
+      await ethers.provider.send("evm_mine", []);
+      // alice votes For, deployer votes Against — 1 each, quorum met (1 of 4 ≥ floor 1)
+      await gov2.connect(alice).castVote(1, 1);    // For
+      await gov2.connect(deployer).castVote(1, 0); // Against
+      for (let i = 0; i < VOTING_PERIOD; i++) {
+        await ethers.provider.send("evm_mine", []);
+      }
+      expect(await gov2.getProposalState(1)).to.equal(2); // Defeated
+    });
+
+    it("proposal expires after grace period if not queued", async function () {
+      const TL3 = await ethers.getContractFactory("Timelock");
+      const tl3 = await TL3.deploy(TIMELOCK_DELAY, deployer.address, deployer.address) as unknown as Timelock;
+      const GOV3 = await ethers.getContractFactory("Governor");
+      const gov3 = await GOV3.deploy(
+        await memberRegistry.getAddress(),
+        await tl3.getAddress(),
+        deployer.address,
+        VOTING_DELAY,
+        VOTING_PERIOD,
+        QUORUM
+      ) as unknown as Governor;
+      // Set grace period via timelock BEFORE handing governor control to gov3
+      // (deployer is still the timelock governor at this point)
+      const gracePeriod = 10; // blocks
+      const setGraceData = gov3.interface.encodeFunctionData("setProposalGracePeriod", [gracePeriod]);
+      await tl3.connect(deployer).queueAction(await gov3.getAddress(), 0, setGraceData);
+      await ethers.provider.send("evm_increaseTime", [TIMELOCK_DELAY + 1]);
+      await ethers.provider.send("evm_mine", []);
+      await tl3.connect(deployer).executeAction(await gov3.getAddress(), 0, setGraceData);
+      expect(await gov3.proposalGracePeriod()).to.equal(gracePeriod);
+
+      // Now wire the timelock to gov3
+      await tl3.setGovernor(await gov3.getAddress());
+
+      await gov3.connect(deployer).propose(
+        [await gov3.getAddress()],
+        [0],
+        [gov3.interface.encodeFunctionData("setQuorum", [25])],
+        "ipfs://QmGrace",
+        ethers.keccak256(ethers.toUtf8Bytes("grace expiry"))
+      );
+      await ethers.provider.send("evm_mine", []);
+      await gov3.connect(deployer).castVote(1, 1);
+      await gov3.connect(alice).castVote(1, 1);
+
+      // Mine past voting period (Succeeded) then past grace period without queuing → Defeated
+      for (let i = 0; i < VOTING_PERIOD + gracePeriod + 1; i++) {
+        await ethers.provider.send("evm_mine", []);
+      }
+      expect(await gov3.getProposalState(1)).to.equal(2); // Defeated (grace expired, not queued)
+    });
   });
 });

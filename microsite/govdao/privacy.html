@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — GOVDAO</title>
+  <link rel="icon" href="app/assets/icon.png" type="image/png" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --dark: #080810; --gold: #c98340; --text: #e0dbd0; --muted: rgba(224,219,208,0.6); --surface: #0f0f1c; --line: rgba(255,255,255,0.08); }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--dark); color: var(--text); min-height: 100vh; }
+    nav { padding: 20px 32px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 16px; }
+    nav a { color: var(--gold); text-decoration: none; font-weight: 700; font-size: 15px; }
+    nav a:hover { text-decoration: underline; }
+    nav .sep { color: var(--muted); }
+    main { max-width: 760px; margin: 0 auto; padding: 56px 32px 80px; }
+    h1 { font-size: 2.2rem; font-weight: 800; color: var(--gold); margin-bottom: 8px; }
+    .meta { color: var(--muted); font-size: 14px; margin-bottom: 48px; }
+    h2 { font-size: 1.1rem; font-weight: 700; color: var(--text); margin: 40px 0 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+    p { font-size: 15px; line-height: 1.75; color: var(--muted); margin-bottom: 14px; }
+    ul { padding-left: 20px; margin-bottom: 14px; }
+    li { font-size: 15px; line-height: 1.75; color: var(--muted); margin-bottom: 6px; }
+    a { color: var(--gold); }
+    .highlight { background: rgba(201,131,64,0.07); border-left: 3px solid var(--gold); padding: 16px 20px; border-radius: 4px; margin: 20px 0; }
+    .highlight p { margin: 0; }
+    footer { text-align: center; padding: 40px 32px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="index.html">GOVDAO</a>
+    <span class="sep">›</span>
+    <span style="color:var(--muted)">Privacy Policy</span>
+  </nav>
+
+  <main>
+    <h1>Privacy Policy</h1>
+    <p class="meta">Effective date: June 21, 2026 &nbsp;·&nbsp; Last updated: June 21, 2026</p>
+
+    <div class="highlight">
+      <p><strong style="color:var(--text)">Short version:</strong> GOVDAO does not collect, store, or sell your personal data. The app reads governance state directly from the Polygon blockchain through your own RPC connection. No backend account is required. No email, name, or personal information is ever requested.</p>
+    </div>
+
+    <h2>1. Who We Are</h2>
+    <p>GOVDAO is a mobile governance application developed by <strong style="color:var(--text)">PhotonBounce</strong>. The app enables member-led organizations to propose, vote on, queue, and execute governance decisions using five smart contracts deployed on the Polygon mainnet blockchain.</p>
+    <p>Questions about this policy may be sent to: <a href="mailto:lindapots2000@gmail.com">lindapots2000@gmail.com</a></p>
+
+    <h2>2. Data We Do Not Collect</h2>
+    <p>We do not collect, transmit, or store:</p>
+    <ul>
+      <li>Your name, email address, or any contact information</li>
+      <li>Your wallet seed phrase, private keys, or credentials</li>
+      <li>Your IP address or device identifiers (beyond what Expo/React Native platform SDKs may log locally)</li>
+      <li>Your location data</li>
+      <li>Any biometric data — biometric authentication is handled entirely by your device's secure enclave via the OS; we receive only a boolean success/failure</li>
+    </ul>
+
+    <h2>3. Blockchain Data</h2>
+    <p>All on-chain reads (proposals, votes, treasury balances, member registry entries) are fetched directly from the Polygon network via an RPC endpoint configured in the app. This data is public by nature — it exists on a permissionless blockchain and is readable by anyone. We do not proxy or log these requests on our servers.</p>
+
+    <h2>4. In-App Purchases</h2>
+    <p>Premium subscriptions are processed by Google Play Billing and optionally managed through RevenueCat. We receive only an entitlement status (active/expired) — no payment card details or financial information reaches our application code. Purchase history is governed by Google's and RevenueCat's own privacy policies.</p>
+
+    <h2>5. Push Notifications</h2>
+    <p>If you enable governance reminders, a push token is registered with Expo's notification service. This token is stored on your device and used solely to deliver governance-event notifications you have subscribed to. You can revoke this permission at any time in your device Settings.</p>
+
+    <h2>6. Advertising</h2>
+    <p>The free tier may display banner ads served by Google AdMob. AdMob's data collection is governed by <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>. Upgrading to Premium removes all advertising.</p>
+
+    <h2>7. Analytics</h2>
+    <p>We do not use third-party analytics SDKs (no Firebase Analytics, Mixpanel, Amplitude, etc.). The governance health-score and analytics features shown in the app are computed locally from on-chain data fetched at runtime.</p>
+
+    <h2>8. Deep Links</h2>
+    <p>The app registers the <code>govdao://</code> URI scheme for deep links (e.g., direct navigation to a proposal). These links are processed locally on your device and are not transmitted to our servers.</p>
+
+    <h2>9. Third-Party Services</h2>
+    <p>The app integrates with the following third-party services, each with their own privacy policies:</p>
+    <ul>
+      <li><strong style="color:var(--text)">WalletConnect / Coinbase Wallet</strong> — wallet connection protocols. See their respective privacy policies.</li>
+      <li><strong style="color:var(--text)">Google AdMob</strong> — advertising on free tier. <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google Privacy Policy</a></li>
+      <li><strong style="color:var(--text)">RevenueCat</strong> — subscription management. <a href="https://www.revenuecat.com/privacy" target="_blank" rel="noopener">RevenueCat Privacy Policy</a></li>
+      <li><strong style="color:var(--text)">Expo / Alchemy</strong> — app runtime and RPC access. See their respective policies.</li>
+    </ul>
+
+    <h2>10. Data Retention</h2>
+    <p>Because we do not collect personal data, there is nothing for us to retain or delete. On-chain data is immutable by design — that's the blockchain guarantee that makes governance transparent.</p>
+
+    <h2>11. Children's Privacy</h2>
+    <p>GOVDAO is not directed at children under 13. The app is a governance tool for member-led organizations and requires wallet connectivity inappropriate for minors. We do not knowingly collect information from anyone under 13.</p>
+
+    <h2>12. Changes to This Policy</h2>
+    <p>We may update this policy as the app evolves. Changes will be reflected by updating the "Last updated" date above and, if material, noted in the app's release notes.</p>
+
+    <h2>13. Contact</h2>
+    <p>For any privacy questions or data requests: <a href="mailto:lindapots2000@gmail.com">lindapots2000@gmail.com</a></p>
+  </main>
+
+  <footer>
+    &copy; 2026 PhotonBounce &nbsp;·&nbsp;
+    <a href="index.html">GOVDAO</a> &nbsp;·&nbsp;
+    <a href="privacy.html">Privacy</a> &nbsp;·&nbsp;
+    <a href="terms.html">Terms</a>
+  </footer>
+</body>
+</html>

@@ -58,6 +58,36 @@ contract MemberRegistry is IMemberRegistry {
         admin = address(0);
     }
 
+    /**
+     * @notice Transfer the ADMIN role to a new address and remove it from the caller.
+     * The caller must currently hold the ADMIN role. The new address must already be
+     * a registered member (any role); if not, it is added as ADMIN automatically.
+     * This is irreversible without a subsequent governance vote.
+     */
+    function transferAdminRole(address newAdmin) external {
+        require(msg.sender == admin || getRole(msg.sender) == Role.ADMIN, "MemberRegistry: not admin");
+        require(newAdmin != address(0), "MemberRegistry: zero address");
+        require(newAdmin != msg.sender, "MemberRegistry: same address");
+
+        // Remove ADMIN from sender
+        Role oldSenderRole = getRole(msg.sender);
+        _writeRoleCheckpoint(msg.sender, Role.NONE);
+        emit RoleChanged(msg.sender, oldSenderRole, Role.NONE);
+
+        // Add or upgrade newAdmin
+        Role oldNewRole = getRole(newAdmin);
+        if (oldNewRole == Role.NONE) {
+            _addMember(newAdmin, Role.ADMIN);
+        } else {
+            _writeRoleCheckpoint(newAdmin, Role.ADMIN);
+            emit RoleChanged(newAdmin, oldNewRole, Role.ADMIN);
+        }
+
+        // Update the bootstrap admin pointer
+        admin = newAdmin;
+        emit AdminTransferred(msg.sender, newAdmin);
+    }
+
     function addMember(address account, Role role) external override onlyGovernance {
         require(account != address(0), "MemberRegistry: zero account");
         require(role != Role.NONE, "MemberRegistry: invalid role");
