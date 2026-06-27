@@ -32,15 +32,41 @@ To use the application in **Live Mode**, you need an EVM-compatible Web3 wallet 
 If testing on a local development node (Hardhat):
 1. **Network Configuration:**
    Add a custom network in MetaMask:
+   * **Network Name:** Localhost 8545
    * **RPC URL:** `http://127.0.0.1:8545`
    * **Chain ID:** `31337`
    * **Currency Symbol:** `ETH`
-2. **Importing the Seeded Admin/Proposer Account:**
-   Import the following private key to control the bootstrap administrator account:
+2. **Start the Local Blockchain Node:**
+   Open a terminal in the project root and run:
+   ```bash
+   npx hardhat node
+   ```
+   This will spin up a local EVM node at `http://127.0.0.1:8545` and print 20 seeded test accounts with their private keys. Keep this terminal running.
+3. **Deploy & Seed the Smart Contracts:**
+   Open a second terminal in the project root and populate the blockchain with members, proposals, votes, and treasury funds by running:
+   ```bash
+   npx hardhat run scripts/deploy-and-seed.ts --network localhost
+   ```
+   This script will automatically deploy the MemberRegistry, Governor, Timelock, and Treasury contracts, seed them with 4 active/pending proposals, cast several test votes, and record all addresses in `deployments/localhost.json`.
+4. **Synchronize App Manifest:**
+   Ensure the mobile/web app manifest is synchronized with the new local contract addresses by running:
+   ```bash
+   npm run mobile:sync-manifest
+   ```
+5. **Import the Seeded Admin/Proposer Account:**
+   Import the following private key into MetaMask to control the bootstrap administrator account (which has Member, Proposer, and Admin roles):
    * **Private Key:** `0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80`
    * **Seeded Address:** `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`
 
-### B. Setting Up Testnets (Sepolia / Custom)
+### B. Troubleshooting "No Transactions / Nonce Too High" in MetaMask
+When restarting the Hardhat node, MetaMask retains cached transaction history and nonces for `Chain ID 31337`, which causes transactions to get stuck or fail to display.
+To resolve this:
+1. Open MetaMask.
+2. Go to **Settings** → **Advanced**.
+3. Scroll down and click **Clear activity tab data** (or **Reset Account** in older versions).
+4. This clears MetaMask's local cache for the localhost network, resetting the transaction nonce to 0 and showing the correct state.
+
+### C. Setting Up Testnets (Sepolia / Custom)
 If connecting to a testnet (e.g. Sepolia), configure your MetaMask network to the target network, ensure your account is funded with test ETH, and that your address has been added to the `MemberRegistry` contract.
 
 ---

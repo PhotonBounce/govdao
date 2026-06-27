@@ -13,6 +13,111 @@
 <body>
 
   <!-- ═══════════════════════════════════════════════════════════════
+       TOP NAVIGATION BAR
+  ════════════════════════════════════════════════════════════════ -->
+
+  <nav class="top-nav" id="top-nav" aria-label="Main navigation">
+    <div class="top-nav-inner">
+
+      <!-- Logo & brand -->
+      <a href="#hero" class="top-nav-brand" aria-label="GOVDAO home">
+        <img src="assets/seal.svg" alt="GOVDAO Seal" class="top-nav-logo" />
+        <span class="top-nav-wordmark">GOVDAO</span>
+      </a>
+
+      <!-- Nav links (desktop) -->
+      <div class="top-nav-links" id="top-nav-links">
+        <a href="#features">Features</a>
+        <a href="#demo">Demo</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#guide">Tutorial</a>
+      </div>
+
+      <!-- CTA buttons -->
+      <div class="top-nav-ctas">
+        <a
+          href="./saas/index.html"
+          class="nav-cta-btn nav-cta-saas"
+          aria-label="Launch GOVDAO SaaS Version"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          SaaS Version
+        </a>
+        <a
+          href="./app/index.html"
+          class="nav-cta-btn nav-cta-webapp"
+          aria-label="Launch GOVDAO Web App"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+            <line x1="8" y1="21" x2="16" y2="21"/>
+            <line x1="12" y1="17" x2="12" y2="21"/>
+          </svg>
+          Launch Web App
+        </a>
+        <a
+          href="https://play.google.com/store"
+          class="nav-cta-btn nav-cta-play"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Get GOVDAO on Google Play"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M3.18 23.76a2 2 0 0 0 2.07-.18l11.07-6.42-2.93-2.93-10.21 9.53zM20.43 10.5l-2.45-1.42L14.9 12l3.08 3.08 2.45-1.42A2 2 0 0 0 20.43 10.5zM3 .72A2 2 0 0 0 2 2.47v19.06a2 2 0 0 0 1 1.75l.12.07 10.68-10.68v-.25L3.12.65 3 .72zM13.25 13.25l-10.07 10.07.12.07a2 2 0 0 0 2.07-.18L16.93 17l-3.68-3.75z"/>
+          </svg>
+          Google Play
+        </a>
+        <a
+          href="#"
+          class="nav-cta-btn nav-cta-apk"
+          aria-label="Download GOVDAO APK"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Download APK
+        </a>
+      </div>
+
+      <!-- Mobile hamburger -->
+      <button class="top-nav-hamburger" id="top-nav-hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+    </div>
+
+    <!-- Mobile dropdown -->
+    <div class="top-nav-mobile-menu" id="top-nav-mobile-menu">
+      <a href="#features">Features</a>
+      <a href="#demo">Demo</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#guide">Tutorial</a>
+      <div class="mobile-menu-ctas">
+        <a href="./saas/index.html" class="nav-cta-btn nav-cta-saas">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          SaaS Version
+        </a>
+        <a href="./app/index.html" class="nav-cta-btn nav-cta-webapp">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          Launch Web App
+        </a>
+        <a href="https://play.google.com/store" class="nav-cta-btn nav-cta-play" target="_blank" rel="noopener noreferrer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.18 23.76a2 2 0 0 0 2.07-.18l11.07-6.42-2.93-2.93-10.21 9.53zM20.43 10.5l-2.45-1.42L14.9 12l3.08 3.08 2.45-1.42A2 2 0 0 0 20.43 10.5zM3 .72A2 2 0 0 0 2 2.47v19.06a2 2 0 0 0 1 1.75l.12.07 10.68-10.68v-.25L3.12.65 3 .72zM13.25 13.25l-10.07 10.07.12.07a2 2 0 0 0 2.07-.18L16.93 17l-3.68-3.75z"/></svg>
+          Google Play
+        </a>
+        <a href="#" class="nav-cta-btn nav-cta-apk">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download APK
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════════════
        SECTION 1 — HERO
   ════════════════════════════════════════════════════════════════ -->
 
@@ -45,7 +150,7 @@
           View on Google Play
         </a>
         <a
-          href="./saas/index.html"
+          href="./app/index.html"
           class="btn-secondary"
           aria-label="Try the GOVDAO web demo"
         >
@@ -123,7 +228,7 @@
           an interface designed for mobile-first users. The demo below is the real app,
           running in your browser.
         </p>
-        <a href="./saas/index.html" class="btn-primary">Open Full Demo</a>
+        <a href="./app/index.html" class="btn-primary">Open Full Demo</a>
       </div>
 
       <div class="phone-wrapper" id="phone-wrapper" aria-label="GOVDAO app phone mockup">
@@ -131,10 +236,10 @@
           <div class="phone-notch" aria-hidden="true"></div>
           <div class="phone-screen">
             <iframe
-              src="./saas/index.html"
+              src="./app/index.html"
               title="GOVDAO live demo"
               loading="lazy"
-              sandbox="allow-scripts allow-same-origin"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-modals allow-forms"
             ></iframe>
             <!-- Fallback shown when iframe cannot load (demo not yet generated) -->
             <noscript>
@@ -483,7 +588,7 @@
       <nav class="footer-links" aria-label="Footer links">
         <a href="./privacy-policy.html">Privacy</a>
         <a href="./terms.html">Terms</a>
-        <a href="./saas/index.html">Demo</a>
+        <a href="./app/index.html">Demo</a>
       </nav>
     </div>
   </footer>

@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { darkPalette, radii } from "../theme";
 import { IapState, describeIapStatus } from "../data/iapConfig";
 
@@ -30,6 +30,7 @@ const PREMIUM_FEATURES = [
 
 export function UpgradeScreen({ onBack, iapState, onPurchase, onRestore }: UpgradeScreenProps) {
   const premium = iapState?.premium === true;
+  const isWeb = Platform.OS === "web";
   return (
     <ScrollView contentContainerStyle={styles.content}>
       <Pressable onPress={onBack} style={styles.backButton}>
@@ -60,8 +61,8 @@ export function UpgradeScreen({ onBack, iapState, onPurchase, onRestore }: Upgra
             <Text style={styles.popularBadgeText}>RECOMMENDED</Text>
           </View>
           <Text style={[styles.tierName, styles.tierNamePremium]}>Premium</Text>
-          <Text style={[styles.tierPrice, styles.tierPricePremium]}>$12</Text>
-          <Text style={[styles.tierPriceSub, styles.tierPriceSubPremium]}>per month</Text>
+          <Text style={[styles.tierPrice, styles.tierPricePremium]}>{isWeb ? "0.005 ETH" : "$12"}</Text>
+          <Text style={[styles.tierPriceSub, styles.tierPriceSubPremium]}>{isWeb ? "once" : "per month"}</Text>
           {PREMIUM_FEATURES.map((f) => (
             <View key={f} style={styles.featureRow}>
               <Text style={styles.featureCheckPremium}>✦</Text>
@@ -69,7 +70,7 @@ export function UpgradeScreen({ onBack, iapState, onPurchase, onRestore }: Upgra
             </View>
           ))}
           <Pressable style={[styles.upgradeButton, premium && styles.upgradeButtonDone]} onPress={premium ? undefined : onPurchase} disabled={premium}>
-            <Text style={styles.upgradeButtonText}>{premium ? "Premium active ✓" : "Subscribe via Google Play →"}</Text>
+            <Text style={styles.upgradeButtonText}>{premium ? "Premium active ✓" : isWeb ? "Subscribe via Crypto →" : "Subscribe via Google Play →"}</Text>
           </Pressable>
           {onRestore && !premium ? (
             <Pressable onPress={onRestore} style={styles.restoreButton}>
@@ -81,7 +82,9 @@ export function UpgradeScreen({ onBack, iapState, onPurchase, onRestore }: Upgra
       </View>
 
       <Text style={styles.footnote}>
-        Subscriptions are managed through Google Play. Cancel any time. Premium plan is tied to this installation's Google account — not the connected wallet address.
+        {isWeb
+          ? "Payments are processed on-chain using your connected Web3 wallet. Premium plan is tied to this browser's local storage."
+          : "Subscriptions are managed through Google Play. Cancel any time. Premium plan is tied to this installation's Google account — not the connected wallet address."}
       </Text>
     </ScrollView>
   );

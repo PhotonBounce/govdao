@@ -44,44 +44,24 @@ def vgrad(w, h, top, bot, horizontal=False):
     return strip.resize((w,h)).convert("RGBA")
 
 def make_coin(D):
-    """Master G coin, transparent background, size DxD."""
-    SS=2; W=D*SS
-    img=Image.new("RGBA",(W,W),(0,0,0,0)); d=ImageDraw.Draw(img)
-    cx=cy=W/2
-    # drop shadow
-    sh=Image.new("RGBA",(W,W),(0,0,0,0)); sd=ImageDraw.Draw(sh)
-    r=W*0.40; sd.ellipse([cx-r,cy-r+W*0.028,cx+r,cy+r+W*0.028],fill=(0,0,0,90))
-    img.alpha_composite(sh.filter(ImageFilter.GaussianBlur(W*0.025)))
-    # dark coin body
-    r_out=W*0.40; r_bodin=W*0.305
-    d.ellipse([cx-r_out,cy-r_out,cx+r_out,cy+r_out],fill=RING_DK+(255,))
-    d.arc([cx-r_out,cy-r_out,cx+r_out,cy+r_out],195,345,fill=RING_BV+(255,),width=int(W*0.005))
-    # notch ticks
-    rt=(r_out+r_bodin)/2
-    for k in range(8):
-        a=math.radians(k*45); nx,ny=cx+math.cos(a)*rt,cy+math.sin(a)*rt; nb=W*0.020
-        d.rectangle([nx-nb,ny-nb*0.42,nx+nb,ny+nb*0.42],fill=RING_BV+(255,))
-    for k in range(60):
-        a=math.radians(k*6); nx,ny=cx+math.cos(a)*(r_out-W*0.010),cy+math.sin(a)*(r_out-W*0.010)
-        d.ellipse([nx-W*0.0035,ny-W*0.0035,nx+W*0.0035,ny+W*0.0035],fill=(18,22,28,255))
-    # gold ring
-    r_in=int(W*0.255); r_o=int(r_bodin)
-    for i in range(r_o-r_in):
-        t=i/max(1,r_o-r_in-1); col=tuple(int(GOLD_DK[k]*(1-t)+GOLD_HI[k]*t) for k in range(3))
-        rr=r_in+i; d.ellipse([cx-rr,cy-rr,cx+rr,cy+rr],outline=col+(255,),width=2)
-    # teal inner field (brand disc — seamless on teal, pops on dark)
-    rin=W*0.250
-    d.ellipse([cx-rin,cy-rin,cx+rin,cy+rin],fill=TEAL+(255,))
-    # gold serif G
-    f=serif(int(W*0.46)); txt="G"
-    bb=d.textbbox((0,0),txt,font=f); tw,th=bb[2]-bb[0],bb[3]-bb[1]
-    tx,ty=int(cx-tw/2-bb[0]),int(cy-th/2-bb[1])
-    d.text((tx+W*0.007,ty+W*0.007),txt,font=f,fill=(110,72,18,200))
-    mask=Image.new("L",(W,W),0); md=ImageDraw.Draw(mask); md.text((tx,ty),txt,font=f,fill=255)
-    img.paste(vgrad(W,W,GOLD_HI,GOLD_DK),(0,0),mask)
-    d.text((tx,ty),txt,font=f,fill=None,stroke_width=max(1,int(W*0.004)),stroke_fill=GOLD_DK+(220,))
-    img.paste(vgrad(W,W,GOLD_HI,GOLD_DK),(0,0),mask)
-    return img.resize((D,D),Image.LANCZOS)
+    """Load the user's logo-source.png, crop circular coin, transparent background, size DxD."""
+    src_path = os.path.join(ASSETS, "logo-source.png")
+    if not os.path.exists(src_path):
+        return Image.new("RGBA", (D, D), (0,0,0,0))
+    
+    src = Image.open(src_path).convert("RGBA")
+    
+    # Create circular mask
+    mask = Image.new("L", src.size, 0)
+    draw = ImageDraw.Draw(mask)
+    cx, cy = src.width / 2, src.height / 2
+    r = src.width * 0.415
+    draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=255)
+    
+    coin = Image.new("RGBA", src.size, (0, 0, 0, 0))
+    coin.paste(src, (0, 0), mask)
+    
+    return coin.resize((D, D), Image.LANCZOS)
 
 COIN = make_coin(1024)
 
@@ -90,8 +70,13 @@ def save(img, name): img.save(os.path.join(ASSETS,name)); print("wrote", name, i
 # logo master (transparent)
 save(COIN, "logo-g.png")
 
-# icon 1024 — teal field, coin fills frame
-icon=Image.new("RGBA",(1024,1024),TEAL+(255,)); icon.alpha_composite(COIN); save(icon,"icon.png")
+# icon 1024 — use the user's original image directly for perfect lighting
+src_path = os.path.join(ASSETS, "logo-source.png")
+if os.path.exists(src_path):
+    icon = Image.open(src_path).convert("RGBA").resize((1024, 1024), Image.LANCZOS)
+else:
+    icon = Image.new("RGBA",(1024,1024),TEAL+(255,)); icon.alpha_composite(COIN)
+save(icon, "icon.png")
 
 # adaptive icon 1024 — teal field, coin inset to survive Android circular mask
 adapt=Image.new("RGBA",(1024,1024),TEAL+(255,))
@@ -125,7 +110,12 @@ fd.text((434,348),"On-chain governance, in your pocket.",font=sf,fill=DIMWHITE+(
 save(fg,"feature-graphic.png")
 
 # previews
-icon.resize((512,512)).save("/tmp/pv-icon.png")
-fg.save("/tmp/pv-feature.png")
-sp.resize((360,640)).save("/tmp/pv-splash.png")
+import tempfile
+tmp = tempfile.gettempdir()
+try:
+    icon.resize((512,512)).save(os.path.join(tmp, "pv-icon.png"))
+    fg.save(os.path.join(tmp, "pv-feature.png"))
+    sp.resize((360,640)).save(os.path.join(tmp, "pv-splash.png"))
+except Exception as e:
+    print("Preview save skipped:", e)
 print("ALL DONE")

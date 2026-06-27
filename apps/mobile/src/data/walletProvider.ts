@@ -8,6 +8,10 @@ let _signer: ethers.Signer | null = null;
 let _signerAddress: string | null = null;
 
 export function isFixtureMode(manifest: AppManifest): boolean {
+  // If running in an iframe (e.g. landing page mockup/emulator), force fixture mode
+  if (typeof window !== "undefined" && window.self !== window.top) {
+    return true;
+  }
   const rpc = manifest.chain.rpcUrl ?? "";
   const governor = manifest.contracts.governor ?? "";
   return (

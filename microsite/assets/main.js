@@ -141,4 +141,42 @@
 
   /* ── Background color cycling is handled by CSS @keyframes ─────── */
 
+  /* ── Top Nav: scroll effect ─────────────────────────────────────── */
+
+  var topNav = document.getElementById("top-nav");
+
+  function updateNavScroll() {
+    if (!topNav) return;
+    if ((window.scrollY || window.pageYOffset) > 40) {
+      topNav.classList.add("scrolled");
+    } else {
+      topNav.classList.remove("scrolled");
+    }
+  }
+
+  window.addEventListener("scroll", updateNavScroll, { passive: true });
+  updateNavScroll();
+
+  /* ── Mobile Hamburger Toggle ────────────────────────────────────── */
+
+  var hamburger = document.getElementById("top-nav-hamburger");
+  var mobileMenu = document.getElementById("top-nav-mobile-menu");
+
+  if (hamburger && mobileMenu) {
+    hamburger.addEventListener("click", function () {
+      var isOpen = hamburger.classList.toggle("open");
+      mobileMenu.classList.toggle("open");
+      hamburger.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+
+    // Close mobile menu when clicking a link
+    mobileMenu.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        hamburger.classList.remove("open");
+        mobileMenu.classList.remove("open");
+        hamburger.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+
 })();

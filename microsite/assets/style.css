@@ -22,6 +22,7 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   line-height: 1.6;
   overflow-x: hidden;
+  padding-top: 72px; /* offset for fixed nav */
 }
 
 a {
@@ -31,6 +32,271 @@ a {
 
 a:hover {
   color: var(--glow-bronze);
+}
+
+/* ─── Top Navigation Bar ─────────────────────────────────────────── */
+
+.top-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(13, 13, 26, 0.85);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(201, 131, 64, 0.18);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+.top-nav.scrolled {
+  background: rgba(13, 13, 26, 0.95);
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.5), 0 0 24px rgba(201, 131, 64, 0.08);
+}
+
+.top-nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.top-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.top-nav-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid rgba(201, 131, 64, 0.4);
+  box-shadow: 0 0 16px rgba(201, 131, 64, 0.25);
+  animation: bronzeGlow 3s ease-in-out infinite;
+  transition: transform 0.3s;
+}
+
+.top-nav-brand:hover .top-nav-logo {
+  transform: scale(1.1) rotate(8deg);
+}
+
+.top-nav-wordmark {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: var(--soft-gold);
+  text-shadow: 0 0 16px rgba(232, 200, 122, 0.3);
+}
+
+.top-nav-links {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+
+.top-nav-links a {
+  color: var(--dim-white);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  opacity: 0.75;
+  transition: color 0.25s, opacity 0.25s;
+  text-decoration: none;
+  position: relative;
+}
+
+.top-nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--glow-bronze);
+  transition: width 0.3s ease;
+  border-radius: 2px;
+}
+
+.top-nav-links a:hover {
+  color: var(--soft-gold);
+  opacity: 1;
+}
+
+.top-nav-links a:hover::after {
+  width: 100%;
+}
+
+.top-nav-ctas {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.nav-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.nav-cta-play {
+  background: rgba(201, 131, 64, 0.12);
+  border: 1px solid rgba(201, 131, 64, 0.4);
+  color: var(--soft-gold);
+}
+
+.nav-cta-play:hover {
+  background: rgba(201, 131, 64, 0.25);
+  box-shadow: 0 0 12px rgba(201, 131, 64, 0.35);
+  color: var(--soft-gold);
+  transform: translateY(-1px);
+}
+
+.nav-cta-saas {
+  background: rgba(232, 200, 122, 0.05);
+  border: 1px solid rgba(232, 200, 122, 0.25);
+  color: var(--soft-gold);
+}
+
+.nav-cta-saas:hover {
+  background: rgba(232, 200, 122, 0.15);
+  border-color: var(--soft-gold);
+  color: var(--soft-gold);
+  transform: translateY(-1px);
+  box-shadow: 0 0 12px rgba(232, 200, 122, 0.2);
+}
+
+.nav-cta-webapp {
+  background: linear-gradient(135deg, var(--glow-bronze), var(--soft-gold));
+  border: none;
+  color: #0d0d1a !important;
+  box-shadow: 0 0 12px rgba(201, 131, 64, 0.4);
+  font-weight: 700;
+  padding: 8px 20px;
+}
+
+.nav-cta-webapp:hover {
+  background: linear-gradient(135deg, #d98d4a, #f9da8a);
+  box-shadow: 0 0 24px rgba(201, 131, 64, 0.7);
+  transform: translateY(-1.5px);
+}
+
+.nav-cta-apk {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--dim-white);
+}
+
+.nav-cta-apk:hover {
+  border-color: rgba(232, 200, 122, 0.4);
+  color: var(--soft-gold);
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-1px);
+}
+
+/* Hamburger button (mobile) */
+.top-nav-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  z-index: 1001;
+}
+
+.top-nav-hamburger span {
+  width: 24px;
+  height: 2px;
+  background: var(--dim-white);
+  border-radius: 2px;
+  transition: transform 0.3s, opacity 0.3s;
+}
+
+.top-nav-hamburger.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.top-nav-hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.top-nav-hamburger.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Mobile dropdown */
+.top-nav-mobile-menu {
+  display: none;
+  flex-direction: column;
+  background: rgba(13, 13, 26, 0.97);
+  border-top: 1px solid var(--muted-line);
+  padding: 20px 24px 28px;
+}
+
+.top-nav-mobile-menu.open {
+  display: flex;
+}
+
+.top-nav-mobile-menu a {
+  color: var(--dim-white);
+  padding: 12px 0;
+  font-size: 1rem;
+  font-weight: 500;
+  border-bottom: 1px solid var(--muted-line);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.top-nav-mobile-menu a:hover {
+  color: var(--soft-gold);
+}
+
+.mobile-menu-ctas {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.mobile-menu-ctas .nav-cta-btn {
+  justify-content: center;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 960px) {
+  .top-nav-links {
+    display: none;
+  }
+  .top-nav-ctas {
+    display: none;
+  }
+  .top-nav-hamburger {
+    display: flex;
+  }
+}
+
+@media (min-width: 961px) {
+  .top-nav-mobile-menu {
+    display: none !important;
+  }
 }
 
 /* ─── Keyframe Animations ─────────────────────────────────────────── */
@@ -72,7 +338,7 @@ a:hover {
 
 .hero {
   position: relative;
-  min-height: 100vh;
+  min-height: calc(100vh - 72px);
   display: flex;
   align-items: center;
   justify-content: center;

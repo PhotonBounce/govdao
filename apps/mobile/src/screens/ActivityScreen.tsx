@@ -17,6 +17,7 @@ import { usePlanGate } from "../hooks/usePlanGate";
 
 interface ActivityScreenProps {
   manifest: AppManifest;
+  premiumActive?: boolean;
 }
 
 type FilterOption = ActivityEventType | "all";
@@ -38,10 +39,10 @@ const DATE_RANGES: Array<{ label: string; value: DateRange }> = [
   { label: "All time", value: 0 }
 ];
 
-export function ActivityScreen({ manifest }: ActivityScreenProps) {
+export function ActivityScreen({ manifest, premiumActive }: ActivityScreenProps) {
   const [activeFilter, setActiveFilter] = useState<FilterOption>("all");
   const [dateRange, setDateRange] = useState<DateRange>(0);
-  const exportGate = usePlanGate(manifest, "activity-export");
+  const exportGate = usePlanGate(manifest, "activity-export", premiumActive);
 
   const result = loadActivityFeed(manifest, activeFilter);
   const visibleEvents = dateRange === 0

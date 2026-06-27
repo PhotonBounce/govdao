@@ -219,10 +219,10 @@ export default function App() {
     }
   }, [activeView]);
   const dataMode = getDataModeSummary(dashboardData.source);
-  const drillGate = usePlanGate(manifest, "guardian-drill");
-  const inviteGate = usePlanGate(manifest, "member-invite");
-  const analyticsGate = usePlanGate(manifest, "delegate-analytics");
-  const deployWizardGate = usePlanGate(manifest, "deploy-wizard");
+  const drillGate = usePlanGate(manifest, "guardian-drill", iap.state.premium);
+  const inviteGate = usePlanGate(manifest, "member-invite", iap.state.premium);
+  const analyticsGate = usePlanGate(manifest, "delegate-analytics", iap.state.premium);
+  const deployWizardGate = usePlanGate(manifest, "deploy-wizard", iap.state.premium);
 
   function renderViewHeader() {
     return (
@@ -407,7 +407,7 @@ export default function App() {
     }
 
     if (activeView === "activity") {
-      return <ActivityScreen manifest={manifest} />;
+      return <ActivityScreen manifest={manifest} premiumActive={iap.state.premium} />;
     }
 
     if (activeView === "analytics") {

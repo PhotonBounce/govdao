@@ -22,8 +22,8 @@ export interface PlanGateResult {
   plan: "free" | "premium";
 }
 
-export function usePlanGate(manifest: AppManifest, feature: PremiumFeature): PlanGateResult {
-  const plan = manifest.features.plan ?? "free";
+export function usePlanGate(manifest: AppManifest, feature: PremiumFeature, premiumActive?: boolean): PlanGateResult {
+  const plan = (manifest.features.plan === "premium" || premiumActive === true) ? "premium" : "free";
   return {
     allowed: plan === "premium",
     feature,
