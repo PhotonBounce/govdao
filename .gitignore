@@ -24,3 +24,12 @@ secrets/
 deployments/
 config/mobile-app.manifest.production.json
 config/mobile-app.manifest.generated.json
+
+# Secrets
+.env
+.env.local
+.env.production
+.env.development
+credentials.json
+google-services.json
+service-account.json

@@ -1,15 +1,16 @@
 import { AppManifest } from "../types";
 
-// Production AdMob identifiers for GOVDAO (com.govdao.app).
-export const ADMOB_APP_ID = "ca-app-pub-7584543130600454~4392371847";
+// Load from environment variables (injected at build time)
+const ADMOB_APP_ID = process.env.EXPO_PUBLIC_ADMOB_APP_ID || "";
+const ADMOB_BANNER_ID = process.env.EXPO_PUBLIC_ADMOB_BANNER_ID || "";
+const ADMOB_INTERSTITIAL_ID = process.env.EXPO_PUBLIC_ADMOB_INTERSTITIAL_ID || "";
 
 export const AD_UNIT_IDS = {
-  banner: "ca-app-pub-7584543130600454/5417383754",
-  interstitial: "ca-app-pub-7584543130600454/5828742449",
+  banner: ADMOB_BANNER_ID,
+  interstitial: ADMOB_INTERSTITIAL_ID,
 } as const;
 
-// Google's official test unit IDs — used in dev so we never serve (or click) real
-// ads during testing, which can get an AdMob account flagged.
+// Google's official test unit IDs — safe to keep in code
 export const TEST_AD_UNIT_IDS = {
   banner: "ca-app-pub-3940256099942544/6300978111",
   interstitial: "ca-app-pub-3940256099942544/1033173712",
@@ -26,11 +27,4 @@ export function bannerUnitId(useTestAds: boolean): string {
 
 export function interstitialUnitId(useTestAds: boolean): string {
   return useTestAds ? TEST_AD_UNIT_IDS.interstitial : AD_UNIT_IDS.interstitial;
-}
-
-/** Show an interstitial every Nth screen change (throttled so it isn't intrusive). */
-export const INTERSTITIAL_NAV_INTERVAL = 6;
-
-export function shouldShowInterstitial(navCount: number): boolean {
-  return navCount > 0 && navCount % INTERSTITIAL_NAV_INTERVAL === 0;
 }
