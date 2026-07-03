@@ -22,7 +22,8 @@ export function NavTab({ active, label, onPress, accent = false }: NavTabProps) 
       sound="tap"
       intensity="subtle"
       accessibilityRole="tab"
-      accessibilityLabel={`${label}${active ? ", selected" : ""}`}
+      accessibilityLabel={label}
+      accessibilitySelected={active}
       style={[styles.tab, compact ? styles.tabCompact : null, active ? styles.tabActive : idleStyle]}
     >
       <Text style={[styles.label, compact ? styles.labelCompact : null, active ? styles.labelActive : idleLabel]}>{label}</Text>

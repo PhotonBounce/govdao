@@ -15,6 +15,8 @@ interface AnimatedPressableProps {
   accessibilityLabel?: string;
   /** Override the default "button" role (e.g. "link", "tab"). */
   accessibilityRole?: "button" | "link" | "tab" | "none";
+  /** Selection state for tabs/toggles — maps to aria-selected on web. */
+  accessibilitySelected?: boolean;
 }
 
 /**
@@ -30,6 +32,7 @@ export function AnimatedPressable({
   disabled = false,
   accessibilityLabel,
   accessibilityRole = "button",
+  accessibilitySelected,
 }: AnimatedPressableProps) {
   const scale = useRef(new Animated.Value(1)).current;
   const glow = useRef(new Animated.Value(0)).current;
@@ -53,7 +56,8 @@ export function AnimatedPressable({
       disabled={disabled}
       accessibilityRole={accessibilityRole}
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ disabled }}
+      accessibilityState={{ disabled, ...(accessibilitySelected !== undefined ? { selected: accessibilitySelected } : {}) }}
+      aria-selected={accessibilitySelected}
       onPressIn={() => springTo(config.pressedScale, 1)}
       onPressOut={() => springTo(config.restScale, 0)}
       onPress={() => {

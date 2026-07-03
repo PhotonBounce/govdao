@@ -46,28 +46,28 @@ const styles = StyleSheet.create({
     marginBottom: 6
   },
   timestamp: {
-    color: palette.inkSoft,
+    color: "rgba(224, 219, 208, 0.55)",
     fontSize: 12
   },
   eventTitle: {
-    color: palette.graphite,
+    color: "#e8e4d8",
     fontSize: 15,
     fontWeight: "700",
     marginBottom: 2
   },
   actor: {
-    color: palette.bronze,
+    color: "#c98340",
     fontSize: 12,
     fontWeight: "600",
     marginBottom: 4
   },
   summary: {
-    color: palette.inkSoft,
+    color: "rgba(224, 219, 208, 0.7)",
     fontSize: 13,
     lineHeight: 18
   },
   emptyLine: {
-    color: palette.inkSoft,
+    color: "rgba(224, 219, 208, 0.6)",
     fontSize: 14,
     lineHeight: 20
   }
