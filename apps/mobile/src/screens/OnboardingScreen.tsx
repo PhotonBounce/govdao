@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { AnimatedButton } from "../components/AnimatedButton";
 import { AnimatedPressable } from "../components/AnimatedPressable";
 import { ONBOARDING_STEPS, isFirstStep, isLastStep, nextStep, prevStep, stepProgress } from "../data/onboardingSource";
@@ -16,7 +16,7 @@ export function OnboardingScreen({ onDone }: OnboardingScreenProps) {
   const first = isFirstStep(index);
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
       <AnimatedPressable onPress={onDone} sound="tap" intensity="subtle" style={styles.skip}>
         <Text style={styles.skipText}>{last ? "" : "Skip"}</Text>
       </AnimatedPressable>
@@ -53,7 +53,7 @@ export function OnboardingScreen({ onDone }: OnboardingScreenProps) {
           ) : null}
           <View style={styles.buttonFlex}>
             <AnimatedButton
-              label={last ? "Connect & start →" : "Next"}
+              label={last ? "Get started →" : "Next"}
               variant="primary"
               pulse={last}
               onPress={() => (last ? onDone() : setIndex(nextStep(index)))}
@@ -61,12 +61,13 @@ export function OnboardingScreen({ onDone }: OnboardingScreenProps) {
           </View>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, paddingHorizontal: 28, paddingTop: 72, paddingBottom: 40, justifyContent: "space-between", backgroundColor: "#080810" },
+  scroll: { flex: 1, backgroundColor: "#080810" },
+  container: { flexGrow: 1, paddingHorizontal: 28, paddingTop: 72, paddingBottom: 40, justifyContent: "space-between", backgroundColor: "#080810" },
   skip: { alignSelf: "flex-end", paddingVertical: 6, paddingHorizontal: 10, minHeight: 28 },
   skipText: { color: darkPalette.softGold, fontSize: 14, fontWeight: "700" },
   body: { flex: 1, alignItems: "center", justifyContent: "center", gap: 16 },

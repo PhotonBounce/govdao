@@ -58,7 +58,22 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          echo "$KEYSTORE_BASE64" | base64 --decode > /tmp/govdao-upload.keystore
+          # Tolerate CRLF, wrapping, stray spaces, and certutil BEGIN/END header
+          # lines in the secret (common when the base64 was created on Windows).
+          printf '%s' "$KEYSTORE_BASE64" \
+            | sed -e 's/-----[A-Za-z ]*-----//g' \
+            | tr -d '\r\n\t ' \
+            | base64 --decode > /tmp/govdao-upload.keystore
+
+          # Validate the keystore + password, and discover the key alias.
+          ALIAS=$(keytool -list -keystore /tmp/govdao-upload.keystore -storepass "$KEYSTORE_PASSWORD" 2>/dev/null \
+            | awk -F',' '/PrivateKeyEntry/ {gsub(/^[ \t]+|[ \t]+$/, "", $1); print $1; exit}')
+          if [ -z "$ALIAS" ]; then
+            echo "::error::Could not read a PrivateKeyEntry from the keystore — check KEYSTORE_BASE64 / KEYSTORE_PASSWORD secrets."
+            exit 1
+          fi
+          echo "Signing with key alias: $ALIAS"
+
           AAB=android/app/build/outputs/bundle/release/app-release.aab
           # Strip the template's default (debug) signature so only the upload key signs it
           zip -d "$AAB" "META-INF/*.SF" "META-INF/*.RSA" "META-INF/*.DSA" "META-INF/*.EC" "META-INF/MANIFEST.MF" || true
@@ -66,7 +81,7 @@ jobs:
             -storepass "$KEYSTORE_PASSWORD" \
             -keypass "${KEY_PASSWORD:-$KEYSTORE_PASSWORD}" \
             -sigalg SHA256withRSA -digestalg SHA-256 \
-            "$AAB" govdao
+            "$AAB" "$ALIAS"
           jarsigner -verify "$AAB"
           rm -f /tmp/govdao-upload.keystore
 

@@ -121,9 +121,9 @@ export function TreasuryScreen({ treasury, movements, guardian, guardianEvents, 
           <ModulePill label={guardian.state.toUpperCase()} tone={guardian.state === "Paused" ? "rose" : "pine"} />
           <Text style={styles.darkStatusMeta}>{guardian.pauseWindow}</Text>
         </View>
-        <SignalRow label="Signer threshold" value={guardian.threshold} tone="neutral" />
-        <SignalRow label="Signer set" value={guardian.signers} tone="neutral" />
-        <SignalRow label="Last drill" value={guardian.lastDrill} tone="neutral" />
+        <SignalRow label="Signer threshold" value={guardian.threshold} tone="neutral" onDark />
+        <SignalRow label="Signer set" value={guardian.signers} tone="neutral" onDark />
+        <SignalRow label="Last drill" value={guardian.lastDrill} tone="neutral" onDark />
         {drillSchedulingEnabled && onScheduleDrill ? (
           <Pressable style={styles.drillButton} onPress={onScheduleDrill}>
             <Text style={styles.drillButtonText}>Schedule Drill →</Text>

@@ -52,11 +52,20 @@ export function useMobileShellController(manifest: AppManifest) {
   const availableViews: ActiveView[] = useMemo(() => [
     "overview",
     ...(hasProposalView ? ["proposals"] : []),
-    ...(hasProposalCreation ? ["create-proposal"] : []),
+    ...(hasProposalCreation ? ["create-proposal", "templates"] : []),
     ...(hasTreasuryView ? ["treasury", "request-spend", "schedule-drill"] : []),
     ...(hasProposalCreation ? ["invite-member"] : []),
     ...(hasModuleView ? ["modules"] : []),
     "activity",
+    "analytics",
+    "calendar",
+    "search",
+    "achievements",
+    "upgrade",
+    "deploy-wizard",
+    "delegate-map",
+    "proposal-risk",
+    "sentiment",
     "settings"
   ] as ActiveView[], [hasModuleView, hasProposalCreation, hasProposalView, hasTreasuryView]);
   const currentDetail = detailStack[detailStack.length - 1] ?? null;
@@ -201,6 +210,86 @@ export function useMobileShellController(manifest: AppManifest) {
         eyebrow: "Route",
         title: "Release Controls",
         subtitle: "Validate support, metadata, and distribution settings before pushing the next build."
+      };
+    }
+
+    if (view === "upgrade") {
+      return {
+        eyebrow: "Route",
+        title: "GOVDAO Premium",
+        subtitle: "Unlock delegate analytics, the deploy wizard, guardian drills, data export, and an ad-free experience."
+      };
+    }
+
+    if (view === "search") {
+      return {
+        eyebrow: "Route",
+        title: "Search Everything",
+        subtitle: "Find proposals, members, treasury movements, and activity across the whole workspace."
+      };
+    }
+
+    if (view === "achievements") {
+      return {
+        eyebrow: "Route",
+        title: "Badges & Reputation",
+        subtitle: "Track your governance achievements, reputation tier, and contribution streak."
+      };
+    }
+
+    if (view === "calendar") {
+      return {
+        eyebrow: "Route",
+        title: "Governance Calendar",
+        subtitle: "Chain-anchored deadlines, voting windows, and drill schedules in one timeline."
+      };
+    }
+
+    if (view === "analytics") {
+      return {
+        eyebrow: "Route",
+        title: "Delegate Analytics",
+        subtitle: "Participation rates, pass ratios, quorum distance, and top delegate performance."
+      };
+    }
+
+    if (view === "deploy-wizard") {
+      return {
+        eyebrow: "Route",
+        title: "Deploy Wizard",
+        subtitle: "Bootstrap a full governance stack — registry, timelock, governor, treasury, and guardian."
+      };
+    }
+
+    if (view === "templates") {
+      return {
+        eyebrow: "Route",
+        title: "Proposal Templates",
+        subtitle: "Start from a ready-made proposal structure and adapt it to your motion."
+      };
+    }
+
+    if (view === "delegate-map") {
+      return {
+        eyebrow: "Route",
+        title: "Delegate Power Map",
+        subtitle: "Visualize how voting power flows between members, whales, and dormant delegates."
+      };
+    }
+
+    if (view === "proposal-risk") {
+      return {
+        eyebrow: "Route",
+        title: "Proposal Risk Analyzer",
+        subtitle: "Five-factor risk scoring with a plain-English recommendation before you vote."
+      };
+    }
+
+    if (view === "sentiment") {
+      return {
+        eyebrow: "Route",
+        title: "Sentiment Pulse",
+        subtitle: "Live community mood aggregated across active proposals."
       };
     }
 

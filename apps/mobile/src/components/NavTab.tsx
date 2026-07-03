@@ -1,5 +1,6 @@
 import { StyleSheet, Text } from "react-native";
 import { AnimatedPressable } from "./AnimatedPressable";
+import { usePreferences } from "../contexts/PreferencesContext";
 import { darkPalette, radii } from "../theme";
 
 interface NavTabProps {
@@ -11,6 +12,8 @@ interface NavTabProps {
 }
 
 export function NavTab({ active, label, onPress, accent = false }: NavTabProps) {
+  const { prefs } = usePreferences();
+  const compact = prefs.compactNav;
   const idleStyle = accent ? styles.tabAccent : styles.tabIdle;
   const idleLabel = accent ? styles.labelAccent : styles.labelIdle;
   return (
@@ -20,9 +23,9 @@ export function NavTab({ active, label, onPress, accent = false }: NavTabProps) 
       intensity="subtle"
       accessibilityRole="tab"
       accessibilityLabel={`${label}${active ? ", selected" : ""}`}
-      style={[styles.tab, active ? styles.tabActive : idleStyle]}
+      style={[styles.tab, compact ? styles.tabCompact : null, active ? styles.tabActive : idleStyle]}
     >
-      <Text style={[styles.label, active ? styles.labelActive : idleLabel]}>{label}</Text>
+      <Text style={[styles.label, compact ? styles.labelCompact : null, active ? styles.labelActive : idleLabel]}>{label}</Text>
     </AnimatedPressable>
   );
 }
@@ -35,6 +38,16 @@ const styles = StyleSheet.create({
     marginRight: 8,
     marginBottom: 8,
     borderWidth: 1
+  },
+  tabCompact: {
+    paddingHorizontal: 9,
+    paddingVertical: 6,
+    marginRight: 4,
+    marginBottom: 4
+  },
+  labelCompact: {
+    fontSize: 12,
+    letterSpacing: 0.2
   },
   tabActive: {
     backgroundColor: darkPalette.activeGlow,

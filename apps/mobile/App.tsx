@@ -224,6 +224,12 @@ function AppShell() {
     // Scroll to just below hero so tab content is visible
     scrollViewRef.current?.scrollTo(320);
   }, [activeView]);
+
+  // Opening (or closing) a detail view replaces the scroll content — reset so
+  // the detail header is visible instead of landing at the feed's old offset.
+  useEffect(() => {
+    scrollViewRef.current?.scrollTo(320);
+  }, [detailStack.length]);
   const dataMode = getDataModeSummary(dashboardData.source);
   const drillGate = usePlanGate(manifest, "guardian-drill");
   const inviteGate = usePlanGate(manifest, "member-invite");
@@ -545,10 +551,13 @@ function AppShell() {
       : undefined;
     const detailVoteState = currentDetail.kind === "proposal" ? getVoteState(currentDetail.refId) : null;
 
+    const voteFinalized = detailProposal
+      ? !["Voting", "Active", "Pending"].includes(detailProposal.state)
+      : true;
     const voteBreakdownPanel = currentDetail.kind === "proposal"
       ? (() => {
           const tally = loadVoteTally(manifest, currentDetail.refId);
-          return tally ? <VoteBreakdownPanel tally={tally} /> : null;
+          return tally ? <VoteBreakdownPanel tally={tally} finalized={voteFinalized} /> : null;
         })()
       : null;
 
@@ -778,12 +787,14 @@ const styles = StyleSheet.create({
   },
   navRow: {
     marginBottom: 12,
+    backgroundColor: "rgba(8, 8, 16, 0.92)",
+    borderRadius: 16,
   },
   navRowContent: {
     flexDirection: "row",
     gap: 6,
     paddingHorizontal: 16,
-    paddingVertical: 4,
+    paddingVertical: 6,
   },
   viewHeaderRow: {
     flexDirection: "row",

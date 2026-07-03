@@ -5,14 +5,21 @@ interface SignalRowProps {
   label: string;
   value: string;
   tone?: "neutral" | "warning" | "good";
+  /** Set when the row renders on a dark (graphite) card so text stays legible. */
+  onDark?: boolean;
 }
 
-export function SignalRow({ label, value, tone = "neutral" }: SignalRowProps) {
-  const valueColor = tone === "warning" ? palette.rose : tone === "good" ? palette.pine : palette.graphite;
+export function SignalRow({ label, value, tone = "neutral", onDark = false }: SignalRowProps) {
+  const valueColor = tone === "warning"
+    ? (onDark ? "#e08a7a" : palette.rose)
+    : tone === "good"
+      ? (onDark ? "#4caf82" : palette.pine)
+      : (onDark ? "#e8e4d8" : palette.graphite);
+  const labelColor = onDark ? "rgba(224, 219, 208, 0.6)" : palette.inkSoft;
 
   return (
     <View style={styles.row}>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, { color: labelColor }]}>{label}</Text>
       <Text style={[styles.value, { color: valueColor }]}>{value}</Text>
     </View>
   );

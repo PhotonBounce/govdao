@@ -5,6 +5,8 @@ import { palette } from "../theme";
 
 interface VoteBreakdownPanelProps {
   tally: VoteTally;
+  /** False while the vote is still open — outcome renders as a "leading" hint, not a verdict. */
+  finalized?: boolean;
 }
 
 const BAR_COLORS: Record<"pine" | "rose" | "bronze", string> = {
@@ -32,14 +34,21 @@ const CHOICE_LABEL_COLOR: Record<VoteChoice, string> = {
   Abstain: palette.bronze
 };
 
-export function VoteBreakdownPanel({ tally }: VoteBreakdownPanelProps) {
+export function VoteBreakdownPanel({ tally, finalized = true }: VoteBreakdownPanelProps) {
   const outcome = deriveOutcome(tally);
-  const outcomeTone = outcome === "Passed" ? "pine" : outcome === "Defeated" ? "rose" : "bronze";
+  const outcomeTone = !finalized ? "bronze" : outcome === "Passed" ? "pine" : outcome === "Defeated" ? "rose" : "bronze";
+  const outcomeLabel = finalized
+    ? outcome.toUpperCase()
+    : outcome === "Passed"
+      ? "FOR LEADING"
+      : outcome === "Defeated"
+        ? "AGAINST LEADING"
+        : outcome.toUpperCase();
 
   return (
     <>
       <View style={styles.outcomeRow}>
-        <ModulePill label={outcome.toUpperCase()} tone={outcomeTone} />
+        <ModulePill label={outcomeLabel} tone={outcomeTone} />
         <Text style={styles.totalLine}>{tally.total} member{tally.total !== 1 ? "s" : ""} voted</Text>
       </View>
 

@@ -122,7 +122,13 @@ export function ProposalsScreen({
           )
         ) : null}
         {filteredProposals.map((proposal) => (
-          <Pressable key={proposal.id} style={styles.feedItem} onPress={() => onSelectProposal(proposal)}>
+          <Pressable
+            key={proposal.id}
+            style={styles.feedItem}
+            onPress={() => onSelectProposal(proposal)}
+            accessibilityRole="button"
+            accessibilityLabel={`Open proposal ${proposal.id}: ${proposal.title}`}
+          >
             <View style={styles.feedTopRow}>
               <Text style={styles.feedId}>{proposal.id}</Text>
               <ModulePill label={proposal.state} tone={proposal.state === "Queued" ? "pine" : "bronze"} />
@@ -153,7 +159,13 @@ export function ProposalsScreen({
             />
           ) : null}
           {filteredMotions.map((motion) => (
-            <Pressable key={motion.id} style={styles.feedItem} onPress={() => onSelectMotion(motion)}>
+            <Pressable
+              key={motion.id}
+              style={styles.feedItem}
+              onPress={() => onSelectMotion(motion)}
+              accessibilityRole="button"
+              accessibilityLabel={`Open motion ${motion.id}: ${motion.title}`}
+            >
               <View style={styles.feedTopRow}>
                 <Text style={styles.feedId}>{motion.id}</Text>
                 <ModulePill label={motion.stage} tone="rose" />

@@ -39,14 +39,11 @@ export function AnimatedShell({ children }: AnimatedShellProps) {
     outputRange: CYCLE,
   });
 
-  // Reduce-motion: render a static obsidian backdrop with no rain or color cycle.
-  if (reduceMotion) {
-    return <Animated.View style={[styles.shell, { backgroundColor: CYCLE[0] }]}>{children}</Animated.View>;
-  }
-
+  // Keep a single element tree in both modes so toggling reduce-motion doesn't
+  // remount children (which would reset scroll positions and local state).
   return (
-    <Animated.View style={[styles.shell, { backgroundColor }]}>
-      <CodeRainBackground seed={1337} columns={12} />
+    <Animated.View style={[styles.shell, { backgroundColor: reduceMotion ? CYCLE[0] : backgroundColor }]}>
+      {reduceMotion ? null : <CodeRainBackground seed={1337} columns={12} />}
       {children}
     </Animated.View>
   );
@@ -55,5 +52,6 @@ export function AnimatedShell({ children }: AnimatedShellProps) {
 const styles = StyleSheet.create({
   shell: {
     flex: 1,
+    overflow: "hidden",
   },
 });

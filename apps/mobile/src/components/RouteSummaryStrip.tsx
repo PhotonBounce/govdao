@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import { palette, radii } from "../theme";
+import { radii } from "../theme";
 
 interface RouteSignal {
   label: string;
@@ -11,16 +11,17 @@ interface RouteSummaryStripProps {
   signals: RouteSignal[];
 }
 
+// Dark-legible tone colors — this strip renders over the dark shell.
 function getToneColor(tone: RouteSignal["tone"]) {
   if (tone === "good") {
-    return palette.pine;
+    return "#4caf82";
   }
 
   if (tone === "warning") {
-    return palette.rose;
+    return "#e08a7a";
   }
 
-  return palette.moss;
+  return "#9a8f7c";
 }
 
 export function RouteSummaryStrip({ signals }: RouteSummaryStripProps) {
@@ -29,7 +30,7 @@ export function RouteSummaryStrip({ signals }: RouteSummaryStripProps) {
       {signals.map((signal) => (
         <View key={signal.label} style={styles.card}>
           <Text style={styles.label}>{signal.label}</Text>
-          <Text style={styles.value}>{signal.value}</Text>
+          <Text style={styles.value} numberOfLines={2}>{signal.value}</Text>
           <Text style={[styles.tone, { color: getToneColor(signal.tone) }]}>{signal.tone ?? "neutral"}</Text>
         </View>
       ))}
@@ -40,32 +41,36 @@ export function RouteSummaryStrip({ signals }: RouteSummaryStripProps) {
 const styles = StyleSheet.create({
   grid: {
     flexDirection: "row",
-    gap: 10,
+    flexWrap: "wrap",
+    gap: 8,
     marginTop: 14
   },
   card: {
-    flex: 1,
+    flexGrow: 1,
+    flexBasis: 104,
+    minWidth: 104,
     padding: 12,
     borderRadius: radii.card,
-    backgroundColor: "rgba(217, 205, 184, 0.22)",
+    backgroundColor: "rgba(20, 20, 36, 0.94)",
     borderWidth: 1,
-    borderColor: "rgba(142, 92, 50, 0.12)"
+    borderColor: "rgba(201, 131, 64, 0.18)"
   },
   label: {
-    color: palette.inkSoft,
-    fontSize: 12,
+    color: "rgba(224, 219, 208, 0.55)",
+    fontSize: 10,
+    fontWeight: "700",
     textTransform: "uppercase",
-    letterSpacing: 0.8,
+    letterSpacing: 0.4,
     marginBottom: 6
   },
   value: {
-    color: palette.graphite,
-    fontSize: 18,
+    color: "#e8e4d8",
+    fontSize: 17,
     fontWeight: "700",
     marginBottom: 4
   },
   tone: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: "600",
     textTransform: "capitalize"
   }
