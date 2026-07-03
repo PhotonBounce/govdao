@@ -47,7 +47,8 @@ assert(
   expo.userInterfaceStyle === "dark",
   `got '${expo.userInterfaceStyle}'`
 );
-assert("orientation is portrait", expo.orientation === "portrait");
+assert("orientation unrestricted for large screens (Android 16)", expo.orientation === "default");
+assert("edge-to-edge enabled for Android 15 (SDK 35)", expo.android.edgeToEdgeEnabled === true);
 assert("splash backgroundColor matches dark theme", expo.splash?.backgroundColor?.toLowerCase() === "#0d0d1a");
 
 console.log("\napp.json: assets");

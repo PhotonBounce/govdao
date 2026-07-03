@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
 import { AnimatedShell } from "./src/components/AnimatedShell";
 import { ParallaxScrollView, ParallaxScrollViewHandle } from "./src/components/ParallaxScrollView";
 import { PremiumGate } from "./src/components/PremiumGate";
@@ -122,7 +123,8 @@ function getDataModeSummary(source: "mock" | "remote" | "fixture" | "mixed") {
   };
 }
 
-export default function App() {
+function AppShell() {
+  const insets = useSafeAreaInsets();
   const {
     activeView,
     currentDetail,
@@ -645,7 +647,9 @@ export default function App() {
       <SoundProvider>
       <AnimatedShell>
         <StatusBar style="light" />
-        <OnboardingScreen onDone={() => setShowOnboarding(false)} />
+        <View style={{ flex: 1, paddingTop: insets.top, paddingBottom: insets.bottom }}>
+          <OnboardingScreen onDone={() => setShowOnboarding(false)} />
+        </View>
       </AnimatedShell>
       </SoundProvider>
       </PreferencesProvider>
@@ -660,7 +664,7 @@ export default function App() {
       <StatusBar style="light" />
       <ParallaxScrollView
         ref={scrollViewRef}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, { paddingTop: 68 + insets.top }]}
         heroContent={heroContent}
         heroContainerStyle={styles.heroContainer}
       >
@@ -712,11 +716,21 @@ export default function App() {
           </View>
         )}
       </ParallaxScrollView>
-      <AdBanner manifest={manifest} />
+      <View style={{ paddingBottom: insets.bottom, backgroundColor: "#0d0d1a" }}>
+        <AdBanner manifest={manifest} />
+      </View>
     </AnimatedShell>
     </InfoModalProvider>
     </SoundProvider>
     </PreferencesProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <AppShell />
+    </SafeAreaProvider>
   );
 }
 

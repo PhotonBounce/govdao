@@ -2,7 +2,7 @@
   "app": {
     "name": "GOVDAO",
     "bundleId": "com.govdao.app",
-    "version": "0.2.0",
+    "version": "1.4.1",
     "environment": "polygon",
     "distribution": {
       "channel": "google-play",
@@ -108,7 +108,7 @@
   "release": {
     "android": {
       "applicationId": "com.govdao.app",
-      "versionCode": 3,
+      "versionCode": 12,
       "track": "internal"
     },
     "listing": {
