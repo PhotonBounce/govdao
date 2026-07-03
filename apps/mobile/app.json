@@ -71,6 +71,9 @@
           "color": "#c98340"
         }
       ]
-    ]
+    ],
+    "experiments": {
+      "baseUrl": "/govdao/app"
+    }
   }
 }

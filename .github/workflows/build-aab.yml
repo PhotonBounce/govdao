@@ -1,0 +1,96 @@
+name: Build signed AAB and publish download
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [claude/bold-shannon-3gx5xo, main]
+    paths:
+      - 'apps/mobile/**'
+      - '.github/workflows/build-aab.yml'
+
+jobs:
+  build:
+    name: Build release AAB (Play upload key)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: claude/bold-shannon-3gx5xo
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            apps/mobile/package-lock.json
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Check signing secrets are available
+        run: |
+          if [ -z "${{ secrets.KEYSTORE_BASE64 }}" ] || [ -z "${{ secrets.KEYSTORE_PASSWORD }}" ]; then
+            echo "::error::KEYSTORE_BASE64 / KEYSTORE_PASSWORD secrets are not set. Add them under Settings > Secrets > Actions."
+            exit 1
+          fi
+
+      - name: Install root deps
+        run: npm ci
+
+      - name: Install mobile deps
+        run: npm --prefix apps/mobile ci
+
+      - name: Expo prebuild (generate Android project)
+        working-directory: apps/mobile
+        run: npx expo prebuild --platform android --clean --no-install
+
+      - name: Build release AAB (JS bundled automatically for release)
+        working-directory: apps/mobile/android
+        run: ./gradlew bundleRelease --no-daemon
+
+      - name: Sign AAB with Play upload key
+        working-directory: apps/mobile
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 --decode > /tmp/govdao-upload.keystore
+          AAB=android/app/build/outputs/bundle/release/app-release.aab
+          # Strip the template's default (debug) signature so only the upload key signs it
+          zip -d "$AAB" "META-INF/*.SF" "META-INF/*.RSA" "META-INF/*.DSA" "META-INF/*.EC" "META-INF/MANIFEST.MF" || true
+          jarsigner -keystore /tmp/govdao-upload.keystore \
+            -storepass "$KEYSTORE_PASSWORD" \
+            -keypass "${KEY_PASSWORD:-$KEYSTORE_PASSWORD}" \
+            -sigalg SHA256withRSA -digestalg SHA-256 \
+            "$AAB" govdao
+          jarsigner -verify "$AAB"
+          rm -f /tmp/govdao-upload.keystore
+
+      - name: Stage AAB for publishing
+        run: |
+          VERSION=$(node -p "require('./apps/mobile/app.json').expo.version")
+          mkdir -p aab-out
+          cp apps/mobile/android/app/build/outputs/bundle/release/app-release.aab "aab-out/GOVDAO-${VERSION}.aab"
+          cp apps/mobile/android/app/build/outputs/bundle/release/app-release.aab aab-out/GOVDAO.aab
+          ls -lh aab-out/
+
+      - name: Upload AAB as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GOVDAO-release-aab
+          path: aab-out/
+          retention-days: 30
+
+      - name: Publish AAB to site
+        if: ${{ vars.FTP_CONFIGURED == 'true' || github.event_name == 'workflow_dispatch' }}
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.photon-bounce.com
+          username: photonb
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: aab-out/
+          server-dir: public_html/govdao/
