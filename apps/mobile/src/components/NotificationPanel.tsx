@@ -62,7 +62,7 @@ export function NotificationPanel({
               <Text style={styles.categoryLabel}>{category.label}</Text>
               <Text style={styles.categoryDescription}>{category.description}</Text>
             </View>
-            <PillToggle on={on} />
+            <PillToggle on={on} variant="light" />
           </AnimatedPressable>
         );
       })}
