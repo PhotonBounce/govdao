@@ -30,6 +30,9 @@ export function PreferencesPanel() {
             sound="tap"
             intensity="subtle"
             style={styles.row}
+            accessibilityRole="switch"
+            accessibilityLabel={meta.label}
+            accessibilityChecked={on}
           >
             <View style={styles.rowText}>
               <Text style={styles.rowLabel}>{meta.label}</Text>

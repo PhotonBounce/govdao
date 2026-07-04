@@ -13,10 +13,12 @@ interface AnimatedPressableProps {
   disabled?: boolean;
   /** Spoken label for screen readers (TalkBack/VoiceOver). */
   accessibilityLabel?: string;
-  /** Override the default "button" role (e.g. "link", "tab"). */
-  accessibilityRole?: "button" | "link" | "tab" | "none";
-  /** Selection state for tabs/toggles — maps to aria-selected on web. */
+  /** Override the default "button" role (e.g. "link", "tab", "switch"). */
+  accessibilityRole?: "button" | "link" | "tab" | "switch" | "none";
+  /** Selection state for tabs — maps to aria-selected on web. */
   accessibilitySelected?: boolean;
+  /** Checked state for switches — maps to aria-checked on web. */
+  accessibilityChecked?: boolean;
 }
 
 /**
@@ -33,6 +35,7 @@ export function AnimatedPressable({
   accessibilityLabel,
   accessibilityRole = "button",
   accessibilitySelected,
+  accessibilityChecked,
 }: AnimatedPressableProps) {
   const scale = useRef(new Animated.Value(1)).current;
   const glow = useRef(new Animated.Value(0)).current;
@@ -56,8 +59,13 @@ export function AnimatedPressable({
       disabled={disabled}
       accessibilityRole={accessibilityRole}
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ disabled, ...(accessibilitySelected !== undefined ? { selected: accessibilitySelected } : {}) }}
+      accessibilityState={{
+        disabled,
+        ...(accessibilitySelected !== undefined ? { selected: accessibilitySelected } : {}),
+        ...(accessibilityChecked !== undefined ? { checked: accessibilityChecked } : {}),
+      }}
       aria-selected={accessibilitySelected}
+      aria-checked={accessibilityChecked}
       onPressIn={() => springTo(config.pressedScale, 1)}
       onPressOut={() => springTo(config.restScale, 0)}
       onPress={() => {
