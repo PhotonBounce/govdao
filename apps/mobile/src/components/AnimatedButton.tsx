@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
 import { AnimatedPressable } from "./AnimatedPressable";
+import { usePreferences } from "../contexts/PreferencesContext";
 import { SoundName } from "../hooks/useSoundEffects";
 import { darkPalette, radii } from "../theme";
 
@@ -23,9 +24,11 @@ export function AnimatedButton({
   pulse = false,
 }: AnimatedButtonProps) {
   const sheen = useRef(new Animated.Value(0)).current;
+  const { prefs } = usePreferences();
+  const showSheen = pulse && !prefs.reduceMotion;
 
   useEffect(() => {
-    if (!pulse) return;
+    if (!showSheen) return;
     const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(sheen, { toValue: 1, duration: 1600, useNativeDriver: true }),
@@ -35,9 +38,11 @@ export function AnimatedButton({
     );
     loop.start();
     return () => loop.stop();
-  }, [pulse, sheen]);
+  }, [showSheen, sheen]);
 
-  const translateX = sheen.interpolate({ inputRange: [0, 1], outputRange: [-180, 220] });
+  // The sweep must fully exit the widest plausible button before the loop's
+  // pause, otherwise the band parks on the button as a static two-tone seam.
+  const translateX = sheen.interpolate({ inputRange: [0, 1], outputRange: [0, 620] });
 
   return (
     <AnimatedPressable
@@ -50,7 +55,7 @@ export function AnimatedButton({
     >
       <View style={styles.inner}>
         <Text style={[styles.label, variant === "primary" ? styles.labelPrimary : styles.labelGhost]}>{label}</Text>
-        {pulse ? (
+        {showSheen ? (
           <Animated.View pointerEvents="none" style={[styles.sheen, { transform: [{ translateX }, { rotate: "18deg" }] }]} />
         ) : null}
       </View>
@@ -92,6 +97,7 @@ const styles = StyleSheet.create({
   sheen: {
     position: "absolute",
     top: -40,
+    left: -120,
     width: 60,
     height: 120,
     backgroundColor: "rgba(255,255,255,0.18)",
