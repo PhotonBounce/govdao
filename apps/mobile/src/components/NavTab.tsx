@@ -50,17 +50,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
     letterSpacing: 0.2
   },
+  // Opaque pill fills — the parallax hero can slide beneath the nav row, so
+  // translucent pills would show text-through-text.
   tabActive: {
-    backgroundColor: darkPalette.activeGlow,
+    backgroundColor: "#2e2214",
     borderColor: darkPalette.glowBronze
   },
   tabIdle: {
-    backgroundColor: "rgba(255,255,255,0.06)",
+    backgroundColor: "#16161f",
     borderColor: darkPalette.mutedLine
   },
+  // Accent (Premium upsell) idle state: gold text but subdued fill/border so it
+  // never reads as the currently-active tab.
   tabAccent: {
-    backgroundColor: "rgba(201,131,64,0.12)",
-    borderColor: darkPalette.glowBronze
+    backgroundColor: "#1b1712",
+    borderColor: "rgba(201,131,64,0.32)"
   },
   label: {
     fontSize: 13,

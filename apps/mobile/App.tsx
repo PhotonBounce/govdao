@@ -787,7 +787,7 @@ const styles = StyleSheet.create({
   },
   navRow: {
     marginBottom: 12,
-    backgroundColor: "rgba(8, 8, 16, 0.92)",
+    backgroundColor: "#0a0a14",
     borderRadius: 16,
   },
   navRowContent: {

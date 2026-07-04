@@ -20,7 +20,7 @@ export function SearchScreen({ onJump }: SearchScreenProps) {
       <SectionCard tone="glass" eyebrow="Quick Jump" title="Search" infoKey="search">
         <TextInput
           style={styles.input}
-          placeholder="Jump to a screen — vote, treasury, calendar…"
+          placeholder="Search screens and actions…"
           placeholderTextColor="rgba(224,219,208,0.4)"
           value={query}
           onChangeText={setQuery}
