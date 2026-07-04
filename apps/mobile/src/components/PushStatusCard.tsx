@@ -22,7 +22,7 @@ export function PushStatusCard({ state, onRegister, onSendTest }: PushStatusCard
     <SectionCard tone="glass" eyebrow="Alerts" title="Push Notifications" infoKey="notification-preferences">
       <View style={styles.statusRow}>
         <ModulePill label={state.status.toUpperCase()} tone={statusTone(state.status)} />
-        <Text style={styles.token}>{shortenToken(state.token)}</Text>
+        {state.token ? <Text style={styles.token}>{shortenToken(state.token)}</Text> : null}
       </View>
       <Text style={styles.detail}>{describePushStatus(state.status)}</Text>
       {state.detail ? <Text style={styles.subDetail}>{state.detail}</Text> : null}
