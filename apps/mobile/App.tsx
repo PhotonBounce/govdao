@@ -225,10 +225,21 @@ function AppShell() {
     scrollViewRef.current?.scrollTo(320);
   }, [activeView]);
 
-  // Opening (or closing) a detail view replaces the scroll content — reset so
-  // the detail header is visible instead of landing at the feed's old offset.
+  // Opening a detail view replaces the scroll content — jump to the detail
+  // header. Closing it restores the reader's previous place in the feed.
+  const savedListOffset = useRef(0);
   useEffect(() => {
-    scrollViewRef.current?.scrollTo(320);
+    if (detailStack.length > 0) {
+      savedListOffset.current = scrollViewRef.current?.getOffset() ?? 0;
+      scrollViewRef.current?.scrollTo(320);
+    } else if (savedListOffset.current > 0) {
+      // Defer until the restored list has re-rendered and has its full height,
+      // otherwise the scroll clamps to 0.
+      const target = savedListOffset.current;
+      savedListOffset.current = 0;
+      const timer = setTimeout(() => scrollViewRef.current?.scrollTo(target), 120);
+      return () => clearTimeout(timer);
+    }
   }, [detailStack.length]);
   const dataMode = getDataModeSummary(dashboardData.source);
   const drillGate = usePlanGate(manifest, "guardian-drill");

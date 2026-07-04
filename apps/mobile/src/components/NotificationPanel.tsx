@@ -1,5 +1,7 @@
-import { Pressable, StyleSheet, Switch, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { AnimatedPressable } from "./AnimatedPressable";
 import { ModulePill } from "./ModulePill";
+import { PillToggle } from "./PillToggle";
 import { SectionCard } from "./SectionCard";
 import {
   DIGEST_FREQUENCIES,
@@ -42,21 +44,28 @@ export function NotificationPanel({
       subtitle="Choose which governance events reach this device. Categories follow the features your deployment enables."
       infoKey="notification-preferences"
     >
-      {categories.map((category) => (
-        <View key={category.id} style={styles.categoryRow}>
-          <View style={styles.categoryText}>
-            <Text style={styles.categoryLabel}>{category.label}</Text>
-            <Text style={styles.categoryDescription}>{category.description}</Text>
-          </View>
-          <Switch
-            value={preferences.enabled[category.id] ?? false}
-            onValueChange={() => onToggleCategory(category.id)}
+      {categories.map((category) => {
+        const on = preferences.enabled[category.id] ?? false;
+        return (
+          <AnimatedPressable
+            key={category.id}
+            onPress={() => onToggleCategory(category.id)}
+            sound="tap"
+            intensity="subtle"
             disabled={isSaving}
-            trackColor={{ false: "rgba(93, 81, 72, 0.25)", true: palette.bronze }}
-            thumbColor={palette.paper}
-          />
-        </View>
-      ))}
+            style={styles.categoryRow}
+            accessibilityRole="switch"
+            accessibilityLabel={category.label}
+            accessibilityChecked={on}
+          >
+            <View style={styles.categoryText}>
+              <Text style={styles.categoryLabel}>{category.label}</Text>
+              <Text style={styles.categoryDescription}>{category.description}</Text>
+            </View>
+            <PillToggle on={on} />
+          </AnimatedPressable>
+        );
+      })}
 
       <Text style={styles.frequencyLabel}>Delivery</Text>
       <View style={styles.frequencyRow}>
