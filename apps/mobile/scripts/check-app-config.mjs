@@ -48,7 +48,20 @@ assert(
   `got '${expo.userInterfaceStyle}'`
 );
 assert("orientation unrestricted for large screens (Android 16)", expo.orientation === "default");
-assert("edge-to-edge enabled for Android 15 (SDK 35)", expo.android.edgeToEdgeEnabled === true);
+assert("edge-to-edge enabled for Android 16 (SDK 36)", expo.android.edgeToEdgeEnabled === true);
+
+const androidBuildProps = plugins.find(p => (Array.isArray(p) ? p[0] : p) === "expo-build-properties");
+const androidBuildConfig = Array.isArray(androidBuildProps) ? (androidBuildProps[1]?.android ?? {}) : {};
+assert(
+  "targetSdkVersion is 36+ (Google Play target API policy — enforced Aug 30, 2026)",
+  Number(androidBuildConfig.targetSdkVersion) >= 36,
+  `got ${androidBuildConfig.targetSdkVersion}`
+);
+assert(
+  "compileSdkVersion is 36+",
+  Number(androidBuildConfig.compileSdkVersion) >= 36,
+  `got ${androidBuildConfig.compileSdkVersion}`
+);
 assert("splash backgroundColor matches dark theme", expo.splash?.backgroundColor?.toLowerCase() === "#0d0d1a");
 
 console.log("\napp.json: assets");
@@ -75,8 +88,8 @@ const billingDep = androidBuildDeps.find(d => d.startsWith("com.android.billingc
 const billingVersion = billingDep ? billingDep.split(":")[2] : null;
 const billingMajor = billingVersion ? parseInt(billingVersion.split(".")[0], 10) : 0;
 assert(
-  "Play Billing Library 7.0.0+ declared (Google Play policy — enforced Aug 2025)",
-  billingMajor >= 7,
+  "Play Billing Library 8.0.0+ declared (Google Play policy — enforced 2026)",
+  billingMajor >= 8,
   billingVersion ? `got ${billingVersion}` : "dependency not found"
 );
 
