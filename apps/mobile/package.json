@@ -66,7 +66,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~5.0.5",
     "ethers": "^6.16.0",
-    "expo": "~53.0.17",
+    "expo": "~57.0.12",
     "expo-asset": "~11.1.7",
     "expo-av": "~15.1.6",
     "expo-device": "~7.1.4",
